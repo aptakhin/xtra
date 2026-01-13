@@ -2,55 +2,67 @@
 
 from __future__ import annotations
 
-from types import SimpleNamespace
+from typing import List, Optional
+
+from pydantic import BaseModel
 
 from xtra.adapters.google_docai import GoogleDocumentAIAdapter
 from xtra.models import ExtractorType
 
 
-def make_vertex(x: float, y: float) -> SimpleNamespace:
-    """Create a vertex object with x, y attributes."""
-    return SimpleNamespace(x=x, y=y)
+# Pydantic models representing Google Document AI response structure
 
 
-def make_document(text: str = "", pages: list | None = None) -> SimpleNamespace:
-    """Create a document object."""
-    return SimpleNamespace(text=text, pages=pages or [])
+class Vertex(BaseModel):
+    x: float
+    y: float
 
 
-def make_page(width: float, height: float, tokens: list | None = None) -> SimpleNamespace:
-    """Create a page object."""
-    return SimpleNamespace(
-        dimension=SimpleNamespace(width=width, height=height),
-        tokens=tokens or [],
-    )
+class BoundingPoly(BaseModel):
+    normalized_vertices: List[Vertex]
 
 
-def make_token(
-    vertices: list,
-    confidence: float,
-    start_index: int,
-    end_index: int,
-) -> SimpleNamespace:
-    """Create a token object."""
-    return SimpleNamespace(
-        layout=SimpleNamespace(
-            bounding_poly=SimpleNamespace(normalized_vertices=vertices),
-            confidence=confidence,
-            text_anchor=SimpleNamespace(
-                text_segments=[SimpleNamespace(start_index=start_index, end_index=end_index)]
-            ),
-        )
-    )
+class TextSegment(BaseModel):
+    start_index: int
+    end_index: int
+
+
+class TextAnchor(BaseModel):
+    text_segments: List[TextSegment]
+
+
+class Layout(BaseModel):
+    bounding_poly: Optional[BoundingPoly] = None
+    confidence: float = 0.0
+    text_anchor: Optional[TextAnchor] = None
+
+
+class Token(BaseModel):
+    layout: Optional[Layout] = None
+
+
+class Dimension(BaseModel):
+    width: float
+    height: float
+
+
+class Page(BaseModel):
+    dimension: Dimension
+    tokens: List[Token] = []
+
+
+class Document(BaseModel):
+    text: str = ""
+    pages: List[Page] = []
 
 
 class TestGoogleDocumentAIAdapter:
     def test_normalized_vertices_to_bbox_and_rotation_horizontal(self) -> None:
         vertices = [
-            make_vertex(0.1, 0.2),
-            make_vertex(0.5, 0.2),
-            make_vertex(0.5, 0.3),
-            make_vertex(0.1, 0.3),
+            Vertex(x=0.1, y=0.2),
+            Vertex(x=0.5, y=0.2),
+            Vertex(x=0.5, y=0.3),
+            Vertex(x=0.1, y=0.3),
         ]
 
         bbox, rotation = GoogleDocumentAIAdapter._vertices_to_bbox_and_rotation(
@@ -64,7 +76,7 @@ class TestGoogleDocumentAIAdapter:
         assert rotation == 0.0
 
     def test_vertices_to_bbox_short_vertices(self) -> None:
-        vertices = [make_vertex(0.1, 0.1)]
+        vertices = [Vertex(x=0.1, y=0.1)]
         bbox, rotation = GoogleDocumentAIAdapter._vertices_to_bbox_and_rotation(
             vertices, page_width=612.0, page_height=792.0
         )
@@ -80,7 +92,12 @@ class TestGoogleDocumentAIAdapter:
         assert adapter.page_count == 0
 
     def test_page_count_with_result(self) -> None:
-        document = make_document(pages=[make_page(612, 792), make_page(612, 792)])
+        document = Document(
+            pages=[
+                Page(dimension=Dimension(width=612, height=792)),
+                Page(dimension=Dimension(width=612, height=792)),
+            ]
+        )
         adapter = GoogleDocumentAIAdapter(document, "test-processor")  # type: ignore[arg-type]
         assert adapter.page_count == 2
 
@@ -101,7 +118,7 @@ class TestGoogleDocumentAIAdapter:
             assert "No analysis result" in str(e)
 
     def test_convert_page_raises_on_out_of_range(self) -> None:
-        document = make_document(pages=[])
+        document = Document(pages=[])
         adapter = GoogleDocumentAIAdapter(document, "test-processor")  # type: ignore[arg-type]
         try:
             adapter.convert_page(0)
@@ -110,60 +127,67 @@ class TestGoogleDocumentAIAdapter:
             assert "out of range" in str(e)
 
     def test_convert_page_to_blocks_empty_tokens(self) -> None:
-        document = make_document(text="")
+        document = Document(text="")
         adapter = GoogleDocumentAIAdapter(document, "test-processor")  # type: ignore[arg-type]
 
-        page = make_page(612, 792, tokens=[])
+        page = Page(dimension=Dimension(width=612, height=792), tokens=[])
         blocks = adapter._convert_page_to_blocks(page)
         assert blocks == []
 
     def test_convert_page_to_blocks_skip_invalid_tokens(self) -> None:
-        document = make_document(text="Hello World")
+        document = Document(text="Hello World")
         adapter = GoogleDocumentAIAdapter(document, "test-processor")  # type: ignore[arg-type]
 
         # Token with no layout
-        token1 = SimpleNamespace(layout=None)
+        token1 = Token(layout=None)
 
         # Token with no bounding_poly
-        token2 = SimpleNamespace(layout=SimpleNamespace(bounding_poly=None))
+        token2 = Token(layout=Layout(bounding_poly=None))
 
         # Valid token
-        token3 = make_token(
-            vertices=[
-                make_vertex(0.0, 0.0),
-                make_vertex(0.1, 0.0),
-                make_vertex(0.1, 0.1),
-                make_vertex(0.0, 0.1),
-            ],
-            confidence=0.9,
-            start_index=6,
-            end_index=11,
+        token3 = Token(
+            layout=Layout(
+                bounding_poly=BoundingPoly(
+                    normalized_vertices=[
+                        Vertex(x=0.0, y=0.0),
+                        Vertex(x=0.1, y=0.0),
+                        Vertex(x=0.1, y=0.1),
+                        Vertex(x=0.0, y=0.1),
+                    ]
+                ),
+                confidence=0.9,
+                text_anchor=TextAnchor(text_segments=[TextSegment(start_index=6, end_index=11)]),
+            )
         )
 
-        page = make_page(612, 792, tokens=[token1, token2, token3])
+        page = Page(dimension=Dimension(width=612, height=792), tokens=[token1, token2, token3])
         blocks = adapter._convert_page_to_blocks(page)
 
         assert len(blocks) == 1
         assert blocks[0].text == "World"
 
     def test_convert_page_success(self) -> None:
-        document = make_document(
+        document = Document(
             text="Hello",
             pages=[
-                make_page(
-                    612,
-                    792,
+                Page(
+                    dimension=Dimension(width=612, height=792),
                     tokens=[
-                        make_token(
-                            vertices=[
-                                make_vertex(0.1, 0.2),
-                                make_vertex(0.5, 0.2),
-                                make_vertex(0.5, 0.3),
-                                make_vertex(0.1, 0.3),
-                            ],
-                            confidence=0.95,
-                            start_index=0,
-                            end_index=5,
+                        Token(
+                            layout=Layout(
+                                bounding_poly=BoundingPoly(
+                                    normalized_vertices=[
+                                        Vertex(x=0.1, y=0.2),
+                                        Vertex(x=0.5, y=0.2),
+                                        Vertex(x=0.5, y=0.3),
+                                        Vertex(x=0.1, y=0.3),
+                                    ]
+                                ),
+                                confidence=0.95,
+                                text_anchor=TextAnchor(
+                                    text_segments=[TextSegment(start_index=0, end_index=5)]
+                                ),
+                            )
                         )
                     ],
                 )
