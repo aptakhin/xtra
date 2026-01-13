@@ -44,8 +44,6 @@ class FontInfo(BaseModel):
     size: Optional[float] = None
     flags: Optional[int] = None
     weight: Optional[int] = None
-    is_italic: Optional[bool] = None
-    is_bold: Optional[bool] = None
 
 
 class TextBlock(BaseModel):

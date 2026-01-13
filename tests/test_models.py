@@ -26,8 +26,6 @@ def test_font_info_defaults() -> None:
     assert font.size is None
     assert font.flags is None
     assert font.weight is None
-    assert font.is_italic is None
-    assert font.is_bold is None
 
 
 def test_font_info_with_values() -> None:
