@@ -16,6 +16,7 @@ from xtra.extractors import PdfExtractor
 from xtra.extractors.azure_di import AzureDocumentIntelligenceExtractor
 from xtra.extractors.google_docai import GoogleDocumentAIExtractor
 from xtra.extractors.ocr import OcrExtractor, PdfToImageOcrExtractor
+from xtra.extractors.tesseract_ocr import PdfToImageTesseractExtractor, TesseractOcrExtractor
 from xtra.models import SourceType
 
 TEST_DATA_DIR = Path(__file__).parent / "data"
@@ -247,3 +248,101 @@ class TestGoogleDocumentAIExtractorIntegration:
         # Check page 2 detected key words
         page2_text = " ".join(t.text for t in doc.pages[1].texts).lower()
         assert "second" in page2_text or "third" in page2_text or "page" in page2_text
+
+
+class TestTesseractOcrExtractorIntegration:
+    """Integration tests for TesseractOcrExtractor using real image files.
+
+    Requires Tesseract to be installed on the system:
+    - macOS: brew install tesseract
+    - Ubuntu: apt-get install tesseract-ocr
+    - Windows: Download from https://github.com/UB-Mannheim/tesseract/wiki
+    """
+
+    @pytest.fixture
+    def tesseract_available(self) -> bool:
+        """Check if Tesseract is installed, skip if not."""
+        import shutil
+
+        if shutil.which("tesseract") is None:
+            pytest.skip("Tesseract not installed (install with: brew install tesseract)")
+        return True
+
+    def test_extract_image_with_tesseract(self, tesseract_available: bool) -> None:
+        """Extract text from an image using Tesseract OCR."""
+        with TesseractOcrExtractor(
+            TEST_DATA_DIR / "test_image.png", languages=["eng"]
+        ) as extractor:
+            doc = extractor.extract()
+
+        assert doc.path == TEST_DATA_DIR / "test_image.png"
+        assert len(doc.pages) == 1
+        assert doc.metadata is not None
+        assert doc.metadata.source_type == SourceType.TESSERACT
+        assert doc.metadata.extra["ocr_engine"] == "tesseract"
+
+        # Verify OCR detected text
+        page = doc.pages[0]
+        assert page.width > 0
+        assert page.height > 0
+        assert len(page.texts) > 0
+
+        # The image contains "Hello Integration Test" - check key words detected
+        all_text = " ".join(t.text for t in page.texts).lower()
+        detected_keywords = sum(1 for kw in ["hello", "integration", "test"] if kw in all_text)
+        assert detected_keywords >= 2, f"Expected at least 2 keywords, got: {all_text}"
+
+        # Verify confidence scores are present
+        for text in page.texts:
+            assert text.confidence is not None
+            assert 0.0 <= text.confidence <= 1.0
+
+
+class TestPdfToImageTesseractExtractorIntegration:
+    """Integration tests for PdfToImageTesseractExtractor using real PDF files.
+
+    Requires Tesseract to be installed on the system.
+    """
+
+    @pytest.fixture
+    def tesseract_available(self) -> bool:
+        """Check if Tesseract is installed, skip if not."""
+        import shutil
+
+        if shutil.which("tesseract") is None:
+            pytest.skip("Tesseract not installed (install with: brew install tesseract)")
+        return True
+
+    def test_extract_pdf_via_tesseract(self, tesseract_available: bool) -> None:
+        """Extract text from a PDF by converting to images and running Tesseract OCR."""
+        with PdfToImageTesseractExtractor(
+            TEST_DATA_DIR / "test_pdf_2p_text.pdf", languages=["eng"], dpi=150
+        ) as extractor:
+            doc = extractor.extract()
+
+        assert doc.path == TEST_DATA_DIR / "test_pdf_2p_text.pdf"
+        assert len(doc.pages) == 2
+        assert doc.metadata is not None
+        assert doc.metadata.source_type == SourceType.PDF_TESSERACT
+        assert doc.metadata.extra["ocr_engine"] == "tesseract"
+        assert doc.metadata.extra["dpi"] == 150
+
+        # Verify pages have content
+        for page in doc.pages:
+            assert page.width > 0
+            assert page.height > 0
+            assert len(page.texts) > 0
+
+        # Check page 1 detected key words from "First page. First/Second/Fourth text"
+        page1_text = " ".join(t.text for t in doc.pages[0].texts).lower()
+        assert "first" in page1_text or "page" in page1_text or "text" in page1_text
+
+        # Check page 2 detected key words from "Second page. Third text"
+        page2_text = " ".join(t.text for t in doc.pages[1].texts).lower()
+        assert "second" in page2_text or "third" in page2_text or "page" in page2_text
+
+        # Verify confidence scores
+        for page in doc.pages:
+            for text in page.texts:
+                assert text.confidence is not None
+                assert 0.0 <= text.confidence <= 1.0

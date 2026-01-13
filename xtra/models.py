@@ -18,6 +18,8 @@ class SourceType(StrEnum):
     PDF = "pdf"
     OCR = "ocr"
     PDF_OCR = "pdf-ocr"
+    TESSERACT = "tesseract"
+    PDF_TESSERACT = "pdf-tesseract"
     AZURE_DI = "azure-di"
     GOOGLE_DOCAI = "google-docai"
 

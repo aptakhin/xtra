@@ -4,7 +4,7 @@ A Python library for document text extraction with local and cloud OCR solutions
 
 ## Features
 
-- **Multiple OCR Backends**: Local (EasyOCR) and cloud (Azure Document Intelligence, Google Document AI) OCR support
+- **Multiple OCR Backends**: Local (EasyOCR, Tesseract) and cloud (Azure Document Intelligence, Google Document AI) OCR support
 - **PDF Text Extraction**: Native PDF text extraction using pypdfium2
 - **Schema Adapters**: Clean separation of external API schemas from internal models
 - **Pydantic Models**: Type-safe document representation with pydantic v1/v2 compatibility
@@ -42,6 +42,26 @@ with OcrExtractor(Path("image.png"), languages=["en"]) as extractor:
 
 # For PDFs via OCR
 with PdfToImageOcrExtractor(Path("scanned.pdf"), languages=["en"], dpi=200) as extractor:
+    doc = extractor.extract()
+```
+
+### OCR Extraction (Local - Tesseract)
+
+Requires Tesseract to be installed on the system:
+- macOS: `brew install tesseract`
+- Ubuntu: `apt-get install tesseract-ocr`
+- Windows: Download from https://github.com/UB-Mannheim/tesseract/wiki
+
+```python
+from pathlib import Path
+from xtra.extractors.tesseract_ocr import TesseractOcrExtractor, PdfToImageTesseractExtractor
+
+# For images
+with TesseractOcrExtractor(Path("image.png"), languages=["eng"]) as extractor:
+    doc = extractor.extract()
+
+# For PDFs via OCR
+with PdfToImageTesseractExtractor(Path("scanned.pdf"), languages=["eng"], dpi=200) as extractor:
     doc = extractor.extract()
 ```
 
@@ -132,7 +152,9 @@ Integration tests run against real files and services without mocking. They are 
 **Local extractors** (no credentials required):
 - `PdfExtractor` - Tests PDF text extraction
 - `OcrExtractor` - Tests image OCR with EasyOCR
-- `PdfToImageOcrExtractor` - Tests PDF-to-image OCR
+- `PdfToImageOcrExtractor` - Tests PDF-to-image OCR with EasyOCR
+- `TesseractOcrExtractor` - Tests image OCR with Tesseract (requires Tesseract installed)
+- `PdfToImageTesseractExtractor` - Tests PDF-to-image OCR with Tesseract
 
 **Cloud extractors** (require credentials):
 - `AzureDocumentIntelligenceExtractor` - Tests Azure Document Intelligence
@@ -203,6 +225,7 @@ xtra/
 │   ├── azure_di.py     # Azure Document Intelligence
 │   ├── google_docai.py # Google Document AI
 │   ├── ocr.py          # EasyOCR (local)
+│   ├── tesseract_ocr.py # Tesseract OCR (local)
 │   └── pdf.py          # Native PDF extraction
 └── models.py           # Internal data models
 ```
@@ -212,7 +235,9 @@ xtra/
 Low-level document extraction:
 - `PdfExtractor` - Native PDF text extraction via pypdfium2
 - `OcrExtractor` - Image OCR via EasyOCR
-- `PdfToImageOcrExtractor` - PDF to image + OCR
+- `PdfToImageOcrExtractor` - PDF to image + EasyOCR
+- `TesseractOcrExtractor` - Image OCR via Tesseract
+- `PdfToImageTesseractExtractor` - PDF to image + Tesseract OCR
 - `AzureDocumentIntelligenceExtractor` - Azure cloud OCR
 - `GoogleDocumentAIExtractor` - Google Cloud Document AI
 
