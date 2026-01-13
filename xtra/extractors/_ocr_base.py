@@ -9,9 +9,9 @@ from typing import List
 
 from PIL import Image, UnidentifiedImageError
 
-from ..models import CoordinateUnit, Page, TextBlock
-from ._image_loader import is_pdf, load_images_from_path
-from .base import BaseExtractor, ExtractionResult
+from xtra.models import CoordinateUnit, Page, TextBlock
+from xtra.extractors._image_loader import is_pdf, load_images_from_path
+from xtra.extractors.base import BaseExtractor, ExtractionResult
 
 logger = logging.getLogger(__name__)
 

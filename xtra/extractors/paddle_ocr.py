@@ -9,14 +9,14 @@ import numpy as np
 from paddleocr import PaddleOCR
 from PIL import Image
 
-from ..models import (
+from xtra.models import (
     CoordinateUnit,
     DocumentMetadata,
     ExtractorType,
     TextBlock,
 )
-from ..utils.geometry import polygon_to_bbox_and_rotation
-from ._ocr_base import ImageBasedExtractor
+from xtra.utils.geometry import polygon_to_bbox_and_rotation
+from xtra.extractors._ocr_base import ImageBasedExtractor
 
 
 class PaddleOcrExtractor(ImageBasedExtractor):

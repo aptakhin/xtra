@@ -10,9 +10,9 @@ from azure.ai.documentintelligence import DocumentIntelligenceClient
 from azure.ai.documentintelligence.models import AnalyzeResult
 from azure.core.credentials import AzureKeyCredential
 
-from ..adapters.azure_di import AzureDocumentIntelligenceAdapter
-from ..models import CoordinateUnit, DocumentMetadata, Page
-from .base import BaseExtractor, ExtractionResult
+from xtra.adapters.azure_di import AzureDocumentIntelligenceAdapter
+from xtra.models import CoordinateUnit, DocumentMetadata, Page
+from xtra.extractors.base import BaseExtractor, ExtractionResult
 
 logger = logging.getLogger(__name__)
 

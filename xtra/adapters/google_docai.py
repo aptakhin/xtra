@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, List, Optional, Tuple
 
-from ..models import BBox, DocumentMetadata, Page, ExtractorType, TextBlock
-from ..utils.geometry import polygon_to_bbox_and_rotation
+from xtra.models import BBox, DocumentMetadata, Page, ExtractorType, TextBlock
+from xtra.utils.geometry import polygon_to_bbox_and_rotation
 
 if TYPE_CHECKING:
     from google.cloud.documentai_v1 import Document

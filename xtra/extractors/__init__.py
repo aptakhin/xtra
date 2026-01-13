@@ -1,11 +1,11 @@
-from .azure_di import AzureDocumentIntelligenceExtractor
-from .base import BaseExtractor, ExtractionResult
-from .factory import create_extractor
-from .google_docai import GoogleDocumentAIExtractor
-from .easy_ocr import EasyOcrExtractor
-from .paddle_ocr import PaddleOcrExtractor
-from .pdf import PdfExtractor
-from .tesseract_ocr import TesseractOcrExtractor
+from xtra.extractors.azure_di import AzureDocumentIntelligenceExtractor
+from xtra.extractors.base import BaseExtractor, ExtractionResult
+from xtra.extractors.factory import create_extractor
+from xtra.extractors.google_docai import GoogleDocumentAIExtractor
+from xtra.extractors.easy_ocr import EasyOcrExtractor
+from xtra.extractors.paddle_ocr import PaddleOcrExtractor
+from xtra.extractors.pdf import PdfExtractor
+from xtra.extractors.tesseract_ocr import TesseractOcrExtractor
 
 # Backward compatibility alias (deprecated)
 OcrExtractor = EasyOcrExtractor

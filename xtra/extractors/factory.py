@@ -6,8 +6,8 @@ import os
 from pathlib import Path
 from typing import Dict, List, Optional
 
-from ..models import CoordinateUnit, ExtractorType
-from .base import BaseExtractor
+from xtra.models import CoordinateUnit, ExtractorType
+from xtra.extractors.base import BaseExtractor
 
 
 def _get_credential(key: str, credentials: Optional[Dict[str, str]]) -> Optional[str]:

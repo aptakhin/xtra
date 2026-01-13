@@ -8,8 +8,8 @@ import sys
 from pathlib import Path
 from typing import Any, Dict, Optional, Sequence
 
-from .extractors.factory import create_extractor
-from .models import CoordinateUnit, ExtractorType
+from xtra.extractors.factory import create_extractor
+from xtra.models import CoordinateUnit, ExtractorType
 
 
 def _build_credentials(args: argparse.Namespace) -> Optional[Dict[str, str]]:

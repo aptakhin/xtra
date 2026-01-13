@@ -6,7 +6,7 @@ from typing import List, Optional
 
 import pypdfium2 as pdfium
 
-from ..models import (
+from xtra.models import (
     BBox,
     CoordinateUnit,
     DocumentMetadata,
@@ -16,7 +16,7 @@ from ..models import (
     ExtractorType,
     TextBlock,
 )
-from .base import BaseExtractor, ExtractionResult
+from xtra.extractors.base import BaseExtractor, ExtractionResult
 
 logger = logging.getLogger(__name__)
 

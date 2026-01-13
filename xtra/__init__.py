@@ -1,5 +1,5 @@
-from .adapters import AzureDocumentIntelligenceAdapter
-from .extractors import (
+from xtra.adapters import AzureDocumentIntelligenceAdapter
+from xtra.extractors import (
     AzureDocumentIntelligenceExtractor,
     BaseExtractor,
     EasyOcrExtractor,
@@ -11,7 +11,7 @@ from .extractors import (
     TesseractOcrExtractor,
     create_extractor,
 )
-from .models import (
+from xtra.models import (
     BBox,
     CoordinateUnit,
     Document,

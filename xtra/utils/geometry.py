@@ -5,7 +5,7 @@ from __future__ import annotations
 import math
 from typing import Any, List, Sequence, Tuple
 
-from ..models import BBox
+from xtra.models import BBox
 
 # Type alias for points in different formats
 Point = Tuple[float, float]

@@ -5,8 +5,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import List, Optional, Sequence
 
-from ..coordinates import CoordinateConverter
-from ..models import CoordinateUnit, Document, DocumentMetadata, Page
+from xtra.coordinates import CoordinateConverter
+from xtra.models import CoordinateUnit, Document, DocumentMetadata, Page
 
 
 @dataclass

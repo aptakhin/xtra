@@ -9,9 +9,9 @@ from typing import TYPE_CHECKING, Optional
 from google.cloud import documentai
 from google.oauth2 import service_account
 
-from ..adapters.google_docai import GoogleDocumentAIAdapter
-from ..models import CoordinateUnit, DocumentMetadata, Page
-from .base import BaseExtractor, ExtractionResult
+from xtra.adapters.google_docai import GoogleDocumentAIAdapter
+from xtra.models import CoordinateUnit, DocumentMetadata, Page
+from xtra.extractors.base import BaseExtractor, ExtractionResult
 
 if TYPE_CHECKING:
     from google.cloud.documentai_v1 import Document

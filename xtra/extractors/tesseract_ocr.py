@@ -8,14 +8,14 @@ from typing import List, Optional
 import pytesseract
 from PIL import Image
 
-from ..models import (
+from xtra.models import (
     BBox,
     CoordinateUnit,
     DocumentMetadata,
     ExtractorType,
     TextBlock,
 )
-from ._ocr_base import ImageBasedExtractor
+from xtra.extractors._ocr_base import ImageBasedExtractor
 
 # ISO 639-1 (2-letter) to Tesseract (3-letter) language code mapping
 # Users provide 2-letter codes, we convert internally for Tesseract

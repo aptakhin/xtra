@@ -51,6 +51,20 @@ You're a development partner, not just a code executor. Your expertise matters!
 4. Complete features with commits
 5. Document architectural decisions
 
+## Python Import Style
+
+**Use absolute imports** starting with `xtra.` for all internal imports:
+
+```python
+# Good - absolute imports
+from xtra.models import BBox, TextBlock
+from xtra.extractors.base import BaseExtractor
+
+# Bad - relative imports
+from ..models import BBox
+from .base import BaseExtractor
+```
+
 ## Best Practices
 
 1. **Test Pyramid:** More unit tests, fewer integration tests
