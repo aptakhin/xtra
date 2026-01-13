@@ -7,6 +7,9 @@ echo "Running ruff format and check..."
 poetry run ruff format
 poetry run ruff check --fix
 
+# Re-add any files modified by formatting
+git add -u
+
 # Run type check
 echo "Running ty type check..."
 poetry run ty check

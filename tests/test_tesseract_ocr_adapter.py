@@ -1,7 +1,6 @@
 """Unit tests for Tesseract OCR adapter and Pydantic models."""
 
 import pytest
-from pydantic import ValidationError
 
 from xtra.adapters.tesseract_ocr import (
     TesseractAdapter,
