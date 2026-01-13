@@ -2,20 +2,24 @@
 
 from __future__ import annotations
 
+import logging
 from pathlib import Path
 from typing import List, Optional
 
 import pytesseract
-from PIL import Image
 
+from xtra.extractors._image_loader import ImageLoader
+from xtra.extractors.base import BaseExtractor, ExtractionResult
 from xtra.models import (
     BBox,
     CoordinateUnit,
     DocumentMetadata,
     ExtractorType,
+    Page,
     TextBlock,
 )
-from xtra.extractors._ocr_base import ImageBasedExtractor
+
+logger = logging.getLogger(__name__)
 
 # ISO 639-1 (2-letter) to Tesseract (3-letter) language code mapping
 # Users provide 2-letter codes, we convert internally for Tesseract
@@ -66,10 +70,10 @@ def _convert_lang_code(code: str) -> str:
     return LANG_CODE_MAP.get(code, code)
 
 
-class TesseractOcrExtractor(ImageBasedExtractor):
+class TesseractOcrExtractor(BaseExtractor):
     """Extract text from images or PDFs using Tesseract OCR.
 
-    Automatically detects file type and handles PDF-to-image conversion internally.
+    Composes ImageLoader for image handling and Tesseract for OCR processing.
     """
 
     def __init__(
@@ -88,26 +92,55 @@ class TesseractOcrExtractor(ImageBasedExtractor):
             dpi: DPI for PDF-to-image conversion. Default 200.
             output_unit: Coordinate unit for output. Default POINTS.
         """
+        super().__init__(path, output_unit)
         input_languages = languages or ["en"]
         # Store original 2-letter codes for metadata
         self.languages = input_languages
         # Convert to Tesseract format for internal use
         self._tesseract_languages = [_convert_lang_code(lang) for lang in input_languages]
-        super().__init__(path, dpi, output_unit)
+        self.dpi = dpi
 
-    def _do_ocr(self, img: Image.Image) -> List[TextBlock]:
-        """Perform OCR using Tesseract."""
-        # Build language string for Tesseract (e.g., "eng+fra+deu")
-        lang_str = "+".join(self._tesseract_languages)
+        # Compose components
+        self._images = ImageLoader(path, dpi)
 
-        # Get detailed OCR data with bounding boxes
-        data = pytesseract.image_to_data(img, lang=lang_str, output_type=pytesseract.Output.DICT)
+    def get_page_count(self) -> int:
+        """Return number of pages/images loaded."""
+        return self._images.page_count
 
-        return self._convert_results(data)
+    def extract_page(self, page: int) -> ExtractionResult:
+        """Extract text from a single image/page."""
+        try:
+            img = self._images.get_page(page)
+            width, height = img.size
+
+            # Run OCR pipeline
+            lang_str = "+".join(self._tesseract_languages)
+            data = pytesseract.image_to_data(img, lang=lang_str, output_type=pytesseract.Output.DICT)
+            text_blocks = self._convert_results(data)
+
+            result_page = Page(
+                page=page,
+                width=float(width),
+                height=float(height),
+                texts=text_blocks,
+            )
+
+            # Convert from native PIXELS to output_unit
+            result_page = self._convert_page(result_page, CoordinateUnit.PIXELS, self.dpi)
+            return ExtractionResult(page=result_page, success=True)
+
+        except Exception as e:
+            logger.warning("Failed to extract page %d: %s", page, e)
+            return ExtractionResult(
+                page=Page(page=page, width=0, height=0, texts=[]),
+                success=False,
+                error=str(e),
+            )
 
     def get_metadata(self) -> DocumentMetadata:
+        """Return extractor metadata."""
         extra = {"ocr_engine": "tesseract", "languages": self.languages}
-        if self._is_pdf:
+        if self._images.is_pdf:
             extra["dpi"] = self.dpi
         return DocumentMetadata(
             source_type=ExtractorType.TESSERACT,
@@ -152,3 +185,7 @@ class TesseractOcrExtractor(ImageBasedExtractor):
             )
 
         return blocks
+
+    def close(self) -> None:
+        """Release resources."""
+        self._images.close()

@@ -247,7 +247,7 @@ class TestTesseractOcrExtractor:
 
             extractor = TesseractOcrExtractor(Path("/fake/image.png"), dpi=300)
             assert extractor.dpi == 300
-            assert not extractor._is_pdf
+            assert not extractor._images.is_pdf
 
 
 class TestTesseractOcrExtractorWithPdf:

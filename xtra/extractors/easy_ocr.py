@@ -2,21 +2,25 @@
 
 from __future__ import annotations
 
+import logging
 from pathlib import Path
 from typing import List, Optional, Tuple
 
 import easyocr
 import numpy as np
-from PIL import Image
 
+from xtra.extractors._image_loader import ImageLoader
+from xtra.extractors.base import BaseExtractor, ExtractionResult
 from xtra.models import (
     CoordinateUnit,
     DocumentMetadata,
     ExtractorType,
+    Page,
     TextBlock,
 )
 from xtra.utils.geometry import polygon_to_bbox_and_rotation
-from xtra.extractors._ocr_base import ImageBasedExtractor
+
+logger = logging.getLogger(__name__)
 
 _reader_cache: dict[tuple, easyocr.Reader] = {}
 
@@ -29,10 +33,10 @@ def get_reader(languages: List[str], gpu: bool = False) -> easyocr.Reader:
     return _reader_cache[key]
 
 
-class EasyOcrExtractor(ImageBasedExtractor):
+class EasyOcrExtractor(BaseExtractor):
     """Extract text from images or PDFs using EasyOCR.
 
-    Automatically detects file type and handles PDF-to-image conversion internally.
+    Composes ImageLoader for image handling and EasyOCR for OCR processing.
     """
 
     def __init__(
@@ -43,19 +47,61 @@ class EasyOcrExtractor(ImageBasedExtractor):
         dpi: int = 200,
         output_unit: CoordinateUnit = CoordinateUnit.POINTS,
     ) -> None:
+        """Initialize EasyOCR extractor.
+
+        Args:
+            path: Path to the image or PDF file.
+            languages: List of language codes for OCR. Defaults to ["en"].
+            gpu: Whether to use GPU acceleration.
+            dpi: DPI for PDF-to-image conversion. Default 200.
+            output_unit: Coordinate unit for output. Default POINTS.
+        """
+        super().__init__(path, output_unit)
         self.languages = languages or ["en"]
         self.gpu = gpu
-        super().__init__(path, dpi, output_unit)
+        self.dpi = dpi
 
-    def _do_ocr(self, img: Image.Image) -> List[TextBlock]:
-        """Perform OCR using EasyOCR."""
-        reader = get_reader(self.languages, self.gpu)
-        results = reader.readtext(np.array(img))
-        return self._convert_results(results)
+        # Compose components
+        self._images = ImageLoader(path, dpi)
+
+    def get_page_count(self) -> int:
+        """Return number of pages/images loaded."""
+        return self._images.page_count
+
+    def extract_page(self, page: int) -> ExtractionResult:
+        """Extract text from a single image/page."""
+        try:
+            img = self._images.get_page(page)
+            width, height = img.size
+
+            # Run OCR pipeline
+            reader = get_reader(self.languages, self.gpu)
+            results = reader.readtext(np.array(img))
+            text_blocks = self._convert_results(results)
+
+            result_page = Page(
+                page=page,
+                width=float(width),
+                height=float(height),
+                texts=text_blocks,
+            )
+
+            # Convert from native PIXELS to output_unit
+            result_page = self._convert_page(result_page, CoordinateUnit.PIXELS, self.dpi)
+            return ExtractionResult(page=result_page, success=True)
+
+        except Exception as e:
+            logger.warning("Failed to extract page %d: %s", page, e)
+            return ExtractionResult(
+                page=Page(page=page, width=0, height=0, texts=[]),
+                success=False,
+                error=str(e),
+            )
 
     def get_metadata(self) -> DocumentMetadata:
+        """Return extractor metadata."""
         extra = {"ocr_engine": "easyocr", "languages": self.languages}
-        if self._is_pdf:
+        if self._images.is_pdf:
             extra["dpi"] = self.dpi
         return DocumentMetadata(
             source_type=ExtractorType.EASYOCR,
@@ -63,6 +109,7 @@ class EasyOcrExtractor(ImageBasedExtractor):
         )
 
     def _convert_results(self, results: List[Tuple]) -> List[TextBlock]:
+        """Convert EasyOCR output to TextBlocks."""
         blocks = []
         for result in results:
             polygon, text, confidence = result
@@ -76,3 +123,7 @@ class EasyOcrExtractor(ImageBasedExtractor):
                 )
             )
         return blocks
+
+    def close(self) -> None:
+        """Release resources."""
+        self._images.close()

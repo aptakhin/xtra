@@ -73,7 +73,7 @@ class TestEasyOcrExtractor:
 
             extractor = EasyOcrExtractor(Path("/tmp/test.png"), dpi=300)
             assert extractor.dpi == 300
-            assert not extractor._is_pdf
+            assert not extractor._images.is_pdf
 
     def test_get_page_count(self) -> None:
         with patch("xtra.extractors._image_loader.Image.open") as mock_open:
@@ -160,7 +160,7 @@ class TestEasyOcrExtractorWithPdf:
         assert extractor.languages == ["en"]
         assert extractor.gpu is False
         assert extractor.dpi == 200
-        assert extractor._is_pdf is True
+        assert extractor._images.is_pdf is True
         assert extractor.get_page_count() == 2
 
     def test_init_with_pdf_custom_dpi(self) -> None:
@@ -168,7 +168,7 @@ class TestEasyOcrExtractorWithPdf:
             TEST_DATA_DIR / "test_pdf_2p_text.pdf", languages=["en", "it"], dpi=300
         )
         assert extractor.dpi == 300
-        assert extractor._is_pdf is True
+        assert extractor._images.is_pdf is True
 
     def test_get_metadata_with_pdf(self) -> None:
         extractor = EasyOcrExtractor(

@@ -55,7 +55,7 @@ class TestCreateExtractorEasyOcr:
     """Tests for EasyOCR extractor creation."""
 
     def test_creates_easyocr_extractor(self) -> None:
-        with patch("xtra.extractors.easy_ocr.Image.open") as mock_open:
+        with patch("xtra.extractors._image_loader.Image.open") as mock_open:
             mock_img = MagicMock()
             mock_img.size = (100, 100)
             mock_open.return_value = mock_img
@@ -67,7 +67,7 @@ class TestCreateExtractorEasyOcr:
             assert extractor.gpu is False  # type: ignore[attr-defined]
 
     def test_creates_easyocr_with_gpu(self) -> None:
-        with patch("xtra.extractors.easy_ocr.Image.open") as mock_open:
+        with patch("xtra.extractors._image_loader.Image.open") as mock_open:
             mock_img = MagicMock()
             mock_img.size = (100, 100)
             mock_open.return_value = mock_img
@@ -94,7 +94,7 @@ class TestCreateExtractorTesseract:
 
     def test_creates_tesseract_extractor(self) -> None:
         with (
-            patch("xtra.extractors.tesseract_ocr.Image.open") as mock_open,
+            patch("xtra.extractors._image_loader.Image.open") as mock_open,
             patch("xtra.extractors.tesseract_ocr.pytesseract"),
         ):
             mock_img = MagicMock()
@@ -269,7 +269,7 @@ class TestCreateExtractorDefaults:
     """Tests for default parameter handling."""
 
     def test_default_languages(self) -> None:
-        with patch("xtra.extractors.easy_ocr.Image.open") as mock_open:
+        with patch("xtra.extractors._image_loader.Image.open") as mock_open:
             mock_img = MagicMock()
             mock_img.size = (100, 100)
             mock_open.return_value = mock_img
