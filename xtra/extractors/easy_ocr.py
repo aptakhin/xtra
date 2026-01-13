@@ -4,11 +4,12 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
-from typing import List, Optional, Tuple
+from typing import List, Optional
 
 import easyocr
 import numpy as np
 
+from xtra.adapters.easy_ocr import EasyOCRAdapter
 from xtra.extractors._image_loader import ImageLoader
 from xtra.extractors.base import BaseExtractor, ExtractionResult
 from xtra.models import (
@@ -16,9 +17,7 @@ from xtra.models import (
     DocumentMetadata,
     ExtractorType,
     Page,
-    TextBlock,
 )
-from xtra.utils.geometry import polygon_to_bbox_and_rotation
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +35,8 @@ def get_reader(languages: List[str], gpu: bool = False) -> easyocr.Reader:
 class EasyOcrExtractor(BaseExtractor):
     """Extract text from images or PDFs using EasyOCR.
 
-    Composes ImageLoader for image handling and EasyOCR for OCR processing.
+    Composes ImageLoader for image handling, EasyOCR for OCR processing,
+    and EasyOCRAdapter for result conversion.
     """
 
     def __init__(
@@ -63,6 +63,7 @@ class EasyOcrExtractor(BaseExtractor):
 
         # Compose components
         self._images = ImageLoader(path, dpi)
+        self._adapter = EasyOCRAdapter()
 
     def get_page_count(self) -> int:
         """Return number of pages/images loaded."""
@@ -77,7 +78,7 @@ class EasyOcrExtractor(BaseExtractor):
             # Run OCR pipeline
             reader = get_reader(self.languages, self.gpu)
             results = reader.readtext(np.array(img))
-            text_blocks = self._convert_results(results)
+            text_blocks = self._adapter.convert_result(results)
 
             result_page = Page(
                 page=page,
@@ -107,22 +108,6 @@ class EasyOcrExtractor(BaseExtractor):
             source_type=ExtractorType.EASYOCR,
             extra=extra,
         )
-
-    def _convert_results(self, results: List[Tuple]) -> List[TextBlock]:
-        """Convert EasyOCR output to TextBlocks."""
-        blocks = []
-        for result in results:
-            polygon, text, confidence = result
-            bbox, rotation = polygon_to_bbox_and_rotation(polygon)
-            blocks.append(
-                TextBlock(
-                    text=text,
-                    bbox=bbox,
-                    rotation=rotation,
-                    confidence=float(confidence),
-                )
-            )
-        return blocks
 
     def close(self) -> None:
         """Release resources."""

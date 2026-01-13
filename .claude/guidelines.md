@@ -75,3 +75,12 @@ from .base import BaseExtractor
 6. **Continuous Testing:** Run tests on every commit
 7. **Coverage Goals:** Aim for >80% code coverage on critical paths
 8. **Regression Tests:** Add test for every bug fix
+
+## Testing: Avoid Mocks
+
+**Avoid using mocks as stubs.** Heavy mocking often indicates a design problem.
+
+- Test adapters/converters directly with real data structures
+- Use real files for extractor tests (integration tests)
+- If mocks seem necessary, discuss first - we may need to refactor the design
+- Prefer testing pure functions and data transformations without mocking
