@@ -78,6 +78,15 @@ select = [
 # Flag errors (`C901`) whenever the complexity level exceeds max-complexity.
 max-complexity = 10
 
+[tool.pytest.ini_options]
+markers = [
+    "tesseract: tests requiring Tesseract OCR",
+    "paddle: tests requiring PaddleOCR",
+    "easyocr: tests requiring EasyOCR",
+    "azure: tests requiring Azure credentials",
+    "google: tests requiring Google credentials",
+]
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"

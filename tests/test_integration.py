@@ -1,7 +1,12 @@
 """Integration tests for all extractors.
 
 These tests use real files and services (no mocking).
-Azure tests require credentials in environment variables - see .env.example.
+Azure/Google tests require credentials in environment variables - see .env.example.
+
+Use pytest markers to selectively run tests:
+- pytest -m "not paddle" - exclude PaddleOCR tests
+- pytest -m "not (tesseract or paddle)" - exclude Tesseract and PaddleOCR tests
+- pytest -m "azure" - run only Azure tests
 """
 
 import os
@@ -61,6 +66,7 @@ class TestPdfExtractorIntegration:
                 assert text.bbox.y0 < text.bbox.y1
 
 
+@pytest.mark.easyocr
 class TestOcrExtractorIntegration:
     """Integration tests for OcrExtractor using real image files."""
 
@@ -92,6 +98,7 @@ class TestOcrExtractorIntegration:
             assert 0.0 <= text.confidence <= 1.0
 
 
+@pytest.mark.easyocr
 class TestPdfToImageOcrExtractorIntegration:
     """Integration tests for PdfToImageOcrExtractor using real PDF files."""
 
@@ -130,6 +137,7 @@ class TestPdfToImageOcrExtractorIntegration:
                 assert 0.0 <= text.confidence <= 1.0
 
 
+@pytest.mark.azure
 class TestAzureDocumentIntelligenceExtractorIntegration:
     """Integration tests for Azure Document Intelligence extractor.
 
@@ -189,6 +197,7 @@ class TestAzureDocumentIntelligenceExtractorIntegration:
         assert "second" in page2_text or "third" in page2_text or "page" in page2_text
 
 
+@pytest.mark.google
 class TestGoogleDocumentAIExtractorIntegration:
     """Integration tests for Google Document AI extractor.
 
@@ -251,6 +260,7 @@ class TestGoogleDocumentAIExtractorIntegration:
         assert "second" in page2_text or "third" in page2_text or "page" in page2_text
 
 
+@pytest.mark.tesseract
 class TestTesseractOcrExtractorIntegration:
     """Integration tests for TesseractOcrExtractor using real image files.
 
@@ -260,16 +270,7 @@ class TestTesseractOcrExtractorIntegration:
     - Windows: Download from https://github.com/UB-Mannheim/tesseract/wiki
     """
 
-    @pytest.fixture
-    def tesseract_available(self) -> bool:
-        """Check if Tesseract is installed, skip if not."""
-        import shutil
-
-        if shutil.which("tesseract") is None:
-            pytest.skip("Tesseract not installed (install with: brew install tesseract)")
-        return True
-
-    def test_extract_image_with_tesseract(self, tesseract_available: bool) -> None:
+    def test_extract_image_with_tesseract(self) -> None:
         """Extract text from an image using Tesseract OCR."""
         with TesseractOcrExtractor(
             TEST_DATA_DIR / "test_image.png", languages=["eng"]
@@ -299,22 +300,14 @@ class TestTesseractOcrExtractorIntegration:
             assert 0.0 <= text.confidence <= 1.0
 
 
+@pytest.mark.tesseract
 class TestPdfToImageTesseractExtractorIntegration:
     """Integration tests for PdfToImageTesseractExtractor using real PDF files.
 
     Requires Tesseract to be installed on the system.
     """
 
-    @pytest.fixture
-    def tesseract_available(self) -> bool:
-        """Check if Tesseract is installed, skip if not."""
-        import shutil
-
-        if shutil.which("tesseract") is None:
-            pytest.skip("Tesseract not installed (install with: brew install tesseract)")
-        return True
-
-    def test_extract_pdf_via_tesseract(self, tesseract_available: bool) -> None:
+    def test_extract_pdf_via_tesseract(self) -> None:
         """Extract text from a PDF by converting to images and running Tesseract OCR."""
         with PdfToImageTesseractExtractor(
             TEST_DATA_DIR / "test_pdf_2p_text.pdf", languages=["eng"], dpi=150
@@ -349,24 +342,14 @@ class TestPdfToImageTesseractExtractorIntegration:
                 assert 0.0 <= text.confidence <= 1.0
 
 
+@pytest.mark.paddle
 class TestPaddleOcrExtractorIntegration:
     """Integration tests for PaddleOcrExtractor using real image files.
 
     Requires PaddleOCR and PaddlePaddle to be installed.
     """
 
-    @pytest.fixture
-    def paddle_available(self) -> bool:
-        """Check if PaddleOCR is available, skip if not."""
-        try:
-            from paddleocr import PaddleOCR  # noqa: F401
-
-            return True
-        except ImportError:
-            pytest.skip("PaddleOCR not installed (install with: pip install paddleocr)")
-            return False
-
-    def test_extract_image_with_paddle(self, paddle_available: bool) -> None:
+    def test_extract_image_with_paddle(self) -> None:
         """Extract text from an image using PaddleOCR."""
         with PaddleOcrExtractor(TEST_DATA_DIR / "test_image.png", lang="en") as extractor:
             doc = extractor.extract()
@@ -394,24 +377,14 @@ class TestPaddleOcrExtractorIntegration:
             assert 0.0 <= text.confidence <= 1.0
 
 
+@pytest.mark.paddle
 class TestPdfToImagePaddleExtractorIntegration:
     """Integration tests for PdfToImagePaddleExtractor using real PDF files.
 
     Requires PaddleOCR and PaddlePaddle to be installed.
     """
 
-    @pytest.fixture
-    def paddle_available(self) -> bool:
-        """Check if PaddleOCR is available, skip if not."""
-        try:
-            from paddleocr import PaddleOCR  # noqa: F401
-
-            return True
-        except ImportError:
-            pytest.skip("PaddleOCR not installed (install with: pip install paddleocr)")
-            return False
-
-    def test_extract_pdf_via_paddle(self, paddle_available: bool) -> None:
+    def test_extract_pdf_via_paddle(self) -> None:
         """Extract text from a PDF by converting to images and running PaddleOCR."""
         with PdfToImagePaddleExtractor(
             TEST_DATA_DIR / "test_pdf_2p_text.pdf", lang="en", dpi=150
