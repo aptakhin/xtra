@@ -3,8 +3,11 @@
 These tests use real files and services (no mocking).
 Azure/Google tests require credentials in environment variables - see .env.example.
 
-NOTE: Do not add pytest.mark markers to skip tests without explicit user request.
-All tests should run by default to ensure full coverage.
+Guidelines:
+- Do not add pytest.mark markers to skip tests without explicit user request.
+- Do not use pytest.skip() for missing credentials - let tests fail explicitly
+  so misconfigurations are immediately visible.
+- All tests should run by default to ensure full coverage.
 """
 
 import os
@@ -145,14 +148,12 @@ class TestAzureDocumentIntelligenceExtractorIntegration:
 
     @pytest.fixture
     def azure_credentials(self) -> tuple[str, str]:
-        """Get Azure credentials from environment or skip test."""
+        """Get Azure credentials from environment variables."""
         endpoint = os.environ.get("XTRA_AZURE_DI_ENDPOINT", "")
         key = os.environ.get("XTRA_AZURE_DI_KEY", "")
 
-        if not endpoint or not key:
-            pytest.skip(
-                "Azure credentials not configured (XTRA_AZURE_DI_ENDPOINT, XTRA_AZURE_DI_KEY)"
-            )
+        assert endpoint, "XTRA_AZURE_DI_ENDPOINT environment variable not set"
+        assert key, "XTRA_AZURE_DI_KEY environment variable not set"
 
         return endpoint, key
 
@@ -206,15 +207,12 @@ class TestGoogleDocumentAIExtractorIntegration:
 
     @pytest.fixture
     def google_credentials(self) -> tuple[str, str]:
-        """Get Google credentials from environment or skip test."""
+        """Get Google credentials from environment variables."""
         processor_name = os.environ.get("XTRA_GOOGLE_DOCAI_PROCESSOR_NAME", "")
         credentials_path = os.environ.get("XTRA_GOOGLE_DOCAI_CREDENTIALS_PATH", "")
 
-        if not processor_name or not credentials_path:
-            pytest.skip(
-                "Google credentials not configured "
-                "(XTRA_GOOGLE_DOCAI_PROCESSOR_NAME, XTRA_GOOGLE_DOCAI_CREDENTIALS_PATH)"
-            )
+        assert processor_name, "XTRA_GOOGLE_DOCAI_PROCESSOR_NAME environment variable not set"
+        assert credentials_path, "XTRA_GOOGLE_DOCAI_CREDENTIALS_PATH environment variable not set"
 
         return processor_name, credentials_path
 
