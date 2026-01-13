@@ -161,7 +161,7 @@ class TestOcrExtractor:
 
 class TestPdfToImageOcrExtractor:
     def test_init_default_values(self) -> None:
-        extractor = PdfToImageOcrExtractor(TEST_DATA_DIR / "test4.pdf")
+        extractor = PdfToImageOcrExtractor(TEST_DATA_DIR / "test_pdf_2p_text.pdf")
         assert extractor.languages == ["en"]
         assert extractor.gpu is False
         assert extractor.dpi == 200
@@ -169,7 +169,7 @@ class TestPdfToImageOcrExtractor:
 
     def test_get_metadata(self) -> None:
         extractor = PdfToImageOcrExtractor(
-            TEST_DATA_DIR / "test4.pdf", languages=["en", "it"], dpi=300
+            TEST_DATA_DIR / "test_pdf_2p_text.pdf", languages=["en", "it"], dpi=300
         )
         metadata = extractor.get_metadata()
 
@@ -178,11 +178,11 @@ class TestPdfToImageOcrExtractor:
         assert metadata.extra["dpi"] == 300
 
     def test_get_page_count(self) -> None:
-        extractor = PdfToImageOcrExtractor(TEST_DATA_DIR / "test4.pdf")
+        extractor = PdfToImageOcrExtractor(TEST_DATA_DIR / "test_pdf_2p_text.pdf")
         assert extractor.get_page_count() == 2
 
     def test_extract_page_out_of_range(self) -> None:
-        extractor = PdfToImageOcrExtractor(TEST_DATA_DIR / "test4.pdf")
+        extractor = PdfToImageOcrExtractor(TEST_DATA_DIR / "test_pdf_2p_text.pdf")
         result = extractor.extract_page(5)
 
         assert not result.success
@@ -190,7 +190,7 @@ class TestPdfToImageOcrExtractor:
         assert "out of range" in result.error.lower()
 
     def test_convert_results(self) -> None:
-        extractor = PdfToImageOcrExtractor(TEST_DATA_DIR / "test4.pdf")
+        extractor = PdfToImageOcrExtractor(TEST_DATA_DIR / "test_pdf_2p_text.pdf")
         results = [
             ([[0, 0], [50, 0], [50, 10], [0, 10]], "Text1", 0.9),
         ]
@@ -201,7 +201,7 @@ class TestPdfToImageOcrExtractor:
         assert blocks[0].confidence == 0.9
 
     def test_polygon_to_bbox_and_rotation(self) -> None:
-        extractor = PdfToImageOcrExtractor(TEST_DATA_DIR / "test4.pdf")
+        extractor = PdfToImageOcrExtractor(TEST_DATA_DIR / "test_pdf_2p_text.pdf")
         polygon = [[10, 10], [110, 10], [110, 30], [10, 30]]
         bbox, rotation = extractor._polygon_to_bbox_and_rotation(polygon)
 

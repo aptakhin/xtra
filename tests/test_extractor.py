@@ -12,7 +12,7 @@ TEST_DATA_DIR = Path(__file__).parent / "data"
 
 
 def test_extract_test4_pdf_page1_has_3_texts() -> None:
-    with PdfExtractor(TEST_DATA_DIR / "test4.pdf") as extractor:
+    with PdfExtractor(TEST_DATA_DIR / "test_pdf_2p_text.pdf") as extractor:
         doc = extractor.extract()
     page1 = doc.pages[0]
     assert len(page1.texts) == 3
@@ -23,7 +23,7 @@ def test_extract_test4_pdf_page1_has_3_texts() -> None:
 
 
 def test_extract_test4_pdf_page2_has_1_text() -> None:
-    with PdfExtractor(TEST_DATA_DIR / "test4.pdf") as extractor:
+    with PdfExtractor(TEST_DATA_DIR / "test_pdf_2p_text.pdf") as extractor:
         doc = extractor.extract()
     page2 = doc.pages[1]
     assert len(page2.texts) == 1
@@ -31,7 +31,7 @@ def test_extract_test4_pdf_page2_has_1_text() -> None:
 
 
 def test_extract_test4_pdf_texts_have_bbox() -> None:
-    with PdfExtractor(TEST_DATA_DIR / "test4.pdf") as extractor:
+    with PdfExtractor(TEST_DATA_DIR / "test_pdf_2p_text.pdf") as extractor:
         doc = extractor.extract()
     for page in doc.pages:
         for text_block in page.texts:
@@ -41,14 +41,14 @@ def test_extract_test4_pdf_texts_have_bbox() -> None:
 
 
 def test_extract_test4_pdf_metadata() -> None:
-    with PdfExtractor(TEST_DATA_DIR / "test4.pdf") as extractor:
+    with PdfExtractor(TEST_DATA_DIR / "test_pdf_2p_text.pdf") as extractor:
         doc = extractor.extract()
     assert doc.metadata is not None
     assert doc.metadata.source_type == SourceType.PDF
 
 
 def test_extract_test4_pdf_has_font_info() -> None:
-    with PdfExtractor(TEST_DATA_DIR / "test4.pdf") as extractor:
+    with PdfExtractor(TEST_DATA_DIR / "test_pdf_2p_text.pdf") as extractor:
         doc = extractor.extract()
     page1 = doc.pages[0]
     has_font = any(t.font_info is not None for t in page1.texts)
@@ -56,19 +56,19 @@ def test_extract_test4_pdf_has_font_info() -> None:
 
 
 def test_extract_single_page() -> None:
-    with PdfExtractor(TEST_DATA_DIR / "test4.pdf") as extractor:
-        doc = extractor.extract(page_numbers=[0])
+    with PdfExtractor(TEST_DATA_DIR / "test_pdf_2p_text.pdf") as extractor:
+        doc = extractor.extract(pages=[0])
     assert len(doc.pages) == 1
-    assert doc.pages[0].page_number == 0
+    assert doc.pages[0].page == 0
 
 
 def test_extract_page_method() -> None:
-    with PdfExtractor(TEST_DATA_DIR / "test4.pdf") as extractor:
+    with PdfExtractor(TEST_DATA_DIR / "test_pdf_2p_text.pdf") as extractor:
         result = extractor.extract_page(0)
     assert result.success
     assert len(result.page.texts) == 3
 
 
 def test_get_page_count() -> None:
-    with PdfExtractor(TEST_DATA_DIR / "test4.pdf") as extractor:
+    with PdfExtractor(TEST_DATA_DIR / "test_pdf_2p_text.pdf") as extractor:
         assert extractor.get_page_count() == 2

@@ -46,7 +46,7 @@ class TextBlock(BaseModel):
 
 
 class Page(BaseModel):
-    page_number: int
+    page: int
     width: float
     height: float
     texts: List[TextBlock] = Field(default_factory=list)

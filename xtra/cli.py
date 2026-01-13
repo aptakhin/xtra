@@ -65,9 +65,9 @@ def main() -> None:
         sys.exit(1)
 
     languages = [lang.strip() for lang in args.lang.split(",")]
-    page_numbers: Optional[Sequence[int]] = None
+    pages: Optional[Sequence[int]] = None
     if args.pages:
-        page_numbers = [int(p.strip()) for p in args.pages.split(",")]
+        pages = [int(p.strip()) for p in args.pages.split(",")]
 
     extractor_type = SourceType(args.extractor)
 
@@ -95,7 +95,7 @@ def main() -> None:
         sys.exit(1)
 
     with extractor:
-        doc = extractor.extract(page_numbers=page_numbers)
+        doc = extractor.extract(pages=pages)
 
     if args.json:
         # pydantic v2 uses model_dump_json, v1 uses json
@@ -105,7 +105,7 @@ def main() -> None:
             print(doc.json(indent=2))
     else:
         for page in doc.pages:
-            print(f"=== Page {page.page_number + 1} ===")
+            print(f"=== Page {page.page + 1} ===")
             for text in page.texts:
                 bbox = text.bbox
                 conf = f" ({text.confidence:.2f})" if text.confidence else ""

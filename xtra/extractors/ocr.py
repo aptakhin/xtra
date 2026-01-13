@@ -53,22 +53,23 @@ class OcrExtractor(BaseExtractor):
     def get_page_count(self) -> int:
         return len(self._images)
 
-    def extract_page(self, page_number: int) -> ExtractionResult:
+    def extract_page(self, page: int) -> ExtractionResult:
         """Extract text from a single image/page."""
         try:
-            if page_number >= len(self._images):
-                raise IndexError(f"Page {page_number} out of range")
+            if page >= len(self._images):
+                raise IndexError(f"Page {page} out of range")
 
-            img = self._images[page_number]
+            img = self._images[page]
             width, height = img.size
 
             reader = get_reader(self.languages, self.gpu)
-            results = reader.readtext(str(self.path) if page_number == 0 else img)
+            results = reader.readtext(str(self.path) if page == 0 else img)
+            print("XX", page, results)
             text_blocks = self._convert_results(results)
 
             return ExtractionResult(
                 page=Page(
-                    page_number=page_number,
+                    page=page,
                     width=float(width),
                     height=float(height),
                     texts=text_blocks,
@@ -76,9 +77,9 @@ class OcrExtractor(BaseExtractor):
                 success=True,
             )
         except (IndexError, UnidentifiedImageError, OSError, RuntimeError) as e:
-            logger.warning("Failed to extract page %d: %s", page_number, e)
+            logger.warning("Failed to extract page %d: %s", page, e)
             return ExtractionResult(
-                page=Page(page_number=page_number, width=0, height=0, texts=[]),
+                page=Page(page=page, width=0, height=0, texts=[]),
                 success=False,
                 error=str(e),
             )
@@ -148,24 +149,26 @@ class PdfToImageOcrExtractor(BaseExtractor):
     def get_page_count(self) -> int:
         return len(self._images)
 
-    def extract_page(self, page_number: int) -> ExtractionResult:
+    def extract_page(self, page: int) -> ExtractionResult:
         """Extract text from a single PDF page via OCR."""
         try:
-            if page_number >= len(self._images):
-                raise IndexError(f"Page {page_number} out of range")
+            if page >= len(self._images):
+                raise IndexError(f"Page {page} out of range")
 
-            img = self._images[page_number]
+            img = self._images[page]
             width, height = img.size
 
             reader = get_reader(self.languages, self.gpu)
             import numpy as np
 
             results = reader.readtext(np.array(img))
+            print("XX", page, results)
+
             text_blocks = self._convert_results(results)
 
             return ExtractionResult(
                 page=Page(
-                    page_number=page_number,
+                    page=page,
                     width=float(width),
                     height=float(height),
                     texts=text_blocks,
@@ -173,9 +176,9 @@ class PdfToImageOcrExtractor(BaseExtractor):
                 success=True,
             )
         except (IndexError, OSError, RuntimeError) as e:
-            logger.warning("Failed to extract page %d via OCR: %s", page_number, e)
+            logger.warning("Failed to extract page %d via OCR: %s", page, e)
             return ExtractionResult(
-                page=Page(page_number=page_number, width=0, height=0, texts=[]),
+                page=Page(page=page, width=0, height=0, texts=[]),
                 success=False,
                 error=str(e),
             )

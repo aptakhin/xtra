@@ -18,15 +18,15 @@ class MockExtractor(BaseExtractor):
     def get_page_count(self) -> int:
         return self._page_count
 
-    def extract_page(self, page_number: int) -> ExtractionResult:
-        if page_number >= self._page_count:
+    def extract_page(self, page: int) -> ExtractionResult:
+        if page >= self._page_count:
             return ExtractionResult(
-                page=Page(page_number=page_number, width=0, height=0, texts=[]),
+                page=Page(page=page, width=0, height=0, texts=[]),
                 success=False,
                 error="Page out of range",
             )
         return ExtractionResult(
-            page=Page(page_number=page_number, width=100.0, height=100.0, texts=[]),
+            page=Page(page=page, width=100.0, height=100.0, texts=[]),
             success=True,
         )
 
@@ -35,14 +35,14 @@ class MockExtractor(BaseExtractor):
 
 
 def test_extraction_result_success() -> None:
-    page = Page(page_number=0, width=100.0, height=100.0)
+    page = Page(page=0, width=100.0, height=100.0)
     result = ExtractionResult(page=page, success=True)
     assert result.success
     assert result.error is None
 
 
 def test_extraction_result_failure() -> None:
-    page = Page(page_number=0, width=0, height=0)
+    page = Page(page=0, width=0, height=0)
     result = ExtractionResult(page=page, success=False, error="Test error")
     assert not result.success
     assert result.error == "Test error"
@@ -57,11 +57,11 @@ def test_base_extractor_extract_all_pages() -> None:
 
 def test_base_extractor_extract_specific_pages() -> None:
     extractor = MockExtractor(Path("/tmp/test.pdf"), page_count=5)
-    doc = extractor.extract(page_numbers=[0, 2, 4])
+    doc = extractor.extract(pages=[0, 2, 4])
     assert len(doc.pages) == 3
-    assert doc.pages[0].page_number == 0
-    assert doc.pages[1].page_number == 2
-    assert doc.pages[2].page_number == 4
+    assert doc.pages[0].page == 0
+    assert doc.pages[1].page == 2
+    assert doc.pages[2].page == 4
 
 
 def test_base_extractor_extract_pages_method() -> None:

@@ -106,7 +106,47 @@ poetry run pytest --cov=xtra --cov-report=term-missing
 
 # Run specific test file
 poetry run pytest tests/test_azure_di.py -v
+
+# Run integration tests only
+poetry run pytest tests/test_integration.py -v
 ```
+
+### Integration Tests
+
+Integration tests run against real files and services without mocking. They are located in `tests/test_integration.py`.
+
+**Local extractors** (no credentials required):
+- `PdfExtractor` - Tests PDF text extraction
+- `OcrExtractor` - Tests image OCR with EasyOCR
+- `PdfToImageOcrExtractor` - Tests PDF-to-image OCR
+
+**Cloud extractors** (require credentials):
+- `AzureDocumentIntelligenceExtractor` - Tests Azure Document Intelligence
+
+#### Azure Credentials Setup
+
+1. Copy the example environment file:
+   ```bash
+   cp .env.example .env
+   ```
+
+2. Edit `.env` with your Azure Document Intelligence credentials:
+   ```
+   AZURE_DI_ENDPOINT=https://your-resource.cognitiveservices.azure.com
+   AZURE_DI_KEY=your-api-key
+   ```
+
+3. Load environment variables before running tests:
+   ```bash
+   # Option 1: Source the .env file
+   export $(cat .env | xargs)
+   poetry run pytest tests/test_integration.py -v
+
+   # Option 2: Use env command
+   env $(cat .env | xargs) poetry run pytest tests/test_integration.py -v
+   ```
+
+Azure integration tests are automatically skipped if credentials are not configured.
 
 ### Pre-commit Checks
 

@@ -24,32 +24,32 @@ class AzureDocumentIntelligenceAdapter:
             return 0
         return len(self._result.pages)
 
-    def convert_page(self, page_number: int) -> Page:
+    def convert_page(self, page: int) -> Page:
         """Convert a single Azure page to internal Page model.
 
         Args:
-            page_number: Zero-indexed page number.
+            page: Zero-indexed page number.
 
         Returns:
             Page with converted TextBlocks.
 
         Raises:
             ValueError: If result is None or has no pages.
-            IndexError: If page_number is out of range.
+            IndexError: If page is out of range.
         """
         if self._result is None or self._result.pages is None:
             raise ValueError("No analysis result available")
 
-        if page_number >= len(self._result.pages):
-            raise IndexError(f"Page {page_number} out of range")
+        if page >= len(self._result.pages):
+            raise IndexError(f"Page {page} out of range")
 
-        azure_page = self._result.pages[page_number]
+        azure_page = self._result.pages[page]
         width = azure_page.width or 0.0
         height = azure_page.height or 0.0
         text_blocks = self._convert_page_to_blocks(azure_page)
 
         return Page(
-            page_number=page_number,
+            page=page,
             width=float(width),
             height=float(height),
             texts=text_blocks,

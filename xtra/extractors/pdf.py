@@ -30,15 +30,15 @@ class PdfExtractor(BaseExtractor):
     def get_page_count(self) -> int:
         return len(self._pdf)
 
-    def extract_page(self, page_number: int) -> ExtractionResult:
+    def extract_page(self, page: int) -> ExtractionResult:
         """Extract a single page by number (0-indexed)."""
         try:
-            page = self._pdf[page_number]
-            width, height = page.get_size()
-            text_blocks = self._extract_text_blocks(page, height)
+            pdf_page = self._pdf[page]
+            width, height = pdf_page.get_size()
+            text_blocks = self._extract_text_blocks(pdf_page, height)
             return ExtractionResult(
                 page=Page(
-                    page_number=page_number,
+                    page=page,
                     width=width,
                     height=height,
                     texts=text_blocks,
@@ -47,7 +47,7 @@ class PdfExtractor(BaseExtractor):
             )
         except Exception as e:
             return ExtractionResult(
-                page=Page(page_number=page_number, width=0, height=0, texts=[]),
+                page=Page(page=page, width=0, height=0, texts=[]),
                 success=False,
                 error=str(e),
             )

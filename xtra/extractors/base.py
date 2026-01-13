@@ -29,7 +29,7 @@ class BaseExtractor(ABC):
         ...
 
     @abstractmethod
-    def extract_page(self, page_number: int) -> ExtractionResult:
+    def extract_page(self, page: int) -> ExtractionResult:
         """Extract a single page by number (0-indexed)."""
         ...
 
@@ -38,18 +38,18 @@ class BaseExtractor(ABC):
         """Extract document metadata."""
         ...
 
-    def extract_pages(self, page_numbers: Optional[Sequence[int]] = None) -> List[ExtractionResult]:
-        """Extract multiple pages. If page_numbers is None, extract all pages."""
-        if page_numbers is None:
-            page_numbers = range(self.get_page_count())
-        return [self.extract_page(n) for n in page_numbers]
+    def extract_pages(self, pages: Optional[Sequence[int]] = None) -> List[ExtractionResult]:
+        """Extract multiple pages. If pages is None, extract all pages."""
+        if pages is None:
+            pages = range(self.get_page_count())
+        return [self.extract_page(n) for n in pages]
 
-    def extract(self, page_numbers: Optional[Sequence[int]] = None) -> Document:
+    def extract(self, pages: Optional[Sequence[int]] = None) -> Document:
         """Extract document with optional page selection."""
-        results = self.extract_pages(page_numbers)
-        pages = [r.page for r in results if r.success]
+        results = self.extract_pages(pages)
+        extracted_pages = [r.page for r in results if r.success]
         metadata = self.get_metadata()
-        return Document(path=self.path, pages=pages, metadata=metadata)
+        return Document(path=self.path, pages=extracted_pages, metadata=metadata)
 
     def close(self) -> None:
         """Clean up resources. Override in subclasses if needed."""

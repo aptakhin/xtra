@@ -58,8 +58,8 @@ def test_text_block_with_confidence() -> None:
 
 
 def test_page_creation() -> None:
-    page = Page(page_number=0, width=595.0, height=842.0)
-    assert page.page_number == 0
+    page = Page(page=0, width=595.0, height=842.0)
+    assert page.page == 0
     assert page.width == 595.0
     assert page.height == 842.0
     assert page.texts == []
@@ -68,7 +68,7 @@ def test_page_creation() -> None:
 def test_page_with_texts() -> None:
     bbox = BBox(x0=0.0, y0=0.0, x1=100.0, y1=20.0)
     block = TextBlock(text="Test", bbox=bbox)
-    page = Page(page_number=0, width=595.0, height=842.0, texts=[block])
+    page = Page(page=0, width=595.0, height=842.0, texts=[block])
     assert len(page.texts) == 1
     assert page.texts[0].text == "Test"
 
@@ -108,7 +108,7 @@ def test_document_creation() -> None:
 
 def test_document_with_pages() -> None:
     path = Path("/tmp/test.pdf")
-    page = Page(page_number=0, width=595.0, height=842.0)
+    page = Page(page=0, width=595.0, height=842.0)
     meta = DocumentMetadata(source_type=SourceType.PDF)
     doc = Document(path=path, pages=[page], metadata=meta)
     assert len(doc.pages) == 1

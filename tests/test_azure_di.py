@@ -123,7 +123,7 @@ class TestAzureDocumentIntelligenceExtractor:
             result = extractor.extract_page(0)
 
             assert result.success
-            assert result.page.page_number == 0
+            assert result.page.page == 0
             assert result.page.width == 612.0
             assert result.page.height == 792.0
             assert len(result.page.texts) == 1

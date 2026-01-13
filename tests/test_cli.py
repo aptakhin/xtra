@@ -22,7 +22,7 @@ def test_source_type_used_in_cli() -> None:
 
 
 def test_cli_pdf_extractor(capsys: pytest.CaptureFixture) -> None:
-    test_args = ["cli", str(TEST_DATA_DIR / "test4.pdf"), "--extractor", "pdf"]
+    test_args = ["cli", str(TEST_DATA_DIR / "test_pdf_2p_text.pdf"), "--extractor", "pdf"]
     with patch.object(sys, "argv", test_args):
         main()
     captured = capsys.readouterr()
@@ -33,7 +33,7 @@ def test_cli_pdf_extractor(capsys: pytest.CaptureFixture) -> None:
 def test_cli_pdf_extractor_json(capsys: pytest.CaptureFixture) -> None:
     test_args = [
         "cli",
-        str(TEST_DATA_DIR / "test4.pdf"),
+        str(TEST_DATA_DIR / "test_pdf_2p_text.pdf"),
         "--extractor",
         "pdf",
         "--json",
@@ -47,7 +47,7 @@ def test_cli_pdf_extractor_json(capsys: pytest.CaptureFixture) -> None:
 def test_cli_pdf_extractor_specific_pages(capsys: pytest.CaptureFixture) -> None:
     test_args = [
         "cli",
-        str(TEST_DATA_DIR / "test4.pdf"),
+        str(TEST_DATA_DIR / "test_pdf_2p_text.pdf"),
         "--extractor",
         "pdf",
         "--pages",
@@ -71,7 +71,7 @@ def test_cli_file_not_found() -> None:
 def test_cli_languages_parsing(capsys: pytest.CaptureFixture) -> None:
     test_args = [
         "cli",
-        str(TEST_DATA_DIR / "test4.pdf"),
+        str(TEST_DATA_DIR / "test_pdf_2p_text.pdf"),
         "--extractor",
         "pdf",
         "--lang",

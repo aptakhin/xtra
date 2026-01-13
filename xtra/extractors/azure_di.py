@@ -59,19 +59,19 @@ class AzureDocumentIntelligenceExtractor(BaseExtractor):
             return 0
         return self._adapter.page_count
 
-    def extract_page(self, page_number: int) -> ExtractionResult:
+    def extract_page(self, page: int) -> ExtractionResult:
         """Extract a single page by number (0-indexed)."""
         try:
             if self._adapter is None:
                 raise ValueError("Document analysis failed")
 
-            page = self._adapter.convert_page(page_number)
-            return ExtractionResult(page=page, success=True)
+            converted_page = self._adapter.convert_page(page)
+            return ExtractionResult(page=converted_page, success=True)
 
         except (IndexError, ValueError, AttributeError) as e:
-            logger.warning("Failed to extract page %d from Azure DI result: %s", page_number, e)
+            logger.warning("Failed to extract page %d from Azure DI result: %s", page, e)
             return ExtractionResult(
-                page=Page(page_number=page_number, width=0, height=0, texts=[]),
+                page=Page(page=page, width=0, height=0, texts=[]),
                 success=False,
                 error=str(e),
             )
