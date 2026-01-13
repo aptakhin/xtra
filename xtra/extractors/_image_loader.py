@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import List
+from typing import Dict, Optional
 
 import pypdfium2 as pdfium
 from PIL import Image
@@ -12,8 +12,11 @@ from PIL import Image
 class ImageLoader:
     """Loads and manages images from files for OCR processing.
 
-    Handles both single images and PDFs (converting pages to images).
+    Handles both single images and PDFs (converting pages to images lazily).
     Use as a composable component in OCR extractors.
+
+    PDF pages are only converted to images when requested via get_page(),
+    and cached for subsequent access.
     """
 
     def __init__(self, path: Path, dpi: int = 200) -> None:
@@ -26,36 +29,41 @@ class ImageLoader:
         self.path = path
         self.dpi = dpi
         self.is_pdf = path.suffix.lower() == ".pdf"
-        self._images: List[Image.Image] = []
-        self._load()
 
-    def _load(self) -> None:
-        """Load image(s) from path."""
-        if self.is_pdf:
-            self._images = self._load_pdf_as_images()
-        else:
-            self._images = [Image.open(self.path)]
-
-    def _load_pdf_as_images(self) -> List[Image.Image]:
-        """Convert PDF pages to PIL Images at the specified DPI."""
-        images: List[Image.Image] = []
-        pdf = pdfium.PdfDocument(self.path)
-        scale = self.dpi / 72.0
-
-        for page in pdf:
-            bitmap = page.render(scale=scale)
-            images.append(bitmap.to_pil())
-
-        pdf.close()
-        return images
+        # Lazy loading state
+        self._pdf: Optional[pdfium.PdfDocument] = None
+        self._page_count: Optional[int] = None
+        self._image_cache: Dict[int, Image.Image] = {}
 
     @property
     def page_count(self) -> int:
-        """Return number of pages/images loaded."""
-        return len(self._images)
+        """Return number of pages/images (lazy loaded for PDFs)."""
+        if self._page_count is None:
+            if self.is_pdf:
+                self._open_pdf()
+                self._page_count = len(self._pdf)  # type: ignore[arg-type]
+            else:
+                self._page_count = 1
+        return self._page_count
+
+    def _open_pdf(self) -> None:
+        """Open PDF document if not already open."""
+        if self._pdf is None and self.is_pdf:
+            self._pdf = pdfium.PdfDocument(self.path)
+
+    def _render_page(self, page: int) -> Image.Image:
+        """Render a single PDF page to PIL Image."""
+        self._open_pdf()
+        if self._pdf is None:
+            raise RuntimeError("PDF not loaded")
+
+        scale = self.dpi / 72.0
+        pdf_page = self._pdf[page]
+        bitmap = pdf_page.render(scale=scale)
+        return bitmap.to_pil()
 
     def get_page(self, page: int) -> Image.Image:
-        """Get a specific page image.
+        """Get a specific page image (lazy loaded and cached).
 
         Args:
             page: Zero-indexed page number.
@@ -66,15 +74,38 @@ class ImageLoader:
         Raises:
             IndexError: If page is out of range.
         """
-        if page >= len(self._images):
-            raise IndexError(f"Page {page} out of range (have {len(self._images)} pages)")
-        return self._images[page]
+        if page >= self.page_count:
+            raise IndexError(f"Page {page} out of range (have {self.page_count} pages)")
+
+        # Return cached image if available
+        if page in self._image_cache:
+            return self._image_cache[page]
+
+        # Load and cache image
+        if self.is_pdf:
+            img = self._render_page(page)
+        else:
+            img = Image.open(self.path)
+
+        self._image_cache[page] = img
+        return img
 
     def close(self) -> None:
         """Close image handles and release resources."""
-        for img in self._images:
+        # Close cached images
+        for img in self._image_cache.values():
             try:
                 img.close()
             except Exception:  # noqa: S110
                 pass
-        self._images = []
+        self._image_cache = {}
+
+        # Close PDF document
+        if self._pdf is not None:
+            try:
+                self._pdf.close()
+            except Exception:  # noqa: S110
+                pass
+            self._pdf = None
+
+        self._page_count = None
