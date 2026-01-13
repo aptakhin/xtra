@@ -378,3 +378,6 @@ MIT
 
 - Table extraction for pdf (tabula) and cloud OCR's
 - LLM-chat free format result extraction through one interface
+- Unify coordinates between different methods for the same document (ability to choose pixels, points or inches)
+- Detecting language helper
+- Performance measurement
