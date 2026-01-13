@@ -8,15 +8,14 @@ from typing import List, Optional
 
 import pytesseract
 
+from xtra.adapters.tesseract_ocr import TesseractAdapter
 from xtra.extractors._image_loader import ImageLoader
 from xtra.extractors.base import BaseExtractor, ExtractionResult
 from xtra.models import (
-    BBox,
     CoordinateUnit,
     DocumentMetadata,
     ExtractorType,
     Page,
-    TextBlock,
 )
 
 logger = logging.getLogger(__name__)
@@ -73,7 +72,8 @@ def _convert_lang_code(code: str) -> str:
 class TesseractOcrExtractor(BaseExtractor):
     """Extract text from images or PDFs using Tesseract OCR.
 
-    Composes ImageLoader for image handling and Tesseract for OCR processing.
+    Composes ImageLoader for image handling, Tesseract for OCR processing,
+    and TesseractAdapter for result conversion.
     """
 
     def __init__(
@@ -102,6 +102,7 @@ class TesseractOcrExtractor(BaseExtractor):
 
         # Compose components
         self._images = ImageLoader(path, dpi)
+        self._adapter = TesseractAdapter()
 
     def get_page_count(self) -> int:
         """Return number of pages/images loaded."""
@@ -118,7 +119,7 @@ class TesseractOcrExtractor(BaseExtractor):
             data = pytesseract.image_to_data(
                 img, lang=lang_str, output_type=pytesseract.Output.DICT
             )
-            text_blocks = self._convert_results(data)
+            text_blocks = self._adapter.convert_result(data)
 
             result_page = Page(
                 page=page,
@@ -148,45 +149,6 @@ class TesseractOcrExtractor(BaseExtractor):
             source_type=ExtractorType.TESSERACT,
             extra=extra,
         )
-
-    def _convert_results(self, data: dict) -> List[TextBlock]:
-        """Convert Tesseract output to TextBlocks."""
-        blocks = []
-        n_boxes = len(data["text"])
-
-        for i in range(n_boxes):
-            text = data["text"][i]
-            conf = data["conf"][i]
-
-            # Skip empty text and low/negative confidence (non-text elements)
-            if not text or not text.strip() or conf < 0:
-                continue
-
-            left = data["left"][i]
-            top = data["top"][i]
-            width = data["width"][i]
-            height = data["height"][i]
-
-            bbox = BBox(
-                x0=float(left),
-                y0=float(top),
-                x1=float(left + width),
-                y1=float(top + height),
-            )
-
-            # Tesseract confidence is 0-100, normalize to 0-1
-            confidence = float(conf) / 100.0
-
-            blocks.append(
-                TextBlock(
-                    text=text,
-                    bbox=bbox,
-                    rotation=0.0,  # Tesseract doesn't provide rotation per word
-                    confidence=confidence,
-                )
-            )
-
-        return blocks
 
     def close(self) -> None:
         """Release resources."""
