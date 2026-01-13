@@ -4,76 +4,51 @@
 from __future__ import annotations
 
 import argparse
-import os
 import sys
 from pathlib import Path
-from typing import Any, Optional, Sequence
+from typing import Any, Dict, Optional, Sequence
 
-from .extractors import (
-    AzureDocumentIntelligenceExtractor,
-    EasyOcrExtractor,
-    GoogleDocumentAIExtractor,
-    PaddleOcrExtractor,
-    PdfExtractor,
-    TesseractOcrExtractor,
-)
-from .models import ExtractorType
+from .extractors.factory import create_extractor
+from .models import CoordinateUnit, ExtractorType
+
+
+def _build_credentials(args: argparse.Namespace) -> Optional[Dict[str, str]]:
+    """Build credentials dict from CLI arguments."""
+    credentials: Dict[str, str] = {}
+
+    if args.azure_endpoint:
+        credentials["XTRA_AZURE_DI_ENDPOINT"] = args.azure_endpoint
+    if args.azure_key:
+        credentials["XTRA_AZURE_DI_KEY"] = args.azure_key
+    if args.google_processor_name:
+        credentials["XTRA_GOOGLE_DOCAI_PROCESSOR_NAME"] = args.google_processor_name
+    if args.google_credentials_path:
+        credentials["XTRA_GOOGLE_DOCAI_CREDENTIALS_PATH"] = args.google_credentials_path
+
+    return credentials if credentials else None
 
 
 def _create_extractor(args: argparse.Namespace, languages: list[str]) -> Any:
-    """Create extractor based on CLI arguments."""
+    """Create extractor using the unified factory."""
     extractor_type = ExtractorType(args.extractor)
+    credentials = _build_credentials(args)
 
-    if extractor_type == ExtractorType.PDF:
-        return PdfExtractor(args.input)
-    if extractor_type == ExtractorType.EASYOCR:
-        return EasyOcrExtractor(args.input, languages=languages)
-    if extractor_type == ExtractorType.TESSERACT:
-        return TesseractOcrExtractor(args.input, languages=languages)
-    if extractor_type == ExtractorType.PADDLE:
-        lang = languages[0] if languages else "en"
-        return PaddleOcrExtractor(args.input, lang=lang)
-    if extractor_type == ExtractorType.AZURE_DI:
-        return _create_azure_extractor(args)
-    if extractor_type == ExtractorType.GOOGLE_DOCAI:
-        return _create_google_extractor(args)
+    # Parse output unit
+    output_unit = CoordinateUnit(args.output_unit)
 
-    print(f"Error: Unknown extractor type: {args.extractor}", file=sys.stderr)
-    sys.exit(1)
-
-
-def _create_azure_extractor(args: argparse.Namespace) -> AzureDocumentIntelligenceExtractor:
-    """Create Azure Document Intelligence extractor."""
-    endpoint = args.azure_endpoint or os.environ.get("XTRA_AZURE_DI_ENDPOINT")
-    key = args.azure_key or os.environ.get("XTRA_AZURE_DI_KEY")
-    model = args.azure_model or os.environ.get("XTRA_AZURE_DI_MODEL", "prebuilt-read")
-    if not endpoint or not key:
-        print(
-            "Error: Azure credentials required. Use --azure-endpoint/--azure-key "
-            "or set XTRA_AZURE_DI_ENDPOINT/XTRA_AZURE_DI_KEY environment variables.",
-            file=sys.stderr,
+    try:
+        return create_extractor(
+            path=args.input,
+            extractor_type=extractor_type,
+            languages=languages,
+            dpi=args.dpi,
+            use_gpu=args.gpu,
+            credentials=credentials,
+            output_unit=output_unit,
         )
+    except ValueError as e:
+        print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
-    assert endpoint is not None and key is not None and model is not None
-    return AzureDocumentIntelligenceExtractor(
-        args.input, endpoint=endpoint, key=key, model_id=model
-    )
-
-
-def _create_google_extractor(args: argparse.Namespace) -> GoogleDocumentAIExtractor:
-    """Create Google Document AI extractor."""
-    processor = args.google_processor_name or os.environ.get("XTRA_GOOGLE_DOCAI_PROCESSOR_NAME")
-    creds = args.google_credentials_path or os.environ.get("XTRA_GOOGLE_DOCAI_CREDENTIALS_PATH")
-    if not processor or not creds:
-        print(
-            "Error: Google credentials required. Use --google-processor-name/"
-            "--google-credentials-path or set XTRA_GOOGLE_DOCAI_PROCESSOR_NAME/"
-            "XTRA_GOOGLE_DOCAI_CREDENTIALS_PATH environment variables.",
-            file=sys.stderr,
-        )
-        sys.exit(1)
-    assert processor is not None and creds is not None
-    return GoogleDocumentAIExtractor(args.input, processor_name=processor, credentials_path=creds)
 
 
 def main() -> None:
@@ -100,6 +75,24 @@ def main() -> None:
         help="Page numbers to extract, comma-separated (default: all). Example: 0,1,2",
     )
     parser.add_argument(
+        "--dpi",
+        type=int,
+        default=200,
+        help="DPI for PDF-to-image conversion (default: 200)",
+    )
+    parser.add_argument(
+        "--gpu",
+        action="store_true",
+        help="Enable GPU acceleration (EasyOCR, PaddleOCR)",
+    )
+    parser.add_argument(
+        "--output-unit",
+        type=str,
+        choices=[u.value for u in CoordinateUnit],
+        default="points",
+        help="Coordinate unit for output: points (default), pixels, inches, normalized",
+    )
+    parser.add_argument(
         "--azure-endpoint",
         type=str,
         default=None,
@@ -110,12 +103,6 @@ def main() -> None:
         type=str,
         default=None,
         help="Azure API key (or XTRA_AZURE_DI_KEY env var)",
-    )
-    parser.add_argument(
-        "--azure-model",
-        type=str,
-        default=None,
-        help="Azure model ID (or XTRA_AZURE_DI_MODEL env var, default: prebuilt-read)",
     )
     parser.add_argument(
         "--google-processor-name",
