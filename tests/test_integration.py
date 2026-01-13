@@ -8,6 +8,8 @@ Guidelines:
 - Do not use pytest.skip() for missing credentials - let tests fail explicitly
   so misconfigurations are immediately visible.
 - All tests should run by default to ensure full coverage.
+- Use 2-letter ISO 639-1 language codes (e.g., "en", "fr", "de") for all extractors.
+  Tesseract converts internally to its 3-letter format.
 """
 
 import os
@@ -266,7 +268,7 @@ class TestTesseractOcrExtractorIntegration:
     def test_extract_image_with_tesseract(self) -> None:
         """Extract text from an image using Tesseract OCR."""
         with TesseractOcrExtractor(
-            TEST_DATA_DIR / "test_image.png", languages=["eng"]
+            TEST_DATA_DIR / "test_image.png", languages=["en"]
         ) as extractor:
             doc = extractor.extract()
 
@@ -302,7 +304,7 @@ class TestTesseractOcrExtractorWithPdfIntegration:
     def test_extract_pdf_via_tesseract(self) -> None:
         """Extract text from a PDF by converting to images and running Tesseract OCR."""
         with TesseractOcrExtractor(
-            TEST_DATA_DIR / "test_pdf_2p_text.pdf", languages=["eng"], dpi=150
+            TEST_DATA_DIR / "test_pdf_2p_text.pdf", languages=["en"], dpi=150
         ) as extractor:
             doc = extractor.extract()
 

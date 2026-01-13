@@ -21,6 +21,54 @@ from .base import BaseExtractor, ExtractionResult
 
 logger = logging.getLogger(__name__)
 
+# ISO 639-1 (2-letter) to Tesseract (3-letter) language code mapping
+# Users provide 2-letter codes, we convert internally for Tesseract
+LANG_CODE_MAP = {
+    "en": "eng",
+    "it": "ita",
+    "fr": "fra",
+    "de": "deu",
+    "es": "spa",
+    "pt": "por",
+    "nl": "nld",
+    "ru": "rus",
+    "zh": "chi_sim",
+    "ja": "jpn",
+    "ko": "kor",
+    "ar": "ara",
+    "hi": "hin",
+    "pl": "pol",
+    "uk": "ukr",
+    "vi": "vie",
+    "th": "tha",
+    "tr": "tur",
+    "el": "ell",
+    "he": "heb",
+    "cs": "ces",
+    "sv": "swe",
+    "da": "dan",
+    "fi": "fin",
+    "no": "nor",
+    "hu": "hun",
+    "ro": "ron",
+    "bg": "bul",
+    "hr": "hrv",
+    "sk": "slk",
+    "sl": "slv",
+    "sr": "srp",
+    "id": "ind",
+    "ms": "msa",
+    "fa": "fas",
+}
+
+
+def _convert_lang_code(code: str) -> str:
+    """Convert 2-letter ISO 639-1 code to Tesseract 3-letter code.
+
+    If already a 3-letter code or not in mapping, returns as-is.
+    """
+    return LANG_CODE_MAP.get(code, code)
+
 
 class TesseractOcrExtractor(BaseExtractor):
     """Extract text from images or PDFs using Tesseract OCR.
@@ -38,12 +86,16 @@ class TesseractOcrExtractor(BaseExtractor):
 
         Args:
             path: Path to the image or PDF file.
-            languages: List of language codes (e.g., ["eng", "fra"]).
-                       Defaults to ["eng"]. Use Tesseract language codes.
+            languages: List of 2-letter ISO 639-1 language codes (e.g., ["en", "fr"]).
+                       Defaults to ["en"]. Codes are converted to Tesseract format internally.
             dpi: DPI for PDF-to-image conversion. Default 200.
         """
         super().__init__(path)
-        self.languages = languages or ["eng"]
+        input_languages = languages or ["en"]
+        # Store original 2-letter codes for metadata
+        self.languages = input_languages
+        # Convert to Tesseract format for internal use
+        self._tesseract_languages = [_convert_lang_code(lang) for lang in input_languages]
         self.dpi = dpi
         self._images: List[Image.Image] = []
         self._is_pdf = path.suffix.lower() == ".pdf"
@@ -75,7 +127,7 @@ class TesseractOcrExtractor(BaseExtractor):
             width, height = img.size
 
             # Build language string for Tesseract (e.g., "eng+fra+deu")
-            lang_str = "+".join(self.languages)
+            lang_str = "+".join(self._tesseract_languages)
 
             # Get detailed OCR data with bounding boxes
             data = pytesseract.image_to_data(

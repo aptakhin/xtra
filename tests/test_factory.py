@@ -100,15 +100,15 @@ class TestCreateExtractorTesseract:
             mock_open.return_value = mock_img
 
             extractor = create_extractor(
-                Path("/fake/image.png"), SourceType.TESSERACT, languages=["eng", "ita"]
+                Path("/fake/image.png"), SourceType.TESSERACT, languages=["en", "it"]
             )
-            assert extractor.languages == ["eng", "ita"]  # type: ignore[attr-defined]
+            assert extractor.languages == ["en", "it"]  # type: ignore[attr-defined]
 
     def test_creates_tesseract_extractor_with_pdf(self) -> None:
         extractor = create_extractor(
             TEST_DATA_DIR / "test_pdf_2p_text.pdf",
             SourceType.TESSERACT,
-            languages=["eng"],
+            languages=["en"],
             dpi=150,
         )
         assert extractor.dpi == 150  # type: ignore[attr-defined]

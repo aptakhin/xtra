@@ -211,11 +211,11 @@ class TestTesseractOcrExtractor:
             from xtra.extractors.tesseract_ocr import TesseractOcrExtractor
 
             extractor = TesseractOcrExtractor(
-                Path("/fake/image.png"), languages=["eng", "fra", "deu"]
+                Path("/fake/image.png"), languages=["en", "fr", "de"]
             )
             extractor.extract_page(0)
 
-            # Check that pytesseract was called with correct language string
+            # Check that pytesseract was called with converted language string
             call_args = mock_pytesseract.image_to_data.call_args
             assert call_args[1]["lang"] == "eng+fra+deu"
 

@@ -56,6 +56,11 @@ with PdfExtractor(Path("document.pdf")) as extractor:
             print(text.text)
 ```
 
+### Language Codes
+
+All OCR extractors use **2-letter ISO 639-1 language codes** (e.g., `"en"`, `"fr"`, `"de"`, `"it"`).
+Extractors that require different formats (like Tesseract) convert internally.
+
 ### OCR Extraction (Local - EasyOCR)
 
 ```python
@@ -83,11 +88,11 @@ from pathlib import Path
 from xtra import TesseractOcrExtractor
 
 # For images
-with TesseractOcrExtractor(Path("image.png"), languages=["eng"]) as extractor:
+with TesseractOcrExtractor(Path("image.png"), languages=["en"]) as extractor:
     doc = extractor.extract()
 
 # For PDFs (auto-converts to images)
-with TesseractOcrExtractor(Path("scanned.pdf"), languages=["eng"], dpi=200) as extractor:
+with TesseractOcrExtractor(Path("scanned.pdf"), languages=["en"], dpi=200) as extractor:
     doc = extractor.extract()
 ```
 
