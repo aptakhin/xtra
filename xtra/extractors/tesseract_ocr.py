@@ -115,7 +115,9 @@ class TesseractOcrExtractor(BaseExtractor):
 
             # Run OCR pipeline
             lang_str = "+".join(self._tesseract_languages)
-            data = pytesseract.image_to_data(img, lang=lang_str, output_type=pytesseract.Output.DICT)
+            data = pytesseract.image_to_data(
+                img, lang=lang_str, output_type=pytesseract.Output.DICT
+            )
             text_blocks = self._convert_results(data)
 
             result_page = Page(
