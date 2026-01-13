@@ -43,6 +43,42 @@ with create_extractor(Path("document.pdf"), ExtractorType.AZURE_DI) as extractor
     doc = extractor.extract()
 ```
 
+### Example Output
+
+The `extract()` method returns a `Document` object with pages and text blocks:
+
+```python
+from pathlib import Path
+from xtra import create_extractor, ExtractorType
+
+with create_extractor(Path("document.pdf"), ExtractorType.PDF) as extractor:
+    doc = extractor.extract()
+
+# Access extracted data
+print(f"Pages: {len(doc.pages)}")  # Pages: 2
+
+for page in doc.pages:
+    print(f"Page {page.page + 1} ({page.width:.0f}x{page.height:.0f}):")
+    for text in page.texts:
+        print(f"  - \"{text.text}\"")
+        print(f"    bbox: ({text.bbox.x0:.1f}, {text.bbox.y0:.1f}, {text.bbox.x1:.1f}, {text.bbox.y1:.1f})")
+```
+
+Output:
+```
+Pages: 2
+Page 1 (595x842):
+  - "First page. First text"
+    bbox: (48.3, 57.8, 205.4, 74.6)
+  - "First page. Second text"
+    bbox: (48.0, 81.4, 231.2, 98.6)
+  - "First page. Fourth text"
+    bbox: (47.8, 120.5, 221.9, 137.4)
+Page 2 (595x842):
+  - "Second page. Third text"
+    bbox: (47.4, 81.1, 236.9, 98.3)
+```
+
 ### PDF Text Extraction
 
 ```python
