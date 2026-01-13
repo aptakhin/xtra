@@ -10,6 +10,7 @@ from PIL import Image, UnidentifiedImageError
 
 from ..models import (
     BBox,
+    CoordinateUnit,
     DocumentMetadata,
     Page,
     ExtractorType,
@@ -42,8 +43,9 @@ class EasyOcrExtractor(BaseExtractor):
         languages: Optional[List[str]] = None,
         gpu: bool = False,
         dpi: int = 200,
+        output_unit: CoordinateUnit = CoordinateUnit.POINTS,
     ) -> None:
-        super().__init__(path)
+        super().__init__(path, output_unit)
         self.languages = languages or ["en"]
         self.gpu = gpu
         self.dpi = dpi
@@ -84,15 +86,15 @@ class EasyOcrExtractor(BaseExtractor):
             results = reader.readtext(np.array(img))
             text_blocks = self._convert_results(results)
 
-            return ExtractionResult(
-                page=Page(
-                    page=page,
-                    width=float(width),
-                    height=float(height),
-                    texts=text_blocks,
-                ),
-                success=True,
+            result_page = Page(
+                page=page,
+                width=float(width),
+                height=float(height),
+                texts=text_blocks,
             )
+            # Convert from native PIXELS to output_unit
+            result_page = self._convert_page(result_page, CoordinateUnit.PIXELS, self.dpi)
+            return ExtractionResult(page=result_page, success=True)
         except (IndexError, UnidentifiedImageError, OSError, RuntimeError) as e:
             logger.warning("Failed to extract page %d: %s", page, e)
             return ExtractionResult(

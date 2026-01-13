@@ -11,7 +11,7 @@ from azure.ai.documentintelligence.models import AnalyzeResult
 from azure.core.credentials import AzureKeyCredential
 
 from ..adapters.azure_di import AzureDocumentIntelligenceAdapter
-from ..models import DocumentMetadata, Page
+from ..models import CoordinateUnit, DocumentMetadata, Page
 from .base import BaseExtractor, ExtractionResult
 
 logger = logging.getLogger(__name__)
@@ -26,8 +26,9 @@ class AzureDocumentIntelligenceExtractor(BaseExtractor):
         endpoint: str,
         key: str,
         model_id: str = "prebuilt-read",
+        output_unit: CoordinateUnit = CoordinateUnit.POINTS,
     ) -> None:
-        super().__init__(path)
+        super().__init__(path, output_unit)
         self.endpoint = endpoint
         self.model_id = model_id
         self._client = DocumentIntelligenceClient(
@@ -66,6 +67,8 @@ class AzureDocumentIntelligenceExtractor(BaseExtractor):
                 raise ValueError("Document analysis failed")
 
             converted_page = self._adapter.convert_page(page)
+            # Convert from native INCHES to output_unit
+            converted_page = self._convert_page(converted_page, CoordinateUnit.INCHES)
             return ExtractionResult(page=converted_page, success=True)
 
         except (IndexError, ValueError, AttributeError) as e:

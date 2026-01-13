@@ -8,6 +8,7 @@ import pypdfium2 as pdfium
 
 from ..models import (
     BBox,
+    CoordinateUnit,
     DocumentMetadata,
     FontInfo,
     Page,
@@ -23,8 +24,12 @@ logger = logging.getLogger(__name__)
 class PdfExtractor(BaseExtractor):
     """Extract text and metadata from PDF files using pypdfium2."""
 
-    def __init__(self, path: Path) -> None:
-        super().__init__(path)
+    def __init__(
+        self,
+        path: Path,
+        output_unit: CoordinateUnit = CoordinateUnit.POINTS,
+    ) -> None:
+        super().__init__(path, output_unit)
         self._pdf = pdfium.PdfDocument(path)
 
     def get_page_count(self) -> int:
@@ -36,15 +41,15 @@ class PdfExtractor(BaseExtractor):
             pdf_page = self._pdf[page]
             width, height = pdf_page.get_size()
             text_blocks = self._extract_text_blocks(pdf_page, height)
-            return ExtractionResult(
-                page=Page(
-                    page=page,
-                    width=width,
-                    height=height,
-                    texts=text_blocks,
-                ),
-                success=True,
+            result_page = Page(
+                page=page,
+                width=width,
+                height=height,
+                texts=text_blocks,
             )
+            # Convert from native POINTS to output_unit
+            result_page = self._convert_page(result_page, CoordinateUnit.POINTS)
+            return ExtractionResult(page=result_page, success=True)
         except Exception as e:
             return ExtractionResult(
                 page=Page(page=page, width=0, height=0, texts=[]),

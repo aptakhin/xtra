@@ -6,7 +6,7 @@ import os
 from pathlib import Path
 from typing import Dict, List, Optional
 
-from ..models import ExtractorType
+from ..models import CoordinateUnit, ExtractorType
 from .base import BaseExtractor
 
 
@@ -25,6 +25,7 @@ def create_extractor(
     dpi: int = 200,
     use_gpu: bool = False,
     credentials: Optional[Dict[str, str]] = None,
+    output_unit: CoordinateUnit = CoordinateUnit.POINTS,
 ) -> BaseExtractor:
     """Create an extractor by type with unified parameters.
 
@@ -44,6 +45,11 @@ def create_extractor(
         credentials: Override credentials dict. If None, reads from env vars:
             - XTRA_AZURE_DI_ENDPOINT, XTRA_AZURE_DI_KEY for Azure
             - XTRA_GOOGLE_DOCAI_PROCESSOR_NAME, XTRA_GOOGLE_DOCAI_CREDENTIALS_PATH for Google
+        output_unit: Coordinate unit for output (default: POINTS).
+            - CoordinateUnit.POINTS - 1/72 inch (PDF native, resolution-independent)
+            - CoordinateUnit.PIXELS - Pixels at the specified DPI
+            - CoordinateUnit.INCHES - Imperial inches
+            - CoordinateUnit.NORMALIZED - 0-1 range relative to page dimensions
 
     Returns:
         Configured extractor instance.
@@ -52,33 +58,40 @@ def create_extractor(
         ValueError: If extractor_type is invalid or required credentials are missing.
 
     Example:
-        >>> from xtra import create_extractor, ExtractorType
+        >>> from xtra import create_extractor, ExtractorType, CoordinateUnit
         >>> with create_extractor(Path("doc.pdf"), ExtractorType.PDF) as ext:
-        ...     doc = ext.extract()
+        ...     doc = ext.extract()  # Coordinates in points (default)
+        >>> with create_extractor(Path("doc.pdf"), ExtractorType.EASYOCR,
+        ...                       output_unit=CoordinateUnit.PIXELS) as ext:
+        ...     doc = ext.extract()  # Coordinates in pixels
     """
     languages = languages or ["en"]
 
     if extractor_type == ExtractorType.PDF:
         from .pdf import PdfExtractor
 
-        return PdfExtractor(path)
+        return PdfExtractor(path, output_unit=output_unit)
 
     elif extractor_type == ExtractorType.EASYOCR:
         from .easy_ocr import EasyOcrExtractor
 
-        return EasyOcrExtractor(path, languages=languages, gpu=use_gpu, dpi=dpi)
+        return EasyOcrExtractor(
+            path, languages=languages, gpu=use_gpu, dpi=dpi, output_unit=output_unit
+        )
 
     elif extractor_type == ExtractorType.TESSERACT:
         from .tesseract_ocr import TesseractOcrExtractor
 
-        return TesseractOcrExtractor(path, languages=languages, dpi=dpi)
+        return TesseractOcrExtractor(path, languages=languages, dpi=dpi, output_unit=output_unit)
 
     elif extractor_type == ExtractorType.PADDLE:
         from .paddle_ocr import PaddleOcrExtractor
 
         # PaddleOCR uses single language string
         lang = languages[0] if languages else "en"
-        return PaddleOcrExtractor(path, lang=lang, use_gpu=use_gpu, dpi=dpi)
+        return PaddleOcrExtractor(
+            path, lang=lang, use_gpu=use_gpu, dpi=dpi, output_unit=output_unit
+        )
 
     elif extractor_type == ExtractorType.AZURE_DI:
         from .azure_di import AzureDocumentIntelligenceExtractor
@@ -92,7 +105,9 @@ def create_extractor(
                 "environment variables or pass credentials dict."
             )
 
-        return AzureDocumentIntelligenceExtractor(path, endpoint=endpoint, key=key)
+        return AzureDocumentIntelligenceExtractor(
+            path, endpoint=endpoint, key=key, output_unit=output_unit
+        )
 
     elif extractor_type == ExtractorType.GOOGLE_DOCAI:
         from .google_docai import GoogleDocumentAIExtractor
@@ -113,7 +128,10 @@ def create_extractor(
             )
 
         return GoogleDocumentAIExtractor(
-            path, processor_name=processor_name, credentials_path=credentials_path
+            path,
+            processor_name=processor_name,
+            credentials_path=credentials_path,
+            output_unit=output_unit,
         )
 
     else:

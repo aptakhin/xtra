@@ -27,6 +27,15 @@ class ExtractorType(StrEnum):
 SourceType = ExtractorType
 
 
+class CoordinateUnit(StrEnum):
+    """Units for coordinate output."""
+
+    PIXELS = "pixels"  # Image pixels at a given DPI
+    POINTS = "points"  # 1/72 inch (PDF native, default)
+    INCHES = "inches"  # Imperial inches
+    NORMALIZED = "normalized"  # 0-1 relative to page dimensions
+
+
 class BBox(BaseModel):
     x0: float
     y0: float
@@ -51,11 +60,19 @@ class TextBlock(BaseModel):
     font_info: Optional[FontInfo] = None
 
 
+class CoordinateInfo(BaseModel):
+    """Information about the coordinate system used."""
+
+    unit: CoordinateUnit
+    dpi: Optional[float] = None  # Only meaningful for pixel-based coords
+
+
 class Page(BaseModel):
     page: int
     width: float
     height: float
     texts: List[TextBlock] = Field(default_factory=list)
+    coordinate_info: Optional[CoordinateInfo] = None
 
 
 class PdfObjectInfo(BaseModel):

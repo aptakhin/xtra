@@ -10,7 +10,7 @@ from google.cloud import documentai
 from google.oauth2 import service_account
 
 from ..adapters.google_docai import GoogleDocumentAIAdapter
-from ..models import DocumentMetadata, Page
+from ..models import CoordinateUnit, DocumentMetadata, Page
 from .base import BaseExtractor, ExtractionResult
 
 if TYPE_CHECKING:
@@ -28,6 +28,7 @@ class GoogleDocumentAIExtractor(BaseExtractor):
         processor_name: str,
         credentials_path: str,
         mime_type: Optional[str] = None,
+        output_unit: CoordinateUnit = CoordinateUnit.POINTS,
     ) -> None:
         """Initialize Google Document AI extractor.
 
@@ -37,8 +38,9 @@ class GoogleDocumentAIExtractor(BaseExtractor):
                 'projects/{project}/locations/{location}/processors/{processor_id}'
             credentials_path: Path to service account JSON credentials file.
             mime_type: Optional MIME type. If not provided, will be inferred from file extension.
+            output_unit: Coordinate unit for output. Default POINTS.
         """
-        super().__init__(path)
+        super().__init__(path, output_unit)
         self.processor_name = processor_name
         self.credentials_path = credentials_path
         self.mime_type = mime_type or self._infer_mime_type()
@@ -122,6 +124,9 @@ class GoogleDocumentAIExtractor(BaseExtractor):
                 raise ValueError("Document processing failed")
 
             converted_page = self._adapter.convert_page(page)
+            # Google DocAI outputs pixels after denormalization
+            # Use 72 DPI as standard PDF resolution for conversion
+            converted_page = self._convert_page(converted_page, CoordinateUnit.PIXELS, dpi=72.0)
             return ExtractionResult(page=converted_page, success=True)
 
         except (IndexError, ValueError, AttributeError) as e:

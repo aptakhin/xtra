@@ -92,16 +92,17 @@ class TestAzureDocumentIntelligenceExtractor:
             mock_client = MagicMock()
             mock_client_class.return_value = mock_client
 
-            # Create mock word
+            # Create mock word - Azure DI returns coordinates in inches
             mock_word = MagicMock()
             mock_word.content = "Hello"
-            mock_word.polygon = [10.0, 20.0, 60.0, 20.0, 60.0, 40.0, 10.0, 40.0]
+            # Polygon in inches: ~(0.14, 0.28) to (0.83, 0.56) inches
+            mock_word.polygon = [0.14, 0.28, 0.83, 0.28, 0.83, 0.56, 0.14, 0.56]
             mock_word.confidence = 0.95
 
-            # Create mock page
+            # Create mock page - dimensions in inches (8.5x11 letter size)
             mock_page = MagicMock()
-            mock_page.width = 612.0
-            mock_page.height = 792.0
+            mock_page.width = 8.5
+            mock_page.height = 11.0
             mock_page.words = [mock_word]
 
             mock_result = MagicMock()
@@ -124,15 +125,17 @@ class TestAzureDocumentIntelligenceExtractor:
 
             assert result.success
             assert result.page.page == 0
-            assert result.page.width == 612.0
-            assert result.page.height == 792.0
+            # Page dimensions converted from inches to points (default)
+            assert result.page.width == 612.0  # 8.5 * 72
+            assert result.page.height == 792.0  # 11.0 * 72
             assert len(result.page.texts) == 1
             assert result.page.texts[0].text == "Hello"
             assert result.page.texts[0].confidence == 0.95
-            assert result.page.texts[0].bbox.x0 == 10.0
-            assert result.page.texts[0].bbox.y0 == 20.0
-            assert result.page.texts[0].bbox.x1 == 60.0
-            assert result.page.texts[0].bbox.y1 == 40.0
+            # Bbox converted from inches to points
+            assert abs(result.page.texts[0].bbox.x0 - 10.08) < 0.01  # 0.14 * 72
+            assert abs(result.page.texts[0].bbox.y0 - 20.16) < 0.01  # 0.28 * 72
+            assert abs(result.page.texts[0].bbox.x1 - 59.76) < 0.01  # 0.83 * 72
+            assert abs(result.page.texts[0].bbox.y1 - 40.32) < 0.01  # 0.56 * 72
 
     def test_extract_page_out_of_range(self) -> None:
         with patch("xtra.extractors.azure_di.DocumentIntelligenceClient") as mock_client_class:

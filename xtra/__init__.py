@@ -13,6 +13,7 @@ from .extractors import (
 )
 from .models import (
     BBox,
+    CoordinateUnit,
     Document,
     DocumentMetadata,
     ExtractorType,
@@ -40,6 +41,7 @@ __all__ = [
     "OcrExtractor",
     # Models
     "BBox",
+    "CoordinateUnit",
     "FontInfo",
     "TextBlock",
     "Page",

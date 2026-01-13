@@ -76,16 +76,17 @@ class TestTesseractOcrExtractor:
 
             assert result.success is True
             assert result.page.page == 0
-            assert result.page.width == 800
-            assert result.page.height == 600
+            # Dimensions converted from pixels to points (default) at 200 DPI
+            assert result.page.width == 288.0  # 800 * (72/200)
+            assert result.page.height == 216.0  # 600 * (72/200)
             assert len(result.page.texts) == 2
 
-            # Check first word
+            # Check first word - bbox converted from pixels to points
             assert result.page.texts[0].text == "Hello"
-            assert result.page.texts[0].bbox.x0 == 10
-            assert result.page.texts[0].bbox.y0 == 20
-            assert result.page.texts[0].bbox.x1 == 90  # 10 + 80
-            assert result.page.texts[0].bbox.y1 == 50  # 20 + 30
+            assert result.page.texts[0].bbox.x0 == pytest.approx(3.6, rel=0.01)  # 10 * (72/200)
+            assert result.page.texts[0].bbox.y0 == pytest.approx(7.2, rel=0.01)  # 20 * (72/200)
+            assert result.page.texts[0].bbox.x1 == pytest.approx(32.4, rel=0.01)  # 90 * (72/200)
+            assert result.page.texts[0].bbox.y1 == pytest.approx(18.0, rel=0.01)  # 50 * (72/200)
             assert result.page.texts[0].confidence == pytest.approx(0.955, rel=0.01)
 
             # Check second word
@@ -338,8 +339,9 @@ class TestTesseractOcrExtractorWithPdf:
 
             assert result.success is True
             assert result.page.page == 0
-            assert result.page.width == 1200
-            assert result.page.height == 900
+            # Dimensions converted from pixels to points (default) at 200 DPI
+            assert result.page.width == 432.0  # 1200 * (72/200)
+            assert result.page.height == 324.0  # 900 * (72/200)
             assert len(result.page.texts) == 1
             assert result.page.texts[0].text == "PDF"
 

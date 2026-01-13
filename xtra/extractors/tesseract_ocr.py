@@ -12,6 +12,7 @@ from PIL import Image, UnidentifiedImageError
 
 from ..models import (
     BBox,
+    CoordinateUnit,
     DocumentMetadata,
     Page,
     ExtractorType,
@@ -81,6 +82,7 @@ class TesseractOcrExtractor(BaseExtractor):
         path: Path,
         languages: Optional[List[str]] = None,
         dpi: int = 200,
+        output_unit: CoordinateUnit = CoordinateUnit.POINTS,
     ) -> None:
         """Initialize Tesseract OCR extractor.
 
@@ -89,8 +91,9 @@ class TesseractOcrExtractor(BaseExtractor):
             languages: List of 2-letter ISO 639-1 language codes (e.g., ["en", "fr"]).
                        Defaults to ["en"]. Codes are converted to Tesseract format internally.
             dpi: DPI for PDF-to-image conversion. Default 200.
+            output_unit: Coordinate unit for output. Default POINTS.
         """
-        super().__init__(path)
+        super().__init__(path, output_unit)
         input_languages = languages or ["en"]
         # Store original 2-letter codes for metadata
         self.languages = input_languages
@@ -136,15 +139,15 @@ class TesseractOcrExtractor(BaseExtractor):
 
             text_blocks = self._convert_results(data)
 
-            return ExtractionResult(
-                page=Page(
-                    page=page,
-                    width=float(width),
-                    height=float(height),
-                    texts=text_blocks,
-                ),
-                success=True,
+            result_page = Page(
+                page=page,
+                width=float(width),
+                height=float(height),
+                texts=text_blocks,
             )
+            # Convert from native PIXELS to output_unit
+            result_page = self._convert_page(result_page, CoordinateUnit.PIXELS, self.dpi)
+            return ExtractionResult(page=result_page, success=True)
         except (IndexError, UnidentifiedImageError, OSError, RuntimeError) as e:
             logger.warning("Failed to extract page %d with Tesseract: %s", page, e)
             return ExtractionResult(

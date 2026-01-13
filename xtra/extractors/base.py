@@ -5,7 +5,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import List, Optional, Sequence
 
-from ..models import Document, DocumentMetadata, Page
+from ..coordinates import CoordinateConverter
+from ..models import CoordinateUnit, Document, DocumentMetadata, Page
 
 
 @dataclass
@@ -20,8 +21,13 @@ class ExtractionResult:
 class BaseExtractor(ABC):
     """Base class for document extractors."""
 
-    def __init__(self, path: Path) -> None:
+    def __init__(
+        self,
+        path: Path,
+        output_unit: CoordinateUnit = CoordinateUnit.POINTS,
+    ) -> None:
         self.path = path
+        self.output_unit = output_unit
 
     @abstractmethod
     def get_page_count(self) -> int:
@@ -54,6 +60,34 @@ class BaseExtractor(ABC):
     def close(self) -> None:
         """Clean up resources. Override in subclasses if needed."""
         pass
+
+    def _convert_page(
+        self,
+        page: Page,
+        source_unit: CoordinateUnit,
+        dpi: Optional[float] = None,
+    ) -> Page:
+        """Convert page coordinates from source unit to output_unit.
+
+        Args:
+            page: The page with coordinates in source_unit.
+            source_unit: The native unit of the source coordinates.
+            dpi: DPI value for pixel conversions (required for PIXELS source/target).
+
+        Returns:
+            A new Page with coordinates converted to self.output_unit.
+        """
+        if source_unit == self.output_unit:
+            # No conversion needed
+            return page
+
+        converter = CoordinateConverter(
+            source_unit=source_unit,
+            page_width=page.width,
+            page_height=page.height,
+            dpi=dpi,
+        )
+        return converter.convert_page(page, self.output_unit, target_dpi=dpi)
 
     def __enter__(self) -> "BaseExtractor":
         return self
