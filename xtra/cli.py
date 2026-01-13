@@ -10,9 +10,9 @@ from typing import Optional, Sequence
 
 from .extractors import (
     AzureDocumentIntelligenceExtractor,
-    OcrExtractor,
+    EasyOcrExtractor,
     PdfExtractor,
-    PdfToImageOcrExtractor,
+    PdfToImageEasyOcrExtractor,
 )
 from .models import SourceType
 
@@ -25,7 +25,8 @@ def main() -> None:
         type=str,
         choices=[e.value for e in SourceType],
         required=True,
-        help="Extractor type: pdf, ocr, pdf-ocr, azure-di",
+        help="Extractor type: pdf, easyocr, pdf-easyocr, tesseract, pdf-tesseract, paddle, "
+        "pdf-paddle, azure-di, google-docai",
     )
     parser.add_argument("--json", action="store_true", help="Output as JSON")
     parser.add_argument(
@@ -73,10 +74,10 @@ def main() -> None:
 
     if extractor_type == SourceType.PDF:
         extractor = PdfExtractor(args.input)
-    elif extractor_type == SourceType.OCR:
-        extractor = OcrExtractor(args.input, languages=languages)
-    elif extractor_type == SourceType.PDF_OCR:
-        extractor = PdfToImageOcrExtractor(args.input, languages=languages)
+    elif extractor_type == SourceType.EASYOCR:
+        extractor = EasyOcrExtractor(args.input, languages=languages)
+    elif extractor_type == SourceType.PDF_EASYOCR:
+        extractor = PdfToImageEasyOcrExtractor(args.input, languages=languages)
     elif extractor_type == SourceType.AZURE_DI:
         if not args.azure_endpoint or not args.azure_key:
             print(

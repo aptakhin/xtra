@@ -16,8 +16,8 @@ TEST_DATA_DIR = Path(__file__).parent / "data"
 def test_source_type_used_in_cli() -> None:
     # SourceType is used as the extractor choices in CLI
     assert SourceType.PDF == "pdf"
-    assert SourceType.OCR == "ocr"
-    assert SourceType.PDF_OCR == "pdf-ocr"
+    assert SourceType.EASYOCR == "easyocr"
+    assert SourceType.PDF_EASYOCR == "pdf-easyocr"
     assert SourceType.AZURE_DI == "azure-di"
 
 

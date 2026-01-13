@@ -2,9 +2,11 @@ from .adapters import AzureDocumentIntelligenceAdapter
 from .extractors import (
     AzureDocumentIntelligenceExtractor,
     BaseExtractor,
+    EasyOcrExtractor,
     ExtractionResult,
     OcrExtractor,
     PdfExtractor,
+    PdfToImageEasyOcrExtractor,
     PdfToImageOcrExtractor,
 )
 from .models import (
@@ -26,6 +28,9 @@ __all__ = [
     "BaseExtractor",
     "ExtractionResult",
     "PdfExtractor",
+    "EasyOcrExtractor",
+    "PdfToImageEasyOcrExtractor",
+    # Deprecated aliases
     "OcrExtractor",
     "PdfToImageOcrExtractor",
     # Models

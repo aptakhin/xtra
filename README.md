@@ -34,14 +34,14 @@ with PdfExtractor(Path("document.pdf")) as extractor:
 
 ```python
 from pathlib import Path
-from xtra import OcrExtractor, PdfToImageOcrExtractor
+from xtra import EasyOcrExtractor, PdfToImageEasyOcrExtractor
 
 # For images
-with OcrExtractor(Path("image.png"), languages=["en"]) as extractor:
+with EasyOcrExtractor(Path("image.png"), languages=["en"]) as extractor:
     doc = extractor.extract()
 
 # For PDFs via OCR
-with PdfToImageOcrExtractor(Path("scanned.pdf"), languages=["en"], dpi=200) as extractor:
+with PdfToImageEasyOcrExtractor(Path("scanned.pdf"), languages=["en"], dpi=200) as extractor:
     doc = extractor.extract()
 ```
 
@@ -120,11 +120,11 @@ with GoogleDocumentAIExtractor(
 # PDF extraction
 poetry run python -m xtra.cli document.pdf --extractor pdf
 
-# OCR extraction
-poetry run python -m xtra.cli image.png --extractor ocr --lang en,it
+# EasyOCR extraction
+poetry run python -m xtra.cli image.png --extractor easyocr --lang en,it
 
-# PDF via OCR
-poetry run python -m xtra.cli scanned.pdf --extractor pdf-ocr
+# PDF via EasyOCR
+poetry run python -m xtra.cli scanned.pdf --extractor pdf-easyocr
 
 # Azure Document Intelligence
 poetry run python -m xtra.cli document.pdf --extractor azure-di \
@@ -172,8 +172,8 @@ Integration tests run against real files and services without mocking. They are 
 
 **Local extractors** (no credentials required):
 - `PdfExtractor` - Tests PDF text extraction
-- `OcrExtractor` - Tests image OCR with EasyOCR
-- `PdfToImageOcrExtractor` - Tests PDF-to-image OCR with EasyOCR
+- `EasyOcrExtractor` - Tests image OCR with EasyOCR
+- `PdfToImageEasyOcrExtractor` - Tests PDF-to-image OCR with EasyOCR
 - `TesseractOcrExtractor` - Tests image OCR with Tesseract (requires Tesseract installed)
 - `PdfToImageTesseractExtractor` - Tests PDF-to-image OCR with Tesseract
 - `PaddleOcrExtractor` - Tests image OCR with PaddleOCR
@@ -258,8 +258,8 @@ xtra/
 
 Low-level document extraction:
 - `PdfExtractor` - Native PDF text extraction via pypdfium2
-- `OcrExtractor` - Image OCR via EasyOCR
-- `PdfToImageOcrExtractor` - PDF to image + EasyOCR
+- `EasyOcrExtractor` - Image OCR via EasyOCR
+- `PdfToImageEasyOcrExtractor` - PDF to image + EasyOCR
 - `TesseractOcrExtractor` - Image OCR via Tesseract
 - `PdfToImageTesseractExtractor` - PDF to image + Tesseract OCR
 - `PaddleOcrExtractor` - Image OCR via PaddleOCR

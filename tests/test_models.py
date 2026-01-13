@@ -89,12 +89,12 @@ def test_document_metadata_pdf() -> None:
     assert meta.pdf_objects == []
 
 
-def test_document_metadata_ocr() -> None:
+def test_document_metadata_easyocr() -> None:
     meta = DocumentMetadata(
-        source_type=SourceType.OCR,
+        source_type=SourceType.EASYOCR,
         extra={"ocr_engine": "easyocr"},
     )
-    assert meta.source_type == SourceType.OCR
+    assert meta.source_type == SourceType.EASYOCR
     assert meta.extra["ocr_engine"] == "easyocr"
 
 
@@ -117,6 +117,6 @@ def test_document_with_pages() -> None:
 
 def test_source_type_enum() -> None:
     assert SourceType.PDF == "pdf"
-    assert SourceType.OCR == "ocr"
-    assert SourceType.PDF_OCR == "pdf-ocr"
+    assert SourceType.EASYOCR == "easyocr"
+    assert SourceType.PDF_EASYOCR == "pdf-easyocr"
     assert SourceType.AZURE_DI == "azure-di"

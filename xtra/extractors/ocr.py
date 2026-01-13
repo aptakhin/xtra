@@ -30,7 +30,7 @@ def get_reader(languages: List[str], gpu: bool = False) -> easyocr.Reader:
     return _reader_cache[key]
 
 
-class OcrExtractor(BaseExtractor):
+class EasyOcrExtractor(BaseExtractor):
     """Extract text from images using EasyOCR."""
 
     def __init__(
@@ -85,7 +85,7 @@ class OcrExtractor(BaseExtractor):
 
     def get_metadata(self) -> DocumentMetadata:
         return DocumentMetadata(
-            source_type=SourceType.OCR,
+            source_type=SourceType.EASYOCR,
             extra={"ocr_engine": "easyocr", "languages": self.languages},
         )
 
@@ -117,8 +117,8 @@ class OcrExtractor(BaseExtractor):
         return bbox, rotation
 
 
-class PdfToImageOcrExtractor(BaseExtractor):
-    """Extract text from PDF by converting pages to images and running OCR."""
+class PdfToImageEasyOcrExtractor(BaseExtractor):
+    """Extract text from PDF by converting pages to images and running EasyOCR."""
 
     def __init__(
         self,
@@ -183,7 +183,7 @@ class PdfToImageOcrExtractor(BaseExtractor):
 
     def get_metadata(self) -> DocumentMetadata:
         return DocumentMetadata(
-            source_type=SourceType.PDF_OCR,
+            source_type=SourceType.PDF_EASYOCR,
             extra={
                 "ocr_engine": "easyocr",
                 "languages": self.languages,

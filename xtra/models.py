@@ -16,8 +16,8 @@ except ImportError:
 
 class SourceType(StrEnum):
     PDF = "pdf"
-    OCR = "ocr"
-    PDF_OCR = "pdf-ocr"
+    EASYOCR = "easyocr"
+    PDF_EASYOCR = "pdf-easyocr"
     TESSERACT = "tesseract"
     PDF_TESSERACT = "pdf-tesseract"
     PADDLE = "paddle"

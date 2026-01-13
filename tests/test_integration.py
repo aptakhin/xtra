@@ -20,7 +20,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from xtra.extractors import PdfExtractor
 from xtra.extractors.azure_di import AzureDocumentIntelligenceExtractor
 from xtra.extractors.google_docai import GoogleDocumentAIExtractor
-from xtra.extractors.ocr import OcrExtractor, PdfToImageOcrExtractor
+from xtra.extractors.ocr import EasyOcrExtractor, PdfToImageEasyOcrExtractor
 from xtra.extractors.tesseract_ocr import PdfToImageTesseractExtractor, TesseractOcrExtractor
 from xtra.extractors.paddle_ocr import PaddleOcrExtractor, PdfToImagePaddleExtractor
 from xtra.models import SourceType
@@ -67,18 +67,18 @@ class TestPdfExtractorIntegration:
 
 
 @pytest.mark.easyocr
-class TestOcrExtractorIntegration:
-    """Integration tests for OcrExtractor using real image files."""
+class TestEasyOcrExtractorIntegration:
+    """Integration tests for EasyOcrExtractor using real image files."""
 
     def test_extract_image_with_text(self) -> None:
         """Extract text from an image using EasyOCR."""
-        with OcrExtractor(TEST_DATA_DIR / "test_image.png", languages=["en"]) as extractor:
+        with EasyOcrExtractor(TEST_DATA_DIR / "test_image.png", languages=["en"]) as extractor:
             doc = extractor.extract()
 
         assert doc.path == TEST_DATA_DIR / "test_image.png"
         assert len(doc.pages) == 1
         assert doc.metadata is not None
-        assert doc.metadata.source_type == SourceType.OCR
+        assert doc.metadata.source_type == SourceType.EASYOCR
         assert doc.metadata.extra["ocr_engine"] == "easyocr"
 
         # Verify OCR detected text
@@ -99,12 +99,12 @@ class TestOcrExtractorIntegration:
 
 
 @pytest.mark.easyocr
-class TestPdfToImageOcrExtractorIntegration:
-    """Integration tests for PdfToImageOcrExtractor using real PDF files."""
+class TestPdfToImageEasyOcrExtractorIntegration:
+    """Integration tests for PdfToImageEasyOcrExtractor using real PDF files."""
 
-    def test_extract_pdf_via_ocr(self) -> None:
-        """Extract text from a PDF by converting to images and running OCR."""
-        with PdfToImageOcrExtractor(
+    def test_extract_pdf_via_easyocr(self) -> None:
+        """Extract text from a PDF by converting to images and running EasyOCR."""
+        with PdfToImageEasyOcrExtractor(
             TEST_DATA_DIR / "test_pdf_2p_text.pdf", languages=["en"], dpi=150
         ) as extractor:
             doc = extractor.extract()
@@ -112,7 +112,7 @@ class TestPdfToImageOcrExtractorIntegration:
         assert doc.path == TEST_DATA_DIR / "test_pdf_2p_text.pdf"
         assert len(doc.pages) == 2
         assert doc.metadata is not None
-        assert doc.metadata.source_type == SourceType.PDF_OCR
+        assert doc.metadata.source_type == SourceType.PDF_EASYOCR
         assert doc.metadata.extra["ocr_engine"] == "easyocr"
         assert doc.metadata.extra["dpi"] == 150
 
