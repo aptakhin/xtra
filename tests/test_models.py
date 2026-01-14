@@ -6,7 +6,6 @@ from xtra.models import (
     ExtractorMetadata,
     FontInfo,
     Page,
-    PdfObjectInfo,
     ExtractorType,
     TextBlock,
 )
@@ -67,20 +66,10 @@ def test_page_with_texts() -> None:
     assert page.texts[0].text == "Test"
 
 
-def test_pdf_object_info() -> None:
-    obj = PdfObjectInfo(obj_id=123, obj_type="PdfObject")
-    assert obj.obj_id == 123
-    assert obj.obj_type == "PdfObject"
-    assert obj.generation == 0
-    assert obj.raw is None
-
-
 def test_document_metadata_pdf() -> None:
     meta = ExtractorMetadata(extractor_type=ExtractorType.PDF, creator="Test")
     assert meta.extractor_type == ExtractorType.PDF
     assert meta.creator == "Test"
-    assert meta.fonts == []
-    assert meta.pdf_objects == []
 
 
 def test_document_metadata_easyocr() -> None:

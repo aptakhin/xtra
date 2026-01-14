@@ -69,13 +69,6 @@ class Page(BaseModel):
     coordinate_info: Optional[CoordinateInfo] = None
 
 
-class PdfObjectInfo(BaseModel):
-    obj_id: int
-    obj_type: str
-    generation: int = 0
-    raw: Optional[str] = None
-
-
 class ExtractorMetadata(BaseModel):
     extractor_type: ExtractorType
     creator: Optional[str] = None
@@ -84,8 +77,6 @@ class ExtractorMetadata(BaseModel):
     author: Optional[str] = None
     creation_date: Optional[str] = None
     modification_date: Optional[str] = None
-    fonts: List[FontInfo] = Field(default_factory=list)
-    pdf_objects: List[PdfObjectInfo] = Field(default_factory=list)
     extra: dict[str, Any] = Field(default_factory=dict)
 
 

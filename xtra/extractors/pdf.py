@@ -12,7 +12,6 @@ from xtra.models import (
     ExtractorMetadata,
     FontInfo,
     Page,
-    PdfObjectInfo,
     ExtractorType,
     TextBlock,
 )
@@ -67,8 +66,6 @@ class PdfExtractor(BaseExtractor):
         except (KeyError, ValueError, pdfium.PdfiumError) as e:
             logger.warning("Failed to extract PDF metadata: %s", e)
 
-        pdf_objects = self._extract_pdf_objects()
-
         return ExtractorMetadata(
             extractor_type=ExtractorType.PDF,
             title=metadata_dict.get("title"),
@@ -77,7 +74,6 @@ class PdfExtractor(BaseExtractor):
             producer=metadata_dict.get("producer"),
             creation_date=metadata_dict.get("creationdate"),
             modification_date=metadata_dict.get("moddate"),
-            pdf_objects=pdf_objects,
         )
 
     def close(self) -> None:
@@ -176,15 +172,3 @@ class PdfExtractor(BaseExtractor):
         except (AttributeError, IndexError, pdfium.PdfiumError) as e:
             logger.debug("Failed to extract font info for char %d: %s", char_index, e)
             return None
-
-    def _extract_pdf_objects(self) -> List[PdfObjectInfo]:
-        objects = []
-        try:
-            for page_num in range(len(self._pdf)):
-                page = self._pdf[page_num]
-                for obj in page.get_objects():
-                    obj_type = type(obj).__name__
-                    objects.append(PdfObjectInfo(obj_id=id(obj), obj_type=obj_type))
-        except (IndexError, pdfium.PdfiumError) as e:
-            logger.warning("Failed to extract PDF objects: %s", e)
-        return objects

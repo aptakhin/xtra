@@ -17,7 +17,6 @@ from xtra.models import (
     ExtractorType,
     FontInfo,
     Page,
-    PdfObjectInfo,
     TextBlock,
 )
 
@@ -40,7 +39,6 @@ __all__ = [
     "FontInfo",
     "TextBlock",
     "Page",
-    "PdfObjectInfo",
     "ExtractorMetadata",
     "ExtractorType",
 ]
