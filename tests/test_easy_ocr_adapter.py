@@ -29,23 +29,18 @@ class TestEasyOCRDetection:
         assert detection.text == "Hello"
         assert detection.confidence == 0.95
 
-    def test_invalid_polygon_wrong_point_count(self) -> None:
+    @pytest.mark.parametrize(
+        ("polygon", "error_fragment"),
+        [
+            ([[10, 20], [90, 20], [90, 50]], "points"),  # 3 points
+            ([[10], [90, 20], [90, 50], [10, 50]], "coordinates"),  # bad coords
+        ],
+        ids=["wrong_point_count", "wrong_coordinate_count"],
+    )
+    def test_invalid_polygon(self, polygon: list, error_fragment: str) -> None:
         with pytest.raises(ValidationError) as exc_info:
-            EasyOCRDetection(
-                polygon=[[10, 20], [90, 20], [90, 50]],  # Only 3 points
-                text="Hello",
-                confidence=0.95,
-            )
-        assert "points" in str(exc_info.value)
-
-    def test_invalid_polygon_wrong_coordinate_count(self) -> None:
-        with pytest.raises(ValidationError) as exc_info:
-            EasyOCRDetection(
-                polygon=[[10], [90, 20], [90, 50], [10, 50]],  # First point has 1 coord
-                text="Hello",
-                confidence=0.95,
-            )
-        assert "coordinates" in str(exc_info.value)
+            EasyOCRDetection(polygon=polygon, text="Hello", confidence=0.95)
+        assert error_fragment in str(exc_info.value)
 
 
 class TestEasyOCRResult:
@@ -65,7 +60,7 @@ class TestEasyOCRResult:
         result = EasyOCRResult.from_easyocr_output([])
         assert len(result.detections) == 0
 
-    def test_from_easyocr_output_none_items(self) -> None:
+    def test_from_easyocr_output_filters_none_items(self) -> None:
         easyocr_output = [
             None,
             ([[10, 20], [90, 20], [90, 50], [10, 50]], "Hello", 0.95),
@@ -118,7 +113,6 @@ class TestEasyOCRAdapter:
 
     def test_convert_result_with_rotation(self) -> None:
         adapter = EasyOCRAdapter()
-        # Rotated text (not axis-aligned)
         easyocr_output = [
             ([[10, 30], [90, 20], [95, 50], [15, 60]], "Rotated", 0.9),
         ]
@@ -127,5 +121,4 @@ class TestEasyOCRAdapter:
 
         assert len(blocks) == 1
         assert blocks[0].text == "Rotated"
-        # Rotation should be detected (non-zero for rotated text)
         assert blocks[0].rotation is not None

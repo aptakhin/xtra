@@ -29,23 +29,18 @@ class TestPaddleOCRDetection:
         assert detection.text == "Hello"
         assert detection.confidence == 0.95
 
-    def test_invalid_polygon_wrong_point_count(self) -> None:
+    @pytest.mark.parametrize(
+        ("polygon", "error_fragment"),
+        [
+            ([[10.0, 20.0], [90.0, 20.0], [90.0, 50.0]], "points"),  # 3 points
+            ([[10.0], [90.0, 20.0], [90.0, 50.0], [10.0, 50.0]], "coordinates"),  # bad coords
+        ],
+        ids=["wrong_point_count", "wrong_coordinate_count"],
+    )
+    def test_invalid_polygon(self, polygon: list, error_fragment: str) -> None:
         with pytest.raises(ValidationError) as exc_info:
-            PaddleOCRDetection(
-                polygon=[[10.0, 20.0], [90.0, 20.0], [90.0, 50.0]],  # Only 3 points
-                text="Hello",
-                confidence=0.95,
-            )
-        assert "points" in str(exc_info.value)
-
-    def test_invalid_polygon_wrong_coordinate_count(self) -> None:
-        with pytest.raises(ValidationError) as exc_info:
-            PaddleOCRDetection(
-                polygon=[[10.0], [90.0, 20.0], [90.0, 50.0], [10.0, 50.0]],
-                text="Hello",
-                confidence=0.95,
-            )
-        assert "coordinates" in str(exc_info.value)
+            PaddleOCRDetection(polygon=polygon, text="Hello", confidence=0.95)
+        assert error_fragment in str(exc_info.value)
 
 
 class TestPaddleOCRResult:
@@ -63,19 +58,16 @@ class TestPaddleOCRResult:
         assert result.detections[0].text == "Hello"
         assert result.detections[1].text == "World"
 
-    def test_from_paddle_output_empty(self) -> None:
-        result = PaddleOCRResult.from_paddle_output([])
+    @pytest.mark.parametrize(
+        "paddle_output",
+        [[], None, [[]]],
+        ids=["empty_list", "none", "empty_inner_list"],
+    )
+    def test_from_paddle_output_empty_inputs(self, paddle_output: list | None) -> None:
+        result = PaddleOCRResult.from_paddle_output(paddle_output)
         assert len(result.detections) == 0
 
-    def test_from_paddle_output_none(self) -> None:
-        result = PaddleOCRResult.from_paddle_output(None)
-        assert len(result.detections) == 0
-
-    def test_from_paddle_output_empty_inner_list(self) -> None:
-        result = PaddleOCRResult.from_paddle_output([[]])
-        assert len(result.detections) == 0
-
-    def test_from_paddle_output_none_items(self) -> None:
+    def test_from_paddle_output_filters_none_items(self) -> None:
         paddle_output = [
             [
                 None,
@@ -113,13 +105,14 @@ class TestPaddleOCRAdapter:
         assert blocks[1].text == "World"
         assert blocks[1].confidence == pytest.approx(0.872, rel=0.01)
 
-    def test_convert_result_empty(self) -> None:
+    @pytest.mark.parametrize(
+        "paddle_output",
+        [[], None],
+        ids=["empty_list", "none"],
+    )
+    def test_convert_result_empty_inputs(self, paddle_output: list | None) -> None:
         adapter = PaddleOCRAdapter()
-        assert adapter.convert_result([]) == []
-
-    def test_convert_result_none(self) -> None:
-        adapter = PaddleOCRAdapter()
-        assert adapter.convert_result(None) == []
+        assert adapter.convert_result(paddle_output) == []
 
     def test_convert_result_filters_empty_text(self) -> None:
         adapter = PaddleOCRAdapter()
@@ -138,7 +131,6 @@ class TestPaddleOCRAdapter:
 
     def test_convert_result_with_rotation(self) -> None:
         adapter = PaddleOCRAdapter()
-        # Rotated text (not axis-aligned)
         paddle_output = [
             [
                 ([[10.0, 30.0], [90.0, 20.0], [95.0, 50.0], [15.0, 60.0]], ("Rotated", 0.9)),
@@ -149,5 +141,4 @@ class TestPaddleOCRAdapter:
 
         assert len(blocks) == 1
         assert blocks[0].text == "Rotated"
-        # Rotation should be detected (non-zero for rotated text)
         assert blocks[0].rotation is not None
