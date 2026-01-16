@@ -36,7 +36,7 @@ class CharacterMerger(ABC):
     def merge(
         self,
         chars: List[CharInfo],
-        textpage: pdfium.PdfTextPage,
+        textpage: Optional[pdfium.PdfTextPage],
         page_height: float,
     ) -> List[TextBlock]:
         """Merge characters into TextBlocks.
@@ -44,6 +44,7 @@ class CharacterMerger(ABC):
         Args:
             chars: List of character information extracted from the PDF page.
             textpage: The pdfium text page object for font info extraction.
+                Can be None for testing without PDF dependencies.
             page_height: Height of the page for coordinate conversion.
 
         Returns:
@@ -53,10 +54,12 @@ class CharacterMerger(ABC):
 
     def _extract_font_info(
         self,
-        textpage: pdfium.PdfTextPage,
+        textpage: Optional[pdfium.PdfTextPage],
         char_index: int,
     ) -> Optional[FontInfo]:
         """Extract font information for a character."""
+        if textpage is None:
+            return None
         try:
             text_obj = textpage.get_textobj(char_index)
             if text_obj is None:
@@ -98,7 +101,7 @@ class BasicLineMerger(CharacterMerger):
     def merge(
         self,
         chars: List[CharInfo],
-        textpage: pdfium.PdfTextPage,
+        textpage: Optional[pdfium.PdfTextPage],
         page_height: float,
     ) -> List[TextBlock]:
         if not chars:
@@ -135,7 +138,7 @@ class BasicLineMerger(CharacterMerger):
     def _create_text_block(
         self,
         chars: List[CharInfo],
-        textpage: pdfium.PdfTextPage,
+        textpage: Optional[pdfium.PdfTextPage],
         page_height: float,
     ) -> Optional[TextBlock]:
         if not chars:
@@ -173,7 +176,7 @@ class KeepCharacterMerger(CharacterMerger):
     def merge(
         self,
         chars: List[CharInfo],
-        textpage: pdfium.PdfTextPage,
+        textpage: Optional[pdfium.PdfTextPage],
         page_height: float,
     ) -> List[TextBlock]:
         blocks: List[TextBlock] = []

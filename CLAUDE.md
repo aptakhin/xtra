@@ -20,6 +20,17 @@
 - Cloud extractors (Azure, Google) use credential fixtures that skip if credentials aren't configured
 - Local OCR tests (EasyOCR, Tesseract, PaddleOCR) run unconditionally
 - Use 2-letter ISO 639-1 language codes (e.g., "en", "fr", "de") for all extractors
+- Keep tests loosely coupled: test logic with fixtures/mocks, not real files when possible
+
+## Design Principles
+
+- Think about correct degree of coupling when designing components
+- Prefer exceptions for invalid user input over returning error objects
+
+## Error Handling
+
+- Raise exceptions for invalid user input (e.g., invalid page number, missing file)
+- Use result objects with success/error fields only for expected failures during processing
 
 ## Coordinate System
 
