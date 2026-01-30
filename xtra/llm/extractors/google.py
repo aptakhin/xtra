@@ -99,12 +99,17 @@ def extract_google(  # noqa: PLR0913
                 client=client,
                 mode=instructor.Mode.GENAI_TOOLS,
             )
+            # Pass empty safety_settings to avoid instructor's invalid defaults
+            # See: https://github.com/567-labs/instructor/issues/1658
             response = instructor_client.chat.completions.create(
                 model=model,
                 response_model=schema,
                 max_retries=max_retries,
                 messages=cast("Any", [{"role": "user", "content": content}]),
-                generation_config=types.GenerateContentConfig(temperature=temperature),
+                generation_config=types.GenerateContentConfig(
+                    temperature=temperature,
+                    safety_settings=[],
+                ),
             )
             data = cast("T", response)
         else:
@@ -180,12 +185,17 @@ async def extract_google_async(  # noqa: PLR0913
                 mode=instructor.Mode.GENAI_TOOLS,
                 use_async=True,
             )
+            # Pass empty safety_settings to avoid instructor's invalid defaults
+            # See: https://github.com/567-labs/instructor/issues/1658
             response = await instructor_client.chat.completions.create(
                 model=model,
                 response_model=schema,
                 max_retries=max_retries,
                 messages=cast("Any", [{"role": "user", "content": content}]),
-                generation_config=types.GenerateContentConfig(temperature=temperature),
+                generation_config=types.GenerateContentConfig(
+                    temperature=temperature,
+                    safety_settings=[],
+                ),
             )
             data = cast("T", response)
         else:
