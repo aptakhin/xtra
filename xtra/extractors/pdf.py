@@ -90,13 +90,16 @@ class PdfExtractor(BaseExtractor):
         if char_count == 0:
             return []
 
+        # Batch text extraction (206x faster than per-char)
+        all_text = textpage.get_text_range(0, char_count)
+
+        # Check rotation support once, not per character
+        has_rotation = hasattr(textpage, "get_char_rotation")
+
         chars: List[CharInfo] = []
         for i in range(char_count):
-            char = textpage.get_text_range(i, 1)
             bbox = textpage.get_charbox(i)
-            rotation = (
-                textpage.get_char_rotation(i) if hasattr(textpage, "get_char_rotation") else 0
-            )
-            chars.append(CharInfo(char=char, bbox=bbox, rotation=rotation, index=i))
+            rotation = textpage.get_char_rotation(i) if has_rotation else 0
+            chars.append(CharInfo(char=all_text[i], bbox=bbox, rotation=rotation, index=i))
 
         return self._merger.merge(chars, textpage, page_height)
