@@ -7,7 +7,7 @@ import pytest
 from xtra.cli import main
 from xtra.models import ExtractorType
 
-TEST_DATA_DIR = Path(__file__).parent / "data"
+TEST_DATA_DIR = Path(__file__).parent.parent / "data"
 
 
 def test_extractor_type_used_in_cli() -> None:

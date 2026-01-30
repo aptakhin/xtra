@@ -3,7 +3,7 @@ from pathlib import Path
 from xtra.extractors import PdfExtractor
 from xtra.models import ExtractorType
 
-TEST_DATA_DIR = Path(__file__).parent / "data"
+TEST_DATA_DIR = Path(__file__).parent.parent / "data"
 
 
 def test_extract_test4_pdf_page1_has_3_texts() -> None:

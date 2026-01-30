@@ -17,7 +17,7 @@ from xtra.extractors.base import ExecutorType
 from xtra.extractors.factory import create_extractor
 from xtra.models import ExtractorType
 
-TEST_DATA_DIR = Path(__file__).parent / "data"
+TEST_DATA_DIR = Path(__file__).parent.parent / "data"
 
 # All OCR extractors with their expected ocr_engine metadata value
 OCR_EXTRACTORS = [

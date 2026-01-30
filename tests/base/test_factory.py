@@ -8,7 +8,7 @@ import pytest
 from xtra.extractors.factory import _get_credential, create_extractor
 from xtra.models import ExtractorType
 
-TEST_DATA_DIR = Path(__file__).parent / "data"
+TEST_DATA_DIR = Path(__file__).parent.parent / "data"
 
 
 class TestGetCredential:

@@ -37,6 +37,20 @@ def _build_credentials(args: argparse.Namespace) -> dict[str, str] | None:
     return credentials if credentials else None
 
 
+def _parse_headers(header_list: list[str] | None) -> dict[str, str] | None:
+    """Parse header arguments into a dict."""
+    if not header_list:
+        return None
+    headers = {}
+    for header in header_list:
+        if "=" not in header:
+            print(f"Warning: Invalid header format '{header}', expected KEY=VALUE", file=sys.stderr)
+            continue
+        key, value = header.split("=", 1)
+        headers[key.strip()] = value.strip()
+    return headers if headers else None
+
+
 def _create_extractor(args: argparse.Namespace, languages: list[str]) -> Any:
     """Create extractor using the unified factory."""
     extractor_type = ExtractorType(args.extractor)
@@ -91,6 +105,7 @@ def _run_llm_extraction(args: argparse.Namespace, pages: Sequence[int] | None) -
         sys.exit(1)
 
     credentials = _build_credentials(args)
+    headers = _parse_headers(args.headers)
     pages_list = list(pages) if pages else None
 
     try:
@@ -101,6 +116,8 @@ def _run_llm_extraction(args: argparse.Namespace, pages: Sequence[int] | None) -
             pages=pages_list,
             dpi=args.dpi,
             credentials=credentials,
+            base_url=args.base_url,
+            headers=headers,
         )
     except ValueError as e:
         print(f"Error: {e}", file=sys.stderr)
@@ -205,6 +222,20 @@ def main() -> None:
         type=str,
         default=None,
         help="Custom prompt for LLM extraction (default: extract all key-value pairs)",
+    )
+    parser.add_argument(
+        "--base-url",
+        type=str,
+        default=None,
+        help="Custom API base URL for OpenAI-compatible LLMs (vLLM, Ollama, etc.)",
+    )
+    parser.add_argument(
+        "--header",
+        type=str,
+        action="append",
+        dest="headers",
+        metavar="KEY=VALUE",
+        help="Custom HTTP header (can be repeated). Example: --header 'Authorization=Bearer token'",
     )
     args = parser.parse_args()
 
