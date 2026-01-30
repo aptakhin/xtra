@@ -43,8 +43,11 @@ def test_extraction_result_with_dict() -> None:
         model="gpt-4o",
         provider=LLMProvider.OPENAI,
     )
+    assert isinstance(result.data, dict)
     assert result.data["name"] == "test"
-    assert result.data["nested"]["key"] == "value"
+    nested = result.data["nested"]
+    assert isinstance(nested, dict)
+    assert nested["key"] == "value"
 
 
 def test_page_config_defaults() -> None:

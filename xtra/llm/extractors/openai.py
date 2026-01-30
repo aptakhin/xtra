@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Type, TypeVar, Union, get_type_hints
+from typing import Any, Dict, List, Optional, Type, TypeVar, Union, cast, get_type_hints
 
 from pydantic import BaseModel
 
@@ -114,20 +114,20 @@ def extract_openai(
 
         # Extract with schema or dict
         if schema is not None:
-            response = client.chat.completions.create(  # type: ignore
+            response = client.chat.completions.create(
                 model=model,
                 response_model=schema,
                 max_retries=max_retries,
-                messages=messages,
+                messages=cast(Any, messages),
                 temperature=temperature,
             )
             data = response
         else:
             # For dict extraction, use JSON mode without instructor
             raw_client = OpenAI(api_key=api_key)
-            response = raw_client.chat.completions.create(  # type: ignore
+            response = raw_client.chat.completions.create(
                 model=model,
-                messages=messages,
+                messages=cast(Any, messages),
                 temperature=temperature,
                 response_format={"type": "json_object"},
             )
@@ -184,19 +184,19 @@ async def extract_openai_async(
 
         # Extract with schema or dict
         if schema is not None:
-            response = await client.chat.completions.create(  # type: ignore
+            response = await client.chat.completions.create(
                 model=model,
                 response_model=schema,
                 max_retries=max_retries,
-                messages=messages,
+                messages=cast(Any, messages),
                 temperature=temperature,
             )
             data = response
         else:
             raw_client = AsyncOpenAI(api_key=api_key)
-            response = await raw_client.chat.completions.create(  # type: ignore
+            response = await raw_client.chat.completions.create(
                 model=model,
-                messages=messages,
+                messages=cast(Any, messages),
                 temperature=temperature,
                 response_format={"type": "json_object"},
             )

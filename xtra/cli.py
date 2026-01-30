@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 from pathlib import Path
 from typing import Any, Dict, Optional, Sequence
@@ -53,6 +54,55 @@ def _create_extractor(args: argparse.Namespace, languages: list[str]) -> Any:
         sys.exit(1)
 
 
+def _print_llm_result(data: Any, as_json: bool) -> None:
+    """Print LLM extraction result."""
+    if as_json:
+        print(json.dumps(data, indent=2, default=str))
+    else:
+        # Simple key-value output for dicts, otherwise just print
+        if isinstance(data, dict):
+            for key, value in data.items():
+                if isinstance(value, dict):
+                    print(f"{key}:")
+                    for k, v in value.items():
+                        print(f"  {k}: {v}")
+                elif isinstance(value, list):
+                    print(f"{key}:")
+                    for item in value:
+                        print(f"  - {item}")
+                else:
+                    print(f"{key}: {value}")
+        else:
+            print(data)
+
+
+def _run_llm_extraction(args: argparse.Namespace, pages: Optional[Sequence[int]]) -> None:
+    """Run LLM-based extraction."""
+    try:
+        from xtra.llm.factory import extract_structured
+    except ImportError as e:
+        print(f"Error: LLM dependencies not installed: {e}", file=sys.stderr)
+        sys.exit(1)
+
+    credentials = _build_credentials(args)
+    pages_list = list(pages) if pages else None
+
+    try:
+        result = extract_structured(
+            path=args.input,
+            model=args.llm,
+            prompt=args.prompt,
+            pages=pages_list,
+            dpi=args.dpi,
+            credentials=credentials,
+        )
+    except ValueError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        sys.exit(1)
+
+    _print_llm_result(result.data, args.json)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Extract text from PDF/image files")
     parser.add_argument("input", type=Path, help="Input file path")
@@ -60,7 +110,7 @@ def main() -> None:
         "--extractor",
         type=str,
         choices=[e.value for e in ExtractorType],
-        required=True,
+        default=None,
         help="Extractor type: pdf, easyocr, tesseract, paddle, azure-di, google-docai",
     )
     parser.add_argument("--json", action="store_true", help="Output as JSON")
@@ -138,17 +188,40 @@ def main() -> None:
         default=None,
         help="Google service account JSON path (or XTRA_GOOGLE_DOCAI_CREDENTIALS_PATH)",
     )
+    parser.add_argument(
+        "--llm",
+        type=str,
+        default=None,
+        help="LLM model for extraction (e.g., gpt-4o, claude-3-5-sonnet, azure-openai/gpt-4o)",
+    )
+    parser.add_argument(
+        "--prompt",
+        type=str,
+        default=None,
+        help="Custom prompt for LLM extraction (default: extract all key-value pairs)",
+    )
     args = parser.parse_args()
 
     if not args.input.exists():
         print(f"Error: File not found: {args.input}", file=sys.stderr)
         sys.exit(1)
 
-    languages = [lang.strip() for lang in args.lang.split(",")]
+    # Validate: either --extractor or --llm must be provided
+    if not args.extractor and not args.llm:
+        print("Error: Either --extractor or --llm must be specified", file=sys.stderr)
+        sys.exit(1)
+
     pages: Optional[Sequence[int]] = None
     if args.pages:
         pages = [int(p.strip()) for p in args.pages.split(",")]
 
+    # LLM extraction path
+    if args.llm:
+        _run_llm_extraction(args, pages)
+        return
+
+    # Regular OCR extraction path
+    languages = [lang.strip() for lang in args.lang.split(",")]
     extractor = _create_extractor(args, languages)
     executor_type = ExecutorType(args.executor)
 

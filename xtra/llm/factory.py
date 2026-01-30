@@ -162,12 +162,19 @@ def extract_structured(
     elif provider == LLMProvider.AZURE_OPENAI:
         from xtra.llm.extractors.azure_openai import extract_azure_openai
 
-        api_key = _get_credential("AZURE_OPENAI_API_KEY", credentials)
-        endpoint = _get_credential("AZURE_OPENAI_ENDPOINT", credentials)
+        # Try AZURE_OPENAI_* first, fall back to XTRA_AZURE_DI_* for consistency
+        api_key = _get_credential("AZURE_OPENAI_API_KEY", credentials) or _get_credential(
+            "XTRA_AZURE_DI_KEY", credentials
+        )
+        endpoint = _get_credential("AZURE_OPENAI_ENDPOINT", credentials) or _get_credential(
+            "XTRA_AZURE_DI_ENDPOINT", credentials
+        )
         api_version = _get_credential("AZURE_OPENAI_API_VERSION", credentials)
         api_version = api_version or "2024-02-15-preview"
         if not endpoint:
-            raise ValueError("Azure OpenAI endpoint required (AZURE_OPENAI_ENDPOINT)")
+            raise ValueError(
+                "Azure OpenAI endpoint required (AZURE_OPENAI_ENDPOINT or XTRA_AZURE_DI_ENDPOINT)"
+            )
         return extract_azure_openai(
             path=path,
             model=model_name,
@@ -282,12 +289,19 @@ async def extract_structured_async(
     elif provider == LLMProvider.AZURE_OPENAI:
         from xtra.llm.extractors.azure_openai import extract_azure_openai_async
 
-        api_key = _get_credential("AZURE_OPENAI_API_KEY", credentials)
-        endpoint = _get_credential("AZURE_OPENAI_ENDPOINT", credentials)
+        # Try AZURE_OPENAI_* first, fall back to XTRA_AZURE_DI_* for consistency
+        api_key = _get_credential("AZURE_OPENAI_API_KEY", credentials) or _get_credential(
+            "XTRA_AZURE_DI_KEY", credentials
+        )
+        endpoint = _get_credential("AZURE_OPENAI_ENDPOINT", credentials) or _get_credential(
+            "XTRA_AZURE_DI_ENDPOINT", credentials
+        )
         api_version = _get_credential("AZURE_OPENAI_API_VERSION", credentials)
         api_version = api_version or "2024-02-15-preview"
         if not endpoint:
-            raise ValueError("Azure OpenAI endpoint required (AZURE_OPENAI_ENDPOINT)")
+            raise ValueError(
+                "Azure OpenAI endpoint required (AZURE_OPENAI_ENDPOINT or XTRA_AZURE_DI_ENDPOINT)"
+            )
         return await extract_azure_openai_async(
             path=path,
             model=model_name,

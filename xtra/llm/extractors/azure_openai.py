@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Type, TypeVar, Union
+from typing import Any, Dict, List, Optional, Type, TypeVar, Union, cast
 
 from pydantic import BaseModel
 
@@ -65,18 +65,18 @@ def extract_azure_openai(
 
         # Extract with schema or dict
         if schema is not None:
-            response = client.chat.completions.create(  # type: ignore
+            response = client.chat.completions.create(
                 model=model,  # This is the deployment name in Azure
                 response_model=schema,
                 max_retries=max_retries,
-                messages=messages,
+                messages=cast(Any, messages),
                 temperature=temperature,
             )
             data = response
         else:
-            response = azure_client.chat.completions.create(  # type: ignore
+            response = azure_client.chat.completions.create(
                 model=model,
-                messages=messages,
+                messages=cast(Any, messages),
                 temperature=temperature,
                 response_format={"type": "json_object"},
             )
@@ -143,18 +143,18 @@ async def extract_azure_openai_async(
 
         # Extract with schema or dict
         if schema is not None:
-            response = await client.chat.completions.create(  # type: ignore
+            response = await client.chat.completions.create(
                 model=model,
                 response_model=schema,
                 max_retries=max_retries,
-                messages=messages,
+                messages=cast(Any, messages),
                 temperature=temperature,
             )
             data = response
         else:
-            response = await azure_client.chat.completions.create(  # type: ignore
+            response = await azure_client.chat.completions.create(
                 model=model,
-                messages=messages,
+                messages=cast(Any, messages),
                 temperature=temperature,
                 response_format={"type": "json_object"},
             )

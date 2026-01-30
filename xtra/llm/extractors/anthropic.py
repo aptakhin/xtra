@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Type, TypeVar, Union
+from typing import Any, Dict, List, Optional, Type, TypeVar, Union, cast
 
 from pydantic import BaseModel
 
@@ -86,15 +86,15 @@ def extract_anthropic(
         messages = _build_messages_anthropic(encoded_images, extraction_prompt)
 
         # Create instructor client
-        client = instructor.from_anthropic(Anthropic(api_key=api_key))
+        client = instructor.from_anthropic(Anthropic(api_key=api_key))  # type: ignore[possibly-missing-attribute]
 
         # Extract with schema or dict
         if schema is not None:
-            response = client.messages.create(  # type: ignore
+            response = client.messages.create(
                 model=model,
                 response_model=schema,
                 max_retries=max_retries,
-                messages=messages,
+                messages=cast(Any, messages),
                 max_tokens=4096,
                 temperature=temperature,
             )
@@ -157,15 +157,15 @@ async def extract_anthropic_async(
         messages = _build_messages_anthropic(encoded_images, extraction_prompt)
 
         # Create async instructor client
-        client = instructor.from_anthropic(AsyncAnthropic(api_key=api_key))
+        client = instructor.from_anthropic(AsyncAnthropic(api_key=api_key))  # type: ignore[possibly-missing-attribute]
 
         # Extract with schema or dict
         if schema is not None:
-            response = await client.messages.create(  # type: ignore
+            response = await client.messages.create(
                 model=model,
                 response_model=schema,
                 max_retries=max_retries,
-                messages=messages,
+                messages=cast(Any, messages),
                 max_tokens=4096,
                 temperature=temperature,
             )

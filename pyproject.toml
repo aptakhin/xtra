@@ -25,7 +25,7 @@ google-cloud-documentai = { version = ">=3.0", optional = true }
 instructor = { version = ">=1.0", optional = true }
 openai = { version = ">=1.0", optional = true }
 anthropic = { version = ">=0.20", optional = true }
-google-generativeai = { version = ">=0.4", optional = true }
+google-genai = { version = ">=1.0", optional = true }
 
 [tool.poetry.extras]
 easyocr = ["easyocr"]
@@ -35,9 +35,9 @@ azure = ["azure-ai-documentintelligence"]
 google = ["google-cloud-documentai"]
 llm-openai = ["instructor", "openai"]
 llm-anthropic = ["instructor", "anthropic"]
-llm-google = ["instructor", "google-generativeai"]
-llm-all = ["instructor", "openai", "anthropic", "google-generativeai"]
-all = ["easyocr", "pytesseract", "paddleocr", "paddlepaddle", "azure-ai-documentintelligence", "google-cloud-documentai", "instructor", "openai", "anthropic", "google-generativeai"]
+llm-google = ["instructor", "google-genai"]
+llm-all = ["instructor", "openai", "anthropic", "google-genai"]
+all = ["easyocr", "pytesseract", "paddleocr", "paddlepaddle", "azure-ai-documentintelligence", "google-cloud-documentai", "instructor", "openai", "anthropic", "google-genai"]
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^9.0.2"
