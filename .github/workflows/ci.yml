@@ -26,7 +26,7 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install poetry==2.1.1
-      - run: poetry install
+      - run: poetry install --with dev
       - run: ./scripts/ci/typecheck.sh
 
   test:
@@ -37,9 +37,15 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install poetry==2.1.1
-      - run: poetry install --extras "tesseract easyocr"
+      - run: poetry install --with dev --extras "tesseract easyocr azure google"
       - run: sudo apt-get update && sudo apt-get install -y tesseract-ocr
+      - run: echo '${{ secrets.GOOGLE_DOCAI_CREDENTIALS }}' > /tmp/google_creds.json
       - run: ./scripts/ci/test.sh
+        env:
+          XTRA_AZURE_DI_ENDPOINT: ${{ secrets.XTRA_AZURE_DI_ENDPOINT }}
+          XTRA_AZURE_DI_KEY: ${{ secrets.XTRA_AZURE_DI_KEY }}
+          XTRA_GOOGLE_DOCAI_PROCESSOR_NAME: ${{ secrets.XTRA_GOOGLE_DOCAI_PROCESSOR_NAME }}
+          XTRA_GOOGLE_DOCAI_CREDENTIALS_PATH: /tmp/google_creds.json
 
   build:
     runs-on: ubuntu-latest
