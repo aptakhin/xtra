@@ -1,4 +1,9 @@
-from xtra.extractors.base import BaseExtractor, ExtractionResult
+from xtra.extractors.base import (
+    BaseExtractor,
+    ExecutorType,
+    ExtractionResult,
+    PageExtractionResult,
+)
 from xtra.extractors.character_mergers import (
     BasicLineMerger,
     CharacterMerger,
@@ -14,8 +19,10 @@ __all__ = [
     "BasicLineMerger",
     "CharacterMerger",
     "CharInfo",
+    "ExecutorType",
     "ExtractionResult",
     "KeepCharacterMerger",
+    "PageExtractionResult",
     "PdfExtractor",
     "create_extractor",
     # Optional (lazy loaded)

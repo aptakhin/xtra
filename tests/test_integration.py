@@ -13,6 +13,7 @@ from pathlib import Path
 
 import pytest
 
+from xtra.extractors.base import ExecutorType
 from xtra.extractors.factory import create_extractor
 from xtra.models import ExtractorType
 
@@ -38,12 +39,14 @@ LOCAL_OCR_EXTRACTORS = [
 def test_pdf_extractor() -> None:
     """Test PDF extractor with real PDF file."""
     with create_extractor(TEST_DATA_DIR / "test_pdf_2p_text.pdf", ExtractorType.PDF) as extractor:
-        doc = extractor.extract()
+        result = extractor.extract()
 
+    doc = result.document
     assert doc.path == TEST_DATA_DIR / "test_pdf_2p_text.pdf"
     assert len(doc.pages) == 2
     assert doc.metadata is not None
     assert doc.metadata.extractor_type == ExtractorType.PDF
+    assert result.success is True
 
     # Verify page 1 content
     page1 = doc.pages[0]
@@ -76,8 +79,9 @@ def test_ocr_extract_image(extractor_type: ExtractorType, ocr_engine: str) -> No
         extractor_type,
         languages=["en"],
     ) as extractor:
-        doc = extractor.extract()
+        result = extractor.extract()
 
+    doc = result.document
     assert doc.path == TEST_DATA_DIR / "test_image.png"
     assert len(doc.pages) == 1
     assert doc.metadata is not None
@@ -108,8 +112,9 @@ def test_ocr_extract_pdf(extractor_type: ExtractorType, ocr_engine: str) -> None
         languages=["en"],
         dpi=100,
     ) as extractor:
-        doc = extractor.extract()
+        result = extractor.extract()
 
+    doc = result.document
     assert doc.path == TEST_DATA_DIR / "test_pdf_2p_text.pdf"
     assert len(doc.pages) == 2
     assert doc.metadata is not None
@@ -143,11 +148,11 @@ def test_ocr_extract_pdf(extractor_type: ExtractorType, ocr_engine: str) -> None
 def test_pdf_extractor_parallel(max_workers: int) -> None:
     """Test PDF extractor with different worker counts."""
     with create_extractor(TEST_DATA_DIR / "test_pdf_2p_text.pdf", ExtractorType.PDF) as extractor:
-        doc = extractor.extract(max_workers=max_workers)
+        result = extractor.extract(max_workers=max_workers)
 
-    assert len(doc.pages) == 2
+    assert len(result.document.pages) == 2
     # Verify content is identical regardless of worker count
-    page1_texts = [t.text for t in doc.pages[0].texts]
+    page1_texts = [t.text for t in result.document.pages[0].texts]
     assert "First page. First text" in page1_texts
 
 
@@ -159,9 +164,9 @@ def test_pdf_extractor_thread_executor() -> None:
     Use thread executor (default) for parallel PDF extraction.
     """
     with create_extractor(TEST_DATA_DIR / "test_pdf_2p_text.pdf", ExtractorType.PDF) as extractor:
-        doc = extractor.extract(max_workers=2, executor="thread")
+        result = extractor.extract(max_workers=2, executor=ExecutorType.THREAD)
 
-    assert len(doc.pages) == 2
+    assert len(result.document.pages) == 2
 
 
 @pytest.mark.parametrize("extractor_type,_ocr_engine", LOCAL_OCR_EXTRACTORS)
@@ -176,10 +181,10 @@ def test_ocr_extract_parallel(
         languages=["en"],
         dpi=100,
     ) as extractor:
-        doc = extractor.extract(max_workers=max_workers)
+        result = extractor.extract(max_workers=max_workers)
 
-    assert len(doc.pages) == 2
-    for page in doc.pages:
+    assert len(result.document.pages) == 2
+    for page in result.document.pages:
         assert len(page.texts) > 0
 
 
@@ -187,10 +192,10 @@ def test_ocr_extract_parallel(
 async def test_pdf_extractor_async() -> None:
     """Test PDF extractor with async extraction."""
     with create_extractor(TEST_DATA_DIR / "test_pdf_2p_text.pdf", ExtractorType.PDF) as extractor:
-        doc = await extractor.extract_async(max_workers=2)
+        result = await extractor.extract_async(max_workers=2)
 
-    assert len(doc.pages) == 2
-    page1_texts = [t.text for t in doc.pages[0].texts]
+    assert len(result.document.pages) == 2
+    page1_texts = [t.text for t in result.document.pages[0].texts]
     assert "First page. First text" in page1_texts
 
 
@@ -204,8 +209,8 @@ async def test_ocr_extract_async(extractor_type: ExtractorType, _ocr_engine: str
         languages=["en"],
         dpi=100,
     ) as extractor:
-        doc = await extractor.extract_async(max_workers=2)
+        result = await extractor.extract_async(max_workers=2)
 
-    assert len(doc.pages) == 2
-    for page in doc.pages:
+    assert len(result.document.pages) == 2
+    for page in result.document.pages:
         assert len(page.texts) > 0

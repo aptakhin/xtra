@@ -3,23 +3,56 @@ from __future__ import annotations
 import asyncio
 from abc import ABC, abstractmethod
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from enum import Enum
 from pathlib import Path
-from typing import List, Literal, Optional, Sequence
+from typing import List, Optional, Sequence
 
 from xtra.coordinates import CoordinateConverter
 from xtra.models import CoordinateUnit, Document, ExtractorMetadata, Page
 
-ExecutorType = Literal["thread", "process"]
+
+class ExecutorType(str, Enum):
+    """Type of executor for parallel extraction."""
+
+    THREAD = "thread"
+    PROCESS = "process"
 
 
 @dataclass
-class ExtractionResult:
+class PageExtractionResult:
     """Result of extracting a single page."""
 
     page: Page
     success: bool
     error: Optional[str] = None
+
+
+@dataclass
+class ExtractionResult:
+    """Result of document extraction with all page results.
+
+    Contains the extracted document (successful pages only) and
+    detailed results for each requested page including any errors.
+    """
+
+    document: Document
+    page_results: List[PageExtractionResult] = field(default_factory=list)
+
+    @property
+    def success(self) -> bool:
+        """True if all requested pages were extracted successfully."""
+        return all(r.success for r in self.page_results)
+
+    @property
+    def failed_pages(self) -> List[PageExtractionResult]:
+        """List of failed page extraction results."""
+        return [r for r in self.page_results if not r.success]
+
+    @property
+    def errors(self) -> List[tuple[int, str]]:
+        """List of (page_number, error_message) for failed pages."""
+        return [(r.page.page, r.error or "") for r in self.page_results if not r.success]
 
 
 class BaseExtractor(ABC):
@@ -39,7 +72,7 @@ class BaseExtractor(ABC):
         ...
 
     @abstractmethod
-    def extract_page(self, page: int) -> ExtractionResult:
+    def extract_page(self, page: int) -> PageExtractionResult:
         """Extract a single page by number (0-indexed)."""
         ...
 
@@ -48,32 +81,24 @@ class BaseExtractor(ABC):
         """Return metadata about the extractor and processing."""
         ...
 
-    def extract_pages(
+    def _extract_pages(
         self,
         pages: Optional[Sequence[int]] = None,
         max_workers: int = 1,
-        executor: ExecutorType = "thread",
-    ) -> List[ExtractionResult]:
+        executor: ExecutorType = ExecutorType.THREAD,
+    ) -> List[PageExtractionResult]:
         """Extract multiple pages with optional parallel processing.
+
+        Internal method that returns per-page results.
 
         Args:
             pages: Sequence of page numbers to extract (0-indexed).
                    If None, extracts all pages.
-            max_workers: Number of parallel workers. 1 means sequential
-                         (default, backward compatible). Values > 1 enable
-                         parallel extraction.
+            max_workers: Number of parallel workers. 1 means sequential.
             executor: Type of executor to use for parallel extraction.
-                      "thread" (default) uses ThreadPoolExecutor - best for OCR
-                      since C libraries release GIL and model cache is shared.
-                      "process" uses ProcessPoolExecutor - true parallelism but
-                      models are duplicated per worker (high memory usage).
-                      Note: "process" requires the extractor to be picklable,
-                      which may not work with all extractors (e.g., PDF extractor
-                      with native file handles). Use "thread" for maximum
-                      compatibility.
 
         Returns:
-            List of ExtractionResult in page order (matching input pages order).
+            List of PageExtractionResult in page order.
         """
         if pages is None:
             pages = range(self.get_page_count())
@@ -84,10 +109,12 @@ class BaseExtractor(ABC):
             return [self.extract_page(n) for n in pages_list]
 
         # Select executor class
-        executor_class = ProcessPoolExecutor if executor == "process" else ThreadPoolExecutor
+        executor_class = (
+            ProcessPoolExecutor if executor == ExecutorType.PROCESS else ThreadPoolExecutor
+        )
 
         # Parallel execution with ordering preserved
-        results: List[Optional[ExtractionResult]] = [None] * len(pages_list)
+        results: List[Optional[PageExtractionResult]] = [None] * len(pages_list)
         with executor_class(max_workers=max_workers) as pool:
             future_to_idx = {pool.submit(self.extract_page, p): i for i, p in enumerate(pages_list)}
             for future in as_completed(future_to_idx):
@@ -95,7 +122,7 @@ class BaseExtractor(ABC):
                 try:
                     results[idx] = future.result()
                 except Exception as e:
-                    results[idx] = ExtractionResult(
+                    results[idx] = PageExtractionResult(
                         page=Page(page=pages_list[idx], width=0, height=0, texts=[]),
                         success=False,
                         error=str(e),
@@ -106,34 +133,33 @@ class BaseExtractor(ABC):
         self,
         pages: Optional[Sequence[int]] = None,
         max_workers: int = 1,
-        executor: ExecutorType = "thread",
-    ) -> Document:
+        executor: ExecutorType = ExecutorType.THREAD,
+    ) -> ExtractionResult:
         """Extract document with optional page selection and parallel processing.
 
         Args:
             pages: Sequence of page numbers to extract (0-indexed).
                    If None, extracts all pages.
             max_workers: Number of parallel workers. 1 means sequential.
-            executor: Type of executor ("thread" or "process").
+            executor: Type of executor (ExecutorType.THREAD or ExecutorType.PROCESS).
 
         Returns:
-            Document containing extracted pages and metadata.
+            ExtractionResult containing the document and all page results.
         """
-        results = self.extract_pages(pages, max_workers=max_workers, executor=executor)
-        extracted_pages = [r.page for r in results if r.success]
+        page_results = self._extract_pages(pages, max_workers=max_workers, executor=executor)
+        extracted_pages = [r.page for r in page_results if r.success]
         metadata = self.get_extractor_metadata()
-        return Document(path=self.path, pages=extracted_pages, metadata=metadata)
+        document = Document(path=self.path, pages=extracted_pages, metadata=metadata)
+        return ExtractionResult(document=document, page_results=page_results)
 
-    async def extract_pages_async(
+    async def _extract_pages_async(
         self,
         pages: Optional[Sequence[int]] = None,
         max_workers: int = 1,
-    ) -> List[ExtractionResult]:
-        """Async version of extract_pages - runs extraction in thread pool.
+    ) -> List[PageExtractionResult]:
+        """Async version of _extract_pages - runs extraction in thread pool.
 
-        Uses ThreadPoolExecutor internally since OCR operations are CPU-bound
-        and release the GIL. This provides an async interface for integration
-        with async applications.
+        Internal method that returns per-page results.
 
         Args:
             pages: Sequence of page numbers to extract (0-indexed).
@@ -141,7 +167,7 @@ class BaseExtractor(ABC):
             max_workers: Number of parallel workers. 1 means sequential.
 
         Returns:
-            List of ExtractionResult in page order.
+            List of PageExtractionResult in page order.
         """
         if pages is None:
             pages = range(self.get_page_count())
@@ -162,14 +188,14 @@ class BaseExtractor(ABC):
             tasks = [loop.run_in_executor(pool, self.extract_page, p) for p in pages_list]
             raw_results = await asyncio.gather(*tasks, return_exceptions=True)
 
-        # Convert exceptions to ExtractionResult failures
+        # Convert exceptions to PageExtractionResult failures
         results = []
         for i, r in enumerate(raw_results):
-            if isinstance(r, ExtractionResult):
+            if isinstance(r, PageExtractionResult):
                 results.append(r)
             else:
                 results.append(
-                    ExtractionResult(
+                    PageExtractionResult(
                         page=Page(page=pages_list[i], width=0, height=0, texts=[]),
                         success=False,
                         error=str(r),
@@ -181,7 +207,7 @@ class BaseExtractor(ABC):
         self,
         pages: Optional[Sequence[int]] = None,
         max_workers: int = 1,
-    ) -> Document:
+    ) -> ExtractionResult:
         """Async version of extract - runs extraction in thread pool.
 
         Args:
@@ -190,12 +216,13 @@ class BaseExtractor(ABC):
             max_workers: Number of parallel workers. 1 means sequential.
 
         Returns:
-            Document containing extracted pages and metadata.
+            ExtractionResult containing the document and all page results.
         """
-        results = await self.extract_pages_async(pages, max_workers=max_workers)
-        extracted_pages = [r.page for r in results if r.success]
+        page_results = await self._extract_pages_async(pages, max_workers=max_workers)
+        extracted_pages = [r.page for r in page_results if r.success]
         metadata = self.get_extractor_metadata()
-        return Document(path=self.path, pages=extracted_pages, metadata=metadata)
+        document = Document(path=self.path, pages=extracted_pages, metadata=metadata)
+        return ExtractionResult(document=document, page_results=page_results)
 
     def close(self) -> None:
         """Clean up resources. Override in subclasses if needed."""

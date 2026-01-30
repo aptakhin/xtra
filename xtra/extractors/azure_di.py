@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Any, Optional
 
 from xtra.adapters.azure_di import AzureDocumentIntelligenceAdapter
 from xtra.models import CoordinateUnit, ExtractorMetadata, Page
-from xtra.extractors.base import BaseExtractor, ExtractionResult
+from xtra.extractors.base import BaseExtractor, PageExtractionResult
 
 if TYPE_CHECKING:
     from azure.ai.documentintelligence import DocumentIntelligenceClient
@@ -74,7 +74,7 @@ class AzureDocumentIntelligenceExtractor(BaseExtractor):
             return 0
         return self._adapter.page_count
 
-    def extract_page(self, page: int) -> ExtractionResult:
+    def extract_page(self, page: int) -> PageExtractionResult:
         """Extract a single page by number (0-indexed)."""
         try:
             if self._adapter is None:
@@ -83,11 +83,11 @@ class AzureDocumentIntelligenceExtractor(BaseExtractor):
             converted_page = self._adapter.convert_page(page)
             # Convert from native INCHES to output_unit
             converted_page = self._convert_page(converted_page, CoordinateUnit.INCHES)
-            return ExtractionResult(page=converted_page, success=True)
+            return PageExtractionResult(page=converted_page, success=True)
 
         except (IndexError, ValueError, AttributeError) as e:
             logger.warning("Failed to extract page %d from Azure DI result: %s", page, e)
-            return ExtractionResult(
+            return PageExtractionResult(
                 page=Page(page=page, width=0, height=0, texts=[]),
                 success=False,
                 error=str(e),

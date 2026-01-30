@@ -14,7 +14,7 @@ from xtra.models import (
     ExtractorType,
     TextBlock,
 )
-from xtra.extractors.base import BaseExtractor, ExtractionResult
+from xtra.extractors.base import BaseExtractor, PageExtractionResult
 from xtra.extractors.character_mergers import (
     BasicLineMerger,
     CharacterMerger,
@@ -41,7 +41,7 @@ class PdfExtractor(BaseExtractor):
     def get_page_count(self) -> int:
         return len(self._pdf)
 
-    def extract_page(self, page: int) -> ExtractionResult:
+    def extract_page(self, page: int) -> PageExtractionResult:
         """Extract a single page by number (0-indexed).
 
         Thread-safe: uses internal lock for parallel access.
@@ -59,9 +59,9 @@ class PdfExtractor(BaseExtractor):
             )
             # Convert from native POINTS to output_unit
             result_page = self._convert_page(result_page, CoordinateUnit.POINTS)
-            return ExtractionResult(page=result_page, success=True)
+            return PageExtractionResult(page=result_page, success=True)
         except Exception as e:
-            return ExtractionResult(
+            return PageExtractionResult(
                 page=Page(page=page, width=0, height=0, texts=[]),
                 success=False,
                 error=str(e),

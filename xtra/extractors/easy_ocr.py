@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Any, List, Optional
 
 from xtra.adapters.easy_ocr import EasyOCRAdapter
 from xtra.extractors._image_loader import ImageLoader
-from xtra.extractors.base import BaseExtractor, ExtractionResult
+from xtra.extractors.base import BaseExtractor, PageExtractionResult
 from xtra.models import (
     CoordinateUnit,
     ExtractorMetadata,
@@ -82,7 +82,7 @@ class EasyOcrExtractor(BaseExtractor):
         """Return number of pages/images loaded."""
         return self._images.page_count
 
-    def extract_page(self, page: int) -> ExtractionResult:
+    def extract_page(self, page: int) -> PageExtractionResult:
         """Extract text from a single image/page."""
         import numpy as np
 
@@ -104,11 +104,11 @@ class EasyOcrExtractor(BaseExtractor):
 
             # Convert from native PIXELS to output_unit
             result_page = self._convert_page(result_page, CoordinateUnit.PIXELS, self.dpi)
-            return ExtractionResult(page=result_page, success=True)
+            return PageExtractionResult(page=result_page, success=True)
 
         except Exception as e:
             logger.warning("Failed to extract page %d: %s", page, e)
-            return ExtractionResult(
+            return PageExtractionResult(
                 page=Page(page=page, width=0, height=0, texts=[]),
                 success=False,
                 error=str(e),

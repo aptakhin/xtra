@@ -8,6 +8,7 @@ import sys
 from pathlib import Path
 from typing import Any, Dict, Optional, Sequence
 
+from xtra.extractors.base import ExecutorType
 from xtra.extractors.factory import CHARACTER_MERGER_CHOICES, create_extractor
 from xtra.models import CoordinateUnit, ExtractorType
 
@@ -149,10 +150,12 @@ def main() -> None:
         pages = [int(p.strip()) for p in args.pages.split(",")]
 
     extractor = _create_extractor(args, languages)
+    executor_type = ExecutorType(args.executor)
 
     with extractor:
-        doc = extractor.extract(pages=pages, max_workers=args.workers, executor=args.executor)
+        result = extractor.extract(pages=pages, max_workers=args.workers, executor=executor_type)
 
+    doc = result.document
     if args.json:
         # pydantic v2 uses model_dump_json, v1 uses json
         if hasattr(doc, "model_dump_json"):
