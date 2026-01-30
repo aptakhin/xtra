@@ -206,7 +206,9 @@ async def extract_openai_async(  # noqa: PLR0913
             )
             data = response
         else:
-            raw_client = AsyncOpenAI(api_key=effective_key, base_url=base_url, default_headers=headers)
+            raw_client = AsyncOpenAI(
+                api_key=effective_key, base_url=base_url, default_headers=headers
+            )
             response = await raw_client.chat.completions.create(
                 model=model,
                 messages=cast("Any", messages),
