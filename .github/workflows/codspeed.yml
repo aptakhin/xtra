@@ -25,7 +25,9 @@ jobs:
         run: pip install poetry==2.1.1
 
       - name: Install dependencies
-        run: poetry install --with dev
+        run: |
+          poetry install --with dev
+          poetry run pip install pytest-codspeed
 
       - name: Run benchmarks with CodSpeed
         uses: CodSpeedHQ/action@v4
