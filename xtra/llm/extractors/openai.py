@@ -86,8 +86,10 @@ def extract_openai(  # noqa: PLR0913
     max_retries: int = 3,
     temperature: float = 0.0,
     api_key: str | None = None,
+    base_url: str | None = None,
+    headers: dict[str, str] | None = None,
 ) -> LLMExtractionResult[T | dict[str, Any]]:
-    """Extract structured data using OpenAI."""
+    """Extract structured data using OpenAI or compatible API."""
     try:
         import instructor
         from openai import OpenAI
@@ -110,8 +112,10 @@ def extract_openai(  # noqa: PLR0913
         extraction_prompt = _build_prompt(schema, prompt)
         messages = _build_messages(encoded_images, extraction_prompt)
 
-        # Create instructor client
-        client = instructor.from_openai(OpenAI(api_key=api_key))
+        # Create instructor client with optional custom URL/headers
+        client = instructor.from_openai(
+            OpenAI(api_key=api_key, base_url=base_url, default_headers=headers)
+        )
 
         # Extract with schema or dict
         if schema is not None:
@@ -125,7 +129,7 @@ def extract_openai(  # noqa: PLR0913
             data = response
         else:
             # For dict extraction, use JSON mode without instructor
-            raw_client = OpenAI(api_key=api_key)
+            raw_client = OpenAI(api_key=api_key, base_url=base_url, default_headers=headers)
             response = raw_client.chat.completions.create(
                 model=model,
                 messages=cast("Any", messages),
@@ -156,8 +160,10 @@ async def extract_openai_async(  # noqa: PLR0913
     max_retries: int = 3,
     temperature: float = 0.0,
     api_key: str | None = None,
+    base_url: str | None = None,
+    headers: dict[str, str] | None = None,
 ) -> LLMExtractionResult[T | dict[str, Any]]:
-    """Async extract structured data using OpenAI."""
+    """Async extract structured data using OpenAI or compatible API."""
     try:
         import instructor
         from openai import AsyncOpenAI
@@ -180,8 +186,10 @@ async def extract_openai_async(  # noqa: PLR0913
         extraction_prompt = _build_prompt(schema, prompt)
         messages = _build_messages(encoded_images, extraction_prompt)
 
-        # Create async instructor client
-        client = instructor.from_openai(AsyncOpenAI(api_key=api_key))
+        # Create async instructor client with optional custom URL/headers
+        client = instructor.from_openai(
+            AsyncOpenAI(api_key=api_key, base_url=base_url, default_headers=headers)
+        )
 
         # Extract with schema or dict
         if schema is not None:
@@ -194,7 +202,7 @@ async def extract_openai_async(  # noqa: PLR0913
             )
             data = response
         else:
-            raw_client = AsyncOpenAI(api_key=api_key)
+            raw_client = AsyncOpenAI(api_key=api_key, base_url=base_url, default_headers=headers)
             response = await raw_client.chat.completions.create(
                 model=model,
                 messages=cast("Any", messages),

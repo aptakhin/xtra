@@ -63,6 +63,8 @@ def extract_structured(
     max_retries: int = 3,
     temperature: float = 0.0,
     credentials: dict[str, str] | None = None,
+    base_url: str | None = None,
+    headers: dict[str, str] | None = None,
 ) -> LLMExtractionResult[T]: ...
 
 
@@ -78,6 +80,8 @@ def extract_structured(
     max_retries: int = 3,
     temperature: float = 0.0,
     credentials: dict[str, str] | None = None,
+    base_url: str | None = None,
+    headers: dict[str, str] | None = None,
 ) -> LLMExtractionResult[dict[str, Any]]: ...
 
 
@@ -92,6 +96,8 @@ def extract_structured(  # noqa: PLR0913
     max_retries: int = 3,
     temperature: float = 0.0,
     credentials: dict[str, str] | None = None,
+    base_url: str | None = None,
+    headers: dict[str, str] | None = None,
 ) -> LLMExtractionResult[T | dict[str, Any]]:
     """Extract structured data from a document using an LLM.
 
@@ -105,6 +111,8 @@ def extract_structured(  # noqa: PLR0913
         max_retries: Max retry attempts with validation feedback.
         temperature: Sampling temperature (0.0 = deterministic).
         credentials: Override credentials dict (otherwise uses env vars).
+        base_url: Custom API base URL for OpenAI-compatible APIs (vLLM, Ollama, etc.).
+        headers: Custom HTTP headers for OpenAI-compatible APIs.
 
     Returns:
         LLMExtractionResult containing extracted data, model info, and provider.
@@ -125,6 +133,8 @@ def extract_structured(  # noqa: PLR0913
             max_retries=max_retries,
             temperature=temperature,
             api_key=api_key,
+            base_url=base_url,
+            headers=headers,
         )
 
     elif provider == LLMProvider.ANTHROPIC:
@@ -205,6 +215,8 @@ async def extract_structured_async(
     max_retries: int = 3,
     temperature: float = 0.0,
     credentials: dict[str, str] | None = None,
+    base_url: str | None = None,
+    headers: dict[str, str] | None = None,
 ) -> LLMExtractionResult[T]: ...
 
 
@@ -220,6 +232,8 @@ async def extract_structured_async(
     max_retries: int = 3,
     temperature: float = 0.0,
     credentials: dict[str, str] | None = None,
+    base_url: str | None = None,
+    headers: dict[str, str] | None = None,
 ) -> LLMExtractionResult[dict[str, Any]]: ...
 
 
@@ -234,6 +248,8 @@ async def extract_structured_async(  # noqa: PLR0913
     max_retries: int = 3,
     temperature: float = 0.0,
     credentials: dict[str, str] | None = None,
+    base_url: str | None = None,
+    headers: dict[str, str] | None = None,
 ) -> LLMExtractionResult[T | dict[str, Any]]:
     """Async version of extract_structured."""
     provider, model_name = _parse_model_string(model)
@@ -252,6 +268,8 @@ async def extract_structured_async(  # noqa: PLR0913
             max_retries=max_retries,
             temperature=temperature,
             api_key=api_key,
+            base_url=base_url,
+            headers=headers,
         )
 
     elif provider == LLMProvider.ANTHROPIC:
