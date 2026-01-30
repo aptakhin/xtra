@@ -131,19 +131,7 @@ ignore = [
 "**/__init__.py" = [
    "RUF022", # __all__ organized by category, not alphabetically
 ]
-"**/llm/extractors/*.py" = [
-   "PLR0913", # Too many arguments (unified interface)
-]
-"**/llm/factory.py" = [
-   "PLR0911", # Too many return statements (factory function)
-   "PLR0912", # Too many branches (factory function)
-   "PLR0913", # Too many arguments (unified interface)
-]
 "**/extractors/factory.py" = [
-   "C901",    # Function complexity (factory function)
-   "PLR0911", # Too many return statements (factory function)
-   "PLR0912", # Too many branches (factory function)
-   "PLR0913", # Too many arguments (unified interface)
    "TC001",   # BaseExtractor used at runtime (returned from factory)
 ]
 

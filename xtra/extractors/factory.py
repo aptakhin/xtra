@@ -45,7 +45,7 @@ def _get_credential(key: str, credentials: dict[str, str] | None) -> str | None:
     return os.environ.get(key)
 
 
-def create_extractor(
+def create_extractor(  # noqa: PLR0913
     path: Path | str,
     extractor_type: ExtractorType,
     *,

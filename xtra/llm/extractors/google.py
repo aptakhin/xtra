@@ -52,7 +52,7 @@ def _convert_content_to_parts(content: list[Any]) -> list[Any]:
     return parts
 
 
-def extract_google(
+def extract_google(  # noqa: PLR0913
     path: Path | str,
     model: str,
     *,
@@ -132,7 +132,7 @@ def extract_google(
         loader.close()
 
 
-async def extract_google_async(
+async def extract_google_async(  # noqa: PLR0913
     path: Path | str,
     model: str,
     *,

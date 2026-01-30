@@ -75,7 +75,7 @@ def _build_messages(
     return [{"role": "user", "content": content}]
 
 
-def extract_openai(
+def extract_openai(  # noqa: PLR0913
     path: Path | str,
     model: str,
     *,
@@ -145,7 +145,7 @@ def extract_openai(
         loader.close()
 
 
-async def extract_openai_async(
+async def extract_openai_async(  # noqa: PLR0913
     path: Path | str,
     model: str,
     *,

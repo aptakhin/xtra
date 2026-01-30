@@ -81,7 +81,7 @@ def extract_structured(
 ) -> LLMExtractionResult[dict[str, Any]]: ...
 
 
-def extract_structured(
+def extract_structured(  # noqa: PLR0913
     path: Path | str,
     model: str,
     *,
@@ -223,7 +223,7 @@ async def extract_structured_async(
 ) -> LLMExtractionResult[dict[str, Any]]: ...
 
 
-async def extract_structured_async(
+async def extract_structured_async(  # noqa: PLR0913
     path: Path | str,
     model: str,
     *,

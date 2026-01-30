@@ -50,7 +50,7 @@ def _build_messages_anthropic(
     return [{"role": "user", "content": content}]
 
 
-def extract_anthropic(
+def extract_anthropic(  # noqa: PLR0913
     path: Path | str,
     model: str,
     *,
@@ -121,7 +121,7 @@ def extract_anthropic(
         loader.close()
 
 
-async def extract_anthropic_async(
+async def extract_anthropic_async(  # noqa: PLR0913
     path: Path | str,
     model: str,
     *,

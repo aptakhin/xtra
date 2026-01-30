@@ -15,7 +15,7 @@ from xtra.llm.models import LLMExtractionResult, LLMProvider
 T = TypeVar("T", bound=BaseModel)
 
 
-def extract_azure_openai(
+def extract_azure_openai(  # noqa: PLR0913
     path: Path | str,
     model: str,
     *,
@@ -93,7 +93,7 @@ def extract_azure_openai(
         loader.close()
 
 
-async def extract_azure_openai_async(
+async def extract_azure_openai_async(  # noqa: PLR0913
     path: Path | str,
     model: str,
     *,
