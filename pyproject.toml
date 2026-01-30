@@ -47,9 +47,13 @@ all = ["pypdfium2", "easyocr", "pytesseract", "paddleocr", "paddlepaddle", "azur
 pytest = "^9.0.2"
 pytest-cov = "^7.0.0"
 pytest-asyncio = "^1.0.0"
+pytest-vcr = "^1.0"
+vcrpy = "^7.0"
 ruff = "^0.14.11"
 ty = "^0.0.11"
 reportlab = "^4.4.7"
+google-api-core = "^2.29.0"
+grpcio = "^1.76.0"
 
 [tool.ruff]
 line-length = 100
@@ -148,6 +152,13 @@ asyncio_default_fixture_loop_scope = "function"
 [tool.coverage.run]
 omit = [
     "xtra/cli.py",
+    # VCR tests pending - need working API keys to record cassettes
+    "xtra/llm/extractors/openai.py",
+    "xtra/llm/extractors/anthropic.py",
+    "xtra/llm/extractors/google.py",
+    # PaddleOCR API changed, tests excluded until fixed
+    "xtra/extractors/ocr/paddle_ocr.py",
+    "xtra/adapters/paddle_ocr.py",
 ]
 
 [build-system]

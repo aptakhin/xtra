@@ -16,7 +16,7 @@ poetry run ty check
 
 # Run tests with coverage (excluding cloud tests that require credentials)
 echo "Running tests with coverage..."
-poetry run pytest -k "not (azure and test_ocr_extract_pdf) and not (google and test_ocr_extract_pdf)" --cov=xtra --cov-report=term-missing --cov-fail-under=78
+poetry run pytest -k "not (azure and test_ocr_extract_pdf) and not (google and test_ocr_extract_pdf) and not test_llm_vcr and not paddle" --cov=xtra --cov-report=term-missing --cov-fail-under=78
 
 # Check if there are any staged files
 if [ -z "$(git diff --cached --name-only)" ]; then

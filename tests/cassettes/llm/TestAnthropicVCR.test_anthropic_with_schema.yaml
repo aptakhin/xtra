@@ -1,0 +1,287 @@
+interactions:
+- request:
+    body: '{"max_tokens": 4096, "messages": [{"role": "user", "content": [{"type":
+      "image", "source": {"type": "base64", "media_type": "image/png", "data": "iVBORw0KGgoAAAANSUhEUgAAAZAAAABkCAIAAAAnqfEgAAAFKUlEQVR4nO3bP0gbbRzA8ZiE/BEhgf6BIoLoJqI1lILWJFZUQgSXolCbgJJFBAdbcCnSrS0dbGkQR8WKOASCi4qTBAexdRQ7qKCQkg5Fo1ESkVx5DRzBS9O0sfj+2u9nynnPPc9zgl+8E0sURdEBgAT6694AABSKYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgAfhngmW32/Mc5jyVZ8xPz75+/frX9/jDeTY3NycmJn7pwnA43HLBaDRmPoRCoULWAlC8EkVRirnebrcfHh7+6DDnyDxjijxbuOLnKXyGq9ozgD/ySHhwcODz+dra2lwu1/r6es4xsVjM6/W6XC6v1xuLxbQD7Hb78+fP3W53fX19OBzW6XQvXrxIJBIdHR3a+b9+/drV1eV0Ov1+/82bN9UZ+vv7379/v7m52dzcXFtb+/bt2+x51F/otJvRrl74zQaDwYaGBofDsby8nL0WgGIpxbHZbNrDQCCwtramKMre3l59ff2lkZkPvb2909PTiqJMT08/efJEO6HVah0bG1MUZWdnp6KiIv/8Pp9vZmZGUZRwOGw2mzODLRbL0tKSoigDAwORSOTbt2937twpcDM5V89549rN3Lp16+joaGtry+/3a79FAH5bsY+EpaWl9+/fVw/X19dPT08rKiqqq6szX4lGo58/fzYYDJceCcvLy3d3d81mcyqVqqqqikajmfHqMIvFEovFMr8B2Wy2eDyuntXOX1lZub29bTabz8/PbTbbycmJTqcrKys7OjrS6/XHx8dzc3Pb29vj4+OJREL7fKrdTM7Vs6kzaDcTCATi8fjg4GB7ezuPhMAVMhZ5vclkWllZUQ8zP+Hn5+dLS0sWiyWdTq+urhoMBu2FPw2lyWRSX8CXlJRkn9LOf3Z2ljmVTqfVmY1Go17/3zNvd3f3o0ePhoaGfvSKXbuZPKtfot3M1NRUJBJ59+7d7Ozs5ORk/tsEcM3vsB48eJB577O4uPjq1aucYx4+fJj5+1ooFGppacmxs4vWXJK+oJ2/qalpfn4+81c8bX0+ffrU09OTTCZTqVT2PHk2k3P1Qm42Ho+73e7GxsYPHz4sLCxo1wLw+5Q/8A5rf3/f4/G4XK7W1tadnZ3MqXv37r18+VL9EI1GPR6P0+n0eDxfvnzRTpg9s/rZ6/V2dnZq59/d3XVeGBkZuXHjxqWrRkdHa2pqHj9+fPv27WQyqc6jjtFuJufqOW9cu5k3b944HI67d+8Gg8HstQBc8zus/4m+vr6nT5/W1dV9/Pjx2bNnkUjkuncE4Or9JcHa2NgYHh62Wq1nZ2fBYLC2tva6dwTg6v0lwQLwL+B/CQGIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAOik+A7yZCe65y64hgAAAABJRU5ErkJggg=="}},
+      {"type": "text", "text": "Extract structured data from this document.\n\nExpected
+      fields:\n  - title: str - The title or heading of the document\n  - has_text:
+      bool - Whether the document contains readable text"}]}], "model": "claude-3-5-haiku-20241022",
+      "temperature": 0.0, "tool_choice": {"type": "tool", "name": "DocumentInfo"},
+      "tools": [{"name": "DocumentInfo", "description": "Schema for extracting document
+      information.", "input_schema": {"description": "Schema for extracting document
+      information.", "properties": {"title": {"description": "The title or heading
+      of the document", "title": "Title", "type": "string"}, "has_text": {"description":
+      "Whether the document contains readable text", "title": "Has Text", "type":
+      "boolean"}}, "required": ["title", "has_text"], "title": "DocumentInfo", "type":
+      "object"}}]}'
+    headers:
+      accept:
+      - application/json
+      accept-encoding:
+      - gzip, deflate
+      anthropic-version:
+      - '2023-06-01'
+      connection:
+      - keep-alive
+      content-length:
+      - '2756'
+      content-type:
+      - application/json
+      host:
+      - api.anthropic.com
+      user-agent:
+      - Anthropic/Python 0.77.0
+      x-api-key:
+      - REDACTED
+      x-stainless-arch:
+      - arm64
+      x-stainless-async:
+      - 'false'
+      x-stainless-lang:
+      - python
+      x-stainless-os:
+      - MacOS
+      x-stainless-package-version:
+      - 0.77.0
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-retry-count:
+      - '0'
+      x-stainless-runtime:
+      - CPython
+      x-stainless-runtime-version:
+      - 3.12.11
+      x-stainless-timeout:
+      - '600'
+    method: POST
+    uri: https://api.anthropic.com/v1/messages
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAA/6tWKqksSFWyUkotKsovUtKB0lbVMPG8/JL4tPzSvJR4mIrc1OLixHSQXG5+SmqO
+        lUJyTmJpSqqusa6pbkZiZnaprpGBkYmhgZGRUq2OUlFqYWlqcUl8ZgpQA5ATb2Bo6ByRGhzkll1Y
+        7mYcbpKfl2/hk+7spFQLAD/V1DmMAAAA
+    headers:
+      CF-RAY:
+      - 9c64c8921e07e516-TXL
+      Connection:
+      - keep-alive
+      Content-Encoding:
+      - gzip
+      Content-Security-Policy:
+      - default-src 'none'; frame-ancestors 'none'
+      Content-Type:
+      - application/json
+      Date:
+      - Fri, 30 Jan 2026 23:35:03 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      X-Robots-Tag:
+      - none
+      anthropic-organization-id:
+      - 81cd89d3-6393-4ff4-b0c4-77aac7347031
+      cf-cache-status:
+      - DYNAMIC
+      request-id:
+      - req_011CXeSRFkqwF3W4ono8LgCB
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      x-envoy-upstream-service-time:
+      - '515'
+      x-should-retry:
+      - 'false'
+    status:
+      code: 404
+      message: Not Found
+- request:
+    body: '{"max_tokens": 4096, "messages": [{"role": "user", "content": [{"type":
+      "image", "source": {"type": "base64", "media_type": "image/png", "data": "iVBORw0KGgoAAAANSUhEUgAAAZAAAABkCAIAAAAnqfEgAAAFKUlEQVR4nO3bP0gbbRzA8ZiE/BEhgf6BIoLoJqI1lILWJFZUQgSXolCbgJJFBAdbcCnSrS0dbGkQR8WKOASCi4qTBAexdRQ7qKCQkg5Fo1ESkVx5DRzBS9O0sfj+2u9nynnPPc9zgl+8E0sURdEBgAT6694AABSKYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgAfhngmW32/Mc5jyVZ8xPz75+/frX9/jDeTY3NycmJn7pwnA43HLBaDRmPoRCoULWAlC8EkVRirnebrcfHh7+6DDnyDxjijxbuOLnKXyGq9ozgD/ySHhwcODz+dra2lwu1/r6es4xsVjM6/W6XC6v1xuLxbQD7Hb78+fP3W53fX19OBzW6XQvXrxIJBIdHR3a+b9+/drV1eV0Ov1+/82bN9UZ+vv7379/v7m52dzcXFtb+/bt2+x51F/otJvRrl74zQaDwYaGBofDsby8nL0WgGIpxbHZbNrDQCCwtramKMre3l59ff2lkZkPvb2909PTiqJMT08/efJEO6HVah0bG1MUZWdnp6KiIv/8Pp9vZmZGUZRwOGw2mzODLRbL0tKSoigDAwORSOTbt2937twpcDM5V89549rN3Lp16+joaGtry+/3a79FAH5bsY+EpaWl9+/fVw/X19dPT08rKiqqq6szX4lGo58/fzYYDJceCcvLy3d3d81mcyqVqqqqikajmfHqMIvFEovFMr8B2Wy2eDyuntXOX1lZub29bTabz8/PbTbbycmJTqcrKys7OjrS6/XHx8dzc3Pb29vj4+OJREL7fKrdTM7Vs6kzaDcTCATi8fjg4GB7ezuPhMAVMhZ5vclkWllZUQ8zP+Hn5+dLS0sWiyWdTq+urhoMBu2FPw2lyWRSX8CXlJRkn9LOf3Z2ljmVTqfVmY1Go17/3zNvd3f3o0ePhoaGfvSKXbuZPKtfot3M1NRUJBJ59+7d7Ozs5ORk/tsEcM3vsB48eJB577O4uPjq1aucYx4+fJj5+1ooFGppacmxs4vWXJK+oJ2/qalpfn4+81c8bX0+ffrU09OTTCZTqVT2PHk2k3P1Qm42Ho+73e7GxsYPHz4sLCxo1wLw+5Q/8A5rf3/f4/G4XK7W1tadnZ3MqXv37r18+VL9EI1GPR6P0+n0eDxfvnzRTpg9s/rZ6/V2dnZq59/d3XVeGBkZuXHjxqWrRkdHa2pqHj9+fPv27WQyqc6jjtFuJufqOW9cu5k3b944HI67d+8Gg8HstQBc8zus/4m+vr6nT5/W1dV9/Pjx2bNnkUjkuncE4Or9JcHa2NgYHh62Wq1nZ2fBYLC2tva6dwTg6v0lwQLwL+B/CQGIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAOik+A7yZCe65y64hgAAAABJRU5ErkJggg=="}},
+      {"type": "text", "text": "Extract structured data from this document.\n\nExpected
+      fields:\n  - title: str - The title or heading of the document\n  - has_text:
+      bool - Whether the document contains readable text"}]}], "model": "claude-3-5-haiku-20241022",
+      "temperature": 0.0, "tool_choice": {"type": "tool", "name": "DocumentInfo"},
+      "tools": [{"name": "DocumentInfo", "description": "Schema for extracting document
+      information.", "input_schema": {"description": "Schema for extracting document
+      information.", "properties": {"title": {"description": "The title or heading
+      of the document", "title": "Title", "type": "string"}, "has_text": {"description":
+      "Whether the document contains readable text", "title": "Has Text", "type":
+      "boolean"}}, "required": ["title", "has_text"], "title": "DocumentInfo", "type":
+      "object"}}]}'
+    headers:
+      accept:
+      - application/json
+      accept-encoding:
+      - gzip, deflate
+      anthropic-version:
+      - '2023-06-01'
+      connection:
+      - keep-alive
+      content-length:
+      - '2756'
+      content-type:
+      - application/json
+      host:
+      - api.anthropic.com
+      user-agent:
+      - Anthropic/Python 0.77.0
+      x-api-key:
+      - REDACTED
+      x-stainless-arch:
+      - arm64
+      x-stainless-async:
+      - 'false'
+      x-stainless-lang:
+      - python
+      x-stainless-os:
+      - MacOS
+      x-stainless-package-version:
+      - 0.77.0
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-retry-count:
+      - '0'
+      x-stainless-runtime:
+      - CPython
+      x-stainless-runtime-version:
+      - 3.12.11
+      x-stainless-timeout:
+      - '600'
+    method: POST
+    uri: https://api.anthropic.com/v1/messages
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAA/6tWKqksSFWyUkotKsovUtKB0lbVMPG8/JL4tPzSvJR4mIrc1OLixHSQXG5+SmqO
+        lUJyTmJpSqqusa6pbkZiZnaprpGBkYmhgZGRUq2OUlFqYWlqcUl8ZgpQA5ATb2Bo6ByRGhzklRXs
+        nORYnlSZl51mGukTqlQLALuds1yMAAAA
+    headers:
+      CF-RAY:
+      - 9c64c896dddce516-TXL
+      Connection:
+      - keep-alive
+      Content-Encoding:
+      - gzip
+      Content-Security-Policy:
+      - default-src 'none'; frame-ancestors 'none'
+      Content-Type:
+      - application/json
+      Date:
+      - Fri, 30 Jan 2026 23:35:03 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      X-Robots-Tag:
+      - none
+      anthropic-organization-id:
+      - 81cd89d3-6393-4ff4-b0c4-77aac7347031
+      cf-cache-status:
+      - DYNAMIC
+      request-id:
+      - req_011CXeSRJjSCbAwbynkf5YLU
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      x-envoy-upstream-service-time:
+      - '216'
+      x-should-retry:
+      - 'false'
+    status:
+      code: 404
+      message: Not Found
+- request:
+    body: '{"max_tokens": 4096, "messages": [{"role": "user", "content": [{"type":
+      "image", "source": {"type": "base64", "media_type": "image/png", "data": "iVBORw0KGgoAAAANSUhEUgAAAZAAAABkCAIAAAAnqfEgAAAFKUlEQVR4nO3bP0gbbRzA8ZiE/BEhgf6BIoLoJqI1lILWJFZUQgSXolCbgJJFBAdbcCnSrS0dbGkQR8WKOASCi4qTBAexdRQ7qKCQkg5Fo1ESkVx5DRzBS9O0sfj+2u9nynnPPc9zgl+8E0sURdEBgAT6694AABSKYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgAfhngmW32/Mc5jyVZ8xPz75+/frX9/jDeTY3NycmJn7pwnA43HLBaDRmPoRCoULWAlC8EkVRirnebrcfHh7+6DDnyDxjijxbuOLnKXyGq9ozgD/ySHhwcODz+dra2lwu1/r6es4xsVjM6/W6XC6v1xuLxbQD7Hb78+fP3W53fX19OBzW6XQvXrxIJBIdHR3a+b9+/drV1eV0Ov1+/82bN9UZ+vv7379/v7m52dzcXFtb+/bt2+x51F/otJvRrl74zQaDwYaGBofDsby8nL0WgGIpxbHZbNrDQCCwtramKMre3l59ff2lkZkPvb2909PTiqJMT08/efJEO6HVah0bG1MUZWdnp6KiIv/8Pp9vZmZGUZRwOGw2mzODLRbL0tKSoigDAwORSOTbt2937twpcDM5V89549rN3Lp16+joaGtry+/3a79FAH5bsY+EpaWl9+/fVw/X19dPT08rKiqqq6szX4lGo58/fzYYDJceCcvLy3d3d81mcyqVqqqqikajmfHqMIvFEovFMr8B2Wy2eDyuntXOX1lZub29bTabz8/PbTbbycmJTqcrKys7OjrS6/XHx8dzc3Pb29vj4+OJREL7fKrdTM7Vs6kzaDcTCATi8fjg4GB7ezuPhMAVMhZ5vclkWllZUQ8zP+Hn5+dLS0sWiyWdTq+urhoMBu2FPw2lyWRSX8CXlJRkn9LOf3Z2ljmVTqfVmY1Go17/3zNvd3f3o0ePhoaGfvSKXbuZPKtfot3M1NRUJBJ59+7d7Ozs5ORk/tsEcM3vsB48eJB577O4uPjq1aucYx4+fJj5+1ooFGppacmxs4vWXJK+oJ2/qalpfn4+81c8bX0+ffrU09OTTCZTqVT2PHk2k3P1Qm42Ho+73e7GxsYPHz4sLCxo1wLw+5Q/8A5rf3/f4/G4XK7W1tadnZ3MqXv37r18+VL9EI1GPR6P0+n0eDxfvnzRTpg9s/rZ6/V2dnZq59/d3XVeGBkZuXHjxqWrRkdHa2pqHj9+fPv27WQyqc6jjtFuJufqOW9cu5k3b944HI67d+8Gg8HstQBc8zus/4m+vr6nT5/W1dV9/Pjx2bNnkUjkuncE4Or9JcHa2NgYHh62Wq1nZ2fBYLC2tva6dwTg6v0lwQLwL+B/CQGIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAOik+A7yZCe65y64hgAAAABJRU5ErkJggg=="}},
+      {"type": "text", "text": "Extract structured data from this document.\n\nExpected
+      fields:\n  - title: str - The title or heading of the document\n  - has_text:
+      bool - Whether the document contains readable text"}]}], "model": "claude-3-5-haiku-20241022",
+      "temperature": 0.0, "tool_choice": {"type": "tool", "name": "DocumentInfo"},
+      "tools": [{"name": "DocumentInfo", "description": "Schema for extracting document
+      information.", "input_schema": {"description": "Schema for extracting document
+      information.", "properties": {"title": {"description": "The title or heading
+      of the document", "title": "Title", "type": "string"}, "has_text": {"description":
+      "Whether the document contains readable text", "title": "Has Text", "type":
+      "boolean"}}, "required": ["title", "has_text"], "title": "DocumentInfo", "type":
+      "object"}}]}'
+    headers:
+      accept:
+      - application/json
+      accept-encoding:
+      - gzip, deflate
+      anthropic-version:
+      - '2023-06-01'
+      connection:
+      - keep-alive
+      content-length:
+      - '2756'
+      content-type:
+      - application/json
+      host:
+      - api.anthropic.com
+      user-agent:
+      - Anthropic/Python 0.77.0
+      x-api-key:
+      - REDACTED
+      x-stainless-arch:
+      - arm64
+      x-stainless-async:
+      - 'false'
+      x-stainless-lang:
+      - python
+      x-stainless-os:
+      - MacOS
+      x-stainless-package-version:
+      - 0.77.0
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-retry-count:
+      - '0'
+      x-stainless-runtime:
+      - CPython
+      x-stainless-runtime-version:
+      - 3.12.11
+      x-stainless-timeout:
+      - '600'
+    method: POST
+    uri: https://api.anthropic.com/v1/messages
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAA/6tWKqksSFWyUkotKsovUtKB0lbVMPG8/JL4tPzSvJR4mIrc1OLixHSQXG5+SmqO
+        lUJyTmJpSqqusa6pbkZiZnaprpGBkYmhgZGRUq2OUlFqYWlqcUl8ZgpQA5ATb2Bo6ByRGhzkE+qb
+        mRriUeJnlGJqnFUQqVQLALZ/oD6MAAAA
+    headers:
+      CF-RAY:
+      - 9c64c8995a83e516-TXL
+      Connection:
+      - keep-alive
+      Content-Encoding:
+      - gzip
+      Content-Security-Policy:
+      - default-src 'none'; frame-ancestors 'none'
+      Content-Type:
+      - application/json
+      Date:
+      - Fri, 30 Jan 2026 23:35:04 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      X-Robots-Tag:
+      - none
+      anthropic-organization-id:
+      - 81cd89d3-6393-4ff4-b0c4-77aac7347031
+      cf-cache-status:
+      - DYNAMIC
+      request-id:
+      - req_011CXeSRLUMieTHtN2d53jpY
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      x-envoy-upstream-service-time:
+      - '174'
+      x-should-retry:
+      - 'false'
+    status:
+      code: 404
+      message: Not Found
+version: 1

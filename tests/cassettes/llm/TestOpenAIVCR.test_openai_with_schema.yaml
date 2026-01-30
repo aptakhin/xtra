@@ -1,0 +1,815 @@
+interactions:
+- request:
+    body: '{"messages": [{"role": "user", "content": [{"type": "image_url", "image_url":
+      {"url": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAZAAAABkCAIAAAAnqfEgAAAFKUlEQVR4nO3bP0gbbRzA8ZiE/BEhgf6BIoLoJqI1lILWJFZUQgSXolCbgJJFBAdbcCnSrS0dbGkQR8WKOASCi4qTBAexdRQ7qKCQkg5Fo1ESkVx5DRzBS9O0sfj+2u9nynnPPc9zgl+8E0sURdEBgAT6694AABSKYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgAfhngmW32/Mc5jyVZ8xPz75+/frX9/jDeTY3NycmJn7pwnA43HLBaDRmPoRCoULWAlC8EkVRirnebrcfHh7+6DDnyDxjijxbuOLnKXyGq9ozgD/ySHhwcODz+dra2lwu1/r6es4xsVjM6/W6XC6v1xuLxbQD7Hb78+fP3W53fX19OBzW6XQvXrxIJBIdHR3a+b9+/drV1eV0Ov1+/82bN9UZ+vv7379/v7m52dzcXFtb+/bt2+x51F/otJvRrl74zQaDwYaGBofDsby8nL0WgGIpxbHZbNrDQCCwtramKMre3l59ff2lkZkPvb2909PTiqJMT08/efJEO6HVah0bG1MUZWdnp6KiIv/8Pp9vZmZGUZRwOGw2mzODLRbL0tKSoigDAwORSOTbt2937twpcDM5V89549rN3Lp16+joaGtry+/3a79FAH5bsY+EpaWl9+/fVw/X19dPT08rKiqqq6szX4lGo58/fzYYDJceCcvLy3d3d81mcyqVqqqqikajmfHqMIvFEovFMr8B2Wy2eDyuntXOX1lZub29bTabz8/PbTbbycmJTqcrKys7OjrS6/XHx8dzc3Pb29vj4+OJREL7fKrdTM7Vs6kzaDcTCATi8fjg4GB7ezuPhMAVMhZ5vclkWllZUQ8zP+Hn5+dLS0sWiyWdTq+urhoMBu2FPw2lyWRSX8CXlJRkn9LOf3Z2ljmVTqfVmY1Go17/3zNvd3f3o0ePhoaGfvSKXbuZPKtfot3M1NRUJBJ59+7d7Ozs5ORk/tsEcM3vsB48eJB577O4uPjq1aucYx4+fJj5+1ooFGppacmxs4vWXJK+oJ2/qalpfn4+81c8bX0+ffrU09OTTCZTqVT2PHk2k3P1Qm42Ho+73e7GxsYPHz4sLCxo1wLw+5Q/8A5rf3/f4/G4XK7W1tadnZ3MqXv37r18+VL9EI1GPR6P0+n0eDxfvnzRTpg9s/rZ6/V2dnZq59/d3XVeGBkZuXHjxqWrRkdHa2pqHj9+fPv27WQyqc6jjtFuJufqOW9cu5k3b944HI67d+8Gg8HstQBc8zus/4m+vr6nT5/W1dV9/Pjx2bNnkUjkuncE4Or9JcHa2NgYHh62Wq1nZ2fBYLC2tva6dwTg6v0lwQLwL+B/CQGIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAOik+A7yZCe65y64hgAAAABJRU5ErkJggg=="}},
+      {"type": "text", "text": "Extract structured data from this document.\n\nExpected
+      fields:\n  - title: str - The title or heading of the document\n  - has_text:
+      bool - Whether the document contains readable text"}]}], "model": "gpt-4o-mini",
+      "temperature": 0.0, "tool_choice": {"type": "function", "function": {"name":
+      "DocumentInfo"}}, "tools": [{"type": "function", "function": {"name": "DocumentInfo",
+      "description": "Schema for extracting document information.", "parameters":
+      {"properties": {"title": {"description": "The title or heading of the document",
+      "title": "Title", "type": "string"}, "has_text": {"description": "Whether the
+      document contains readable text", "title": "Has Text", "type": "boolean"}},
+      "required": ["has_text", "title"], "type": "object"}}}]}'
+    headers:
+      accept:
+      - application/json
+      accept-encoding:
+      - gzip, deflate
+      authorization:
+      - Bearer REDACTED
+      connection:
+      - keep-alive
+      content-length:
+      - '2674'
+      content-type:
+      - application/json
+      host:
+      - api.openai.com
+      user-agent:
+      - OpenAI/Python 2.16.0
+      x-stainless-arch:
+      - arm64
+      x-stainless-async:
+      - 'false'
+      x-stainless-lang:
+      - python
+      x-stainless-os:
+      - MacOS
+      x-stainless-package-version:
+      - 2.16.0
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-retry-count:
+      - '0'
+      x-stainless-runtime:
+      - CPython
+      x-stainless-runtime-version:
+      - 3.12.11
+    method: POST
+    uri: https://api.openai.com/v1/chat/completions
+  response:
+    body:
+      string: "{\n    \"error\": {\n        \"message\": \"You exceeded your current
+        quota, please check your plan and billing details. For more information on
+        this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.\",\n
+        \       \"type\": \"insufficient_quota\",\n        \"param\": null,\n        \"code\":
+        \"insufficient_quota\"\n    }\n}\n"
+    headers:
+      CF-RAY:
+      - 9c64c82b39ef4541-TXL
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '337'
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Fri, 30 Jan 2026 23:34:46 GMT
+      Server:
+      - cloudflare
+      Set-Cookie:
+      - __cf_bm=Tm6Vvnatzjw_HAEux7UDYnCqaeYS2wbl4wtpYlaPzWE-1769816086-1.0.1.1-nJvFHJ3M9zbvQgEx0CGoN4fTyxIEvjEgnrXNdqLb9Jieibrf61cnj5qbpVeA7U6E39xg3ebII8GFyI4MGXpNlrf62aligbahnh2Vp.vBt2w;
+        path=/; expires=Sat, 31-Jan-26 00:04:46 GMT; domain=.api.openai.com; HttpOnly;
+        Secure; SameSite=None
+      - _cfuvid=4l1BGJVIA3HicAPrDdOIMoMrPVmVxA7u2ffYCStLGYg-1769816086892-0.0.1.1-604800000;
+        path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      X-Content-Type-Options:
+      - nosniff
+      alt-svc:
+      - h3=":443"; ma=86400
+      cf-cache-status:
+      - DYNAMIC
+      vary:
+      - Origin
+      x-openai-proxy-wasm:
+      - v0.1
+      x-request-id:
+      - req_ac62898f9beb4a62a92016c0be2c7538
+    status:
+      code: 429
+      message: Too Many Requests
+- request:
+    body: '{"messages": [{"role": "user", "content": [{"type": "image_url", "image_url":
+      {"url": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAZAAAABkCAIAAAAnqfEgAAAFKUlEQVR4nO3bP0gbbRzA8ZiE/BEhgf6BIoLoJqI1lILWJFZUQgSXolCbgJJFBAdbcCnSrS0dbGkQR8WKOASCi4qTBAexdRQ7qKCQkg5Fo1ESkVx5DRzBS9O0sfj+2u9nynnPPc9zgl+8E0sURdEBgAT6694AABSKYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgAfhngmW32/Mc5jyVZ8xPz75+/frX9/jDeTY3NycmJn7pwnA43HLBaDRmPoRCoULWAlC8EkVRirnebrcfHh7+6DDnyDxjijxbuOLnKXyGq9ozgD/ySHhwcODz+dra2lwu1/r6es4xsVjM6/W6XC6v1xuLxbQD7Hb78+fP3W53fX19OBzW6XQvXrxIJBIdHR3a+b9+/drV1eV0Ov1+/82bN9UZ+vv7379/v7m52dzcXFtb+/bt2+x51F/otJvRrl74zQaDwYaGBofDsby8nL0WgGIpxbHZbNrDQCCwtramKMre3l59ff2lkZkPvb2909PTiqJMT08/efJEO6HVah0bG1MUZWdnp6KiIv/8Pp9vZmZGUZRwOGw2mzODLRbL0tKSoigDAwORSOTbt2937twpcDM5V89549rN3Lp16+joaGtry+/3a79FAH5bsY+EpaWl9+/fVw/X19dPT08rKiqqq6szX4lGo58/fzYYDJceCcvLy3d3d81mcyqVqqqqikajmfHqMIvFEovFMr8B2Wy2eDyuntXOX1lZub29bTabz8/PbTbbycmJTqcrKys7OjrS6/XHx8dzc3Pb29vj4+OJREL7fKrdTM7Vs6kzaDcTCATi8fjg4GB7ezuPhMAVMhZ5vclkWllZUQ8zP+Hn5+dLS0sWiyWdTq+urhoMBu2FPw2lyWRSX8CXlJRkn9LOf3Z2ljmVTqfVmY1Go17/3zNvd3f3o0ePhoaGfvSKXbuZPKtfot3M1NRUJBJ59+7d7Ozs5ORk/tsEcM3vsB48eJB577O4uPjq1aucYx4+fJj5+1ooFGppacmxs4vWXJK+oJ2/qalpfn4+81c8bX0+ffrU09OTTCZTqVT2PHk2k3P1Qm42Ho+73e7GxsYPHz4sLCxo1wLw+5Q/8A5rf3/f4/G4XK7W1tadnZ3MqXv37r18+VL9EI1GPR6P0+n0eDxfvnzRTpg9s/rZ6/V2dnZq59/d3XVeGBkZuXHjxqWrRkdHa2pqHj9+fPv27WQyqc6jjtFuJufqOW9cu5k3b944HI67d+8Gg8HstQBc8zus/4m+vr6nT5/W1dV9/Pjx2bNnkUjkuncE4Or9JcHa2NgYHh62Wq1nZ2fBYLC2tva6dwTg6v0lwQLwL+B/CQGIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAOik+A7yZCe65y64hgAAAABJRU5ErkJggg=="}},
+      {"type": "text", "text": "Extract structured data from this document.\n\nExpected
+      fields:\n  - title: str - The title or heading of the document\n  - has_text:
+      bool - Whether the document contains readable text"}]}], "model": "gpt-4o-mini",
+      "temperature": 0.0, "tool_choice": {"type": "function", "function": {"name":
+      "DocumentInfo"}}, "tools": [{"type": "function", "function": {"name": "DocumentInfo",
+      "description": "Schema for extracting document information.", "parameters":
+      {"properties": {"title": {"description": "The title or heading of the document",
+      "title": "Title", "type": "string"}, "has_text": {"description": "Whether the
+      document contains readable text", "title": "Has Text", "type": "boolean"}},
+      "required": ["has_text", "title"], "type": "object"}}}]}'
+    headers:
+      accept:
+      - application/json
+      accept-encoding:
+      - gzip, deflate
+      authorization:
+      - Bearer REDACTED
+      connection:
+      - keep-alive
+      content-length:
+      - '2674'
+      content-type:
+      - application/json
+      cookie:
+      - __cf_bm=Tm6Vvnatzjw_HAEux7UDYnCqaeYS2wbl4wtpYlaPzWE-1769816086-1.0.1.1-nJvFHJ3M9zbvQgEx0CGoN4fTyxIEvjEgnrXNdqLb9Jieibrf61cnj5qbpVeA7U6E39xg3ebII8GFyI4MGXpNlrf62aligbahnh2Vp.vBt2w;
+        _cfuvid=4l1BGJVIA3HicAPrDdOIMoMrPVmVxA7u2ffYCStLGYg-1769816086892-0.0.1.1-604800000
+      host:
+      - api.openai.com
+      user-agent:
+      - OpenAI/Python 2.16.0
+      x-stainless-arch:
+      - arm64
+      x-stainless-async:
+      - 'false'
+      x-stainless-lang:
+      - python
+      x-stainless-os:
+      - MacOS
+      x-stainless-package-version:
+      - 2.16.0
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-retry-count:
+      - '1'
+      x-stainless-runtime:
+      - CPython
+      x-stainless-runtime-version:
+      - 3.12.11
+    method: POST
+    uri: https://api.openai.com/v1/chat/completions
+  response:
+    body:
+      string: "{\n    \"error\": {\n        \"message\": \"You exceeded your current
+        quota, please check your plan and billing details. For more information on
+        this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.\",\n
+        \       \"type\": \"insufficient_quota\",\n        \"param\": null,\n        \"code\":
+        \"insufficient_quota\"\n    }\n}\n"
+    headers:
+      CF-RAY:
+      - 9c64c831eee14541-TXL
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '337'
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Fri, 30 Jan 2026 23:34:47 GMT
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      X-Content-Type-Options:
+      - nosniff
+      alt-svc:
+      - h3=":443"; ma=86400
+      cf-cache-status:
+      - DYNAMIC
+      vary:
+      - Origin
+      x-openai-proxy-wasm:
+      - v0.1
+      x-request-id:
+      - req_3639e725d108405e8d04ab6e23ed086c
+    status:
+      code: 429
+      message: Too Many Requests
+- request:
+    body: '{"messages": [{"role": "user", "content": [{"type": "image_url", "image_url":
+      {"url": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAZAAAABkCAIAAAAnqfEgAAAFKUlEQVR4nO3bP0gbbRzA8ZiE/BEhgf6BIoLoJqI1lILWJFZUQgSXolCbgJJFBAdbcCnSrS0dbGkQR8WKOASCi4qTBAexdRQ7qKCQkg5Fo1ESkVx5DRzBS9O0sfj+2u9nynnPPc9zgl+8E0sURdEBgAT6694AABSKYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgAfhngmW32/Mc5jyVZ8xPz75+/frX9/jDeTY3NycmJn7pwnA43HLBaDRmPoRCoULWAlC8EkVRirnebrcfHh7+6DDnyDxjijxbuOLnKXyGq9ozgD/ySHhwcODz+dra2lwu1/r6es4xsVjM6/W6XC6v1xuLxbQD7Hb78+fP3W53fX19OBzW6XQvXrxIJBIdHR3a+b9+/drV1eV0Ov1+/82bN9UZ+vv7379/v7m52dzcXFtb+/bt2+x51F/otJvRrl74zQaDwYaGBofDsby8nL0WgGIpxbHZbNrDQCCwtramKMre3l59ff2lkZkPvb2909PTiqJMT08/efJEO6HVah0bG1MUZWdnp6KiIv/8Pp9vZmZGUZRwOGw2mzODLRbL0tKSoigDAwORSOTbt2937twpcDM5V89549rN3Lp16+joaGtry+/3a79FAH5bsY+EpaWl9+/fVw/X19dPT08rKiqqq6szX4lGo58/fzYYDJceCcvLy3d3d81mcyqVqqqqikajmfHqMIvFEovFMr8B2Wy2eDyuntXOX1lZub29bTabz8/PbTbbycmJTqcrKys7OjrS6/XHx8dzc3Pb29vj4+OJREL7fKrdTM7Vs6kzaDcTCATi8fjg4GB7ezuPhMAVMhZ5vclkWllZUQ8zP+Hn5+dLS0sWiyWdTq+urhoMBu2FPw2lyWRSX8CXlJRkn9LOf3Z2ljmVTqfVmY1Go17/3zNvd3f3o0ePhoaGfvSKXbuZPKtfot3M1NRUJBJ59+7d7Ozs5ORk/tsEcM3vsB48eJB577O4uPjq1aucYx4+fJj5+1ooFGppacmxs4vWXJK+oJ2/qalpfn4+81c8bX0+ffrU09OTTCZTqVT2PHk2k3P1Qm42Ho+73e7GxsYPHz4sLCxo1wLw+5Q/8A5rf3/f4/G4XK7W1tadnZ3MqXv37r18+VL9EI1GPR6P0+n0eDxfvnzRTpg9s/rZ6/V2dnZq59/d3XVeGBkZuXHjxqWrRkdHa2pqHj9+fPv27WQyqc6jjtFuJufqOW9cu5k3b944HI67d+8Gg8HstQBc8zus/4m+vr6nT5/W1dV9/Pjx2bNnkUjkuncE4Or9JcHa2NgYHh62Wq1nZ2fBYLC2tva6dwTg6v0lwQLwL+B/CQGIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAOik+A7yZCe65y64hgAAAABJRU5ErkJggg=="}},
+      {"type": "text", "text": "Extract structured data from this document.\n\nExpected
+      fields:\n  - title: str - The title or heading of the document\n  - has_text:
+      bool - Whether the document contains readable text"}]}], "model": "gpt-4o-mini",
+      "temperature": 0.0, "tool_choice": {"type": "function", "function": {"name":
+      "DocumentInfo"}}, "tools": [{"type": "function", "function": {"name": "DocumentInfo",
+      "description": "Schema for extracting document information.", "parameters":
+      {"properties": {"title": {"description": "The title or heading of the document",
+      "title": "Title", "type": "string"}, "has_text": {"description": "Whether the
+      document contains readable text", "title": "Has Text", "type": "boolean"}},
+      "required": ["has_text", "title"], "type": "object"}}}]}'
+    headers:
+      accept:
+      - application/json
+      accept-encoding:
+      - gzip, deflate
+      authorization:
+      - Bearer REDACTED
+      connection:
+      - keep-alive
+      content-length:
+      - '2674'
+      content-type:
+      - application/json
+      cookie:
+      - __cf_bm=Tm6Vvnatzjw_HAEux7UDYnCqaeYS2wbl4wtpYlaPzWE-1769816086-1.0.1.1-nJvFHJ3M9zbvQgEx0CGoN4fTyxIEvjEgnrXNdqLb9Jieibrf61cnj5qbpVeA7U6E39xg3ebII8GFyI4MGXpNlrf62aligbahnh2Vp.vBt2w;
+        _cfuvid=4l1BGJVIA3HicAPrDdOIMoMrPVmVxA7u2ffYCStLGYg-1769816086892-0.0.1.1-604800000
+      host:
+      - api.openai.com
+      user-agent:
+      - OpenAI/Python 2.16.0
+      x-stainless-arch:
+      - arm64
+      x-stainless-async:
+      - 'false'
+      x-stainless-lang:
+      - python
+      x-stainless-os:
+      - MacOS
+      x-stainless-package-version:
+      - 2.16.0
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-retry-count:
+      - '2'
+      x-stainless-runtime:
+      - CPython
+      x-stainless-runtime-version:
+      - 3.12.11
+    method: POST
+    uri: https://api.openai.com/v1/chat/completions
+  response:
+    body:
+      string: "{\n    \"error\": {\n        \"message\": \"You exceeded your current
+        quota, please check your plan and billing details. For more information on
+        this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.\",\n
+        \       \"type\": \"insufficient_quota\",\n        \"param\": null,\n        \"code\":
+        \"insufficient_quota\"\n    }\n}\n"
+    headers:
+      CF-RAY:
+      - 9c64c83c2cfc4541-TXL
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '337'
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Fri, 30 Jan 2026 23:34:49 GMT
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      X-Content-Type-Options:
+      - nosniff
+      alt-svc:
+      - h3=":443"; ma=86400
+      cf-cache-status:
+      - DYNAMIC
+      vary:
+      - Origin
+      x-openai-proxy-wasm:
+      - v0.1
+      x-request-id:
+      - req_293020b1e455484a8e2c18ce95d783c0
+    status:
+      code: 429
+      message: Too Many Requests
+- request:
+    body: '{"messages": [{"role": "user", "content": [{"type": "image_url", "image_url":
+      {"url": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAZAAAABkCAIAAAAnqfEgAAAFKUlEQVR4nO3bP0gbbRzA8ZiE/BEhgf6BIoLoJqI1lILWJFZUQgSXolCbgJJFBAdbcCnSrS0dbGkQR8WKOASCi4qTBAexdRQ7qKCQkg5Fo1ESkVx5DRzBS9O0sfj+2u9nynnPPc9zgl+8E0sURdEBgAT6694AABSKYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgAfhngmW32/Mc5jyVZ8xPz75+/frX9/jDeTY3NycmJn7pwnA43HLBaDRmPoRCoULWAlC8EkVRirnebrcfHh7+6DDnyDxjijxbuOLnKXyGq9ozgD/ySHhwcODz+dra2lwu1/r6es4xsVjM6/W6XC6v1xuLxbQD7Hb78+fP3W53fX19OBzW6XQvXrxIJBIdHR3a+b9+/drV1eV0Ov1+/82bN9UZ+vv7379/v7m52dzcXFtb+/bt2+x51F/otJvRrl74zQaDwYaGBofDsby8nL0WgGIpxbHZbNrDQCCwtramKMre3l59ff2lkZkPvb2909PTiqJMT08/efJEO6HVah0bG1MUZWdnp6KiIv/8Pp9vZmZGUZRwOGw2mzODLRbL0tKSoigDAwORSOTbt2937twpcDM5V89549rN3Lp16+joaGtry+/3a79FAH5bsY+EpaWl9+/fVw/X19dPT08rKiqqq6szX4lGo58/fzYYDJceCcvLy3d3d81mcyqVqqqqikajmfHqMIvFEovFMr8B2Wy2eDyuntXOX1lZub29bTabz8/PbTbbycmJTqcrKys7OjrS6/XHx8dzc3Pb29vj4+OJREL7fKrdTM7Vs6kzaDcTCATi8fjg4GB7ezuPhMAVMhZ5vclkWllZUQ8zP+Hn5+dLS0sWiyWdTq+urhoMBu2FPw2lyWRSX8CXlJRkn9LOf3Z2ljmVTqfVmY1Go17/3zNvd3f3o0ePhoaGfvSKXbuZPKtfot3M1NRUJBJ59+7d7Ozs5ORk/tsEcM3vsB48eJB577O4uPjq1aucYx4+fJj5+1ooFGppacmxs4vWXJK+oJ2/qalpfn4+81c8bX0+ffrU09OTTCZTqVT2PHk2k3P1Qm42Ho+73e7GxsYPHz4sLCxo1wLw+5Q/8A5rf3/f4/G4XK7W1tadnZ3MqXv37r18+VL9EI1GPR6P0+n0eDxfvnzRTpg9s/rZ6/V2dnZq59/d3XVeGBkZuXHjxqWrRkdHa2pqHj9+fPv27WQyqc6jjtFuJufqOW9cu5k3b944HI67d+8Gg8HstQBc8zus/4m+vr6nT5/W1dV9/Pjx2bNnkUjkuncE4Or9JcHa2NgYHh62Wq1nZ2fBYLC2tva6dwTg6v0lwQLwL+B/CQGIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAOik+A7yZCe65y64hgAAAABJRU5ErkJggg=="}},
+      {"type": "text", "text": "Extract structured data from this document.\n\nExpected
+      fields:\n  - title: str - The title or heading of the document\n  - has_text:
+      bool - Whether the document contains readable text"}]}], "model": "gpt-4o-mini",
+      "temperature": 0.0, "tool_choice": {"type": "function", "function": {"name":
+      "DocumentInfo"}}, "tools": [{"type": "function", "function": {"name": "DocumentInfo",
+      "description": "Schema for extracting document information.", "parameters":
+      {"properties": {"title": {"description": "The title or heading of the document",
+      "title": "Title", "type": "string"}, "has_text": {"description": "Whether the
+      document contains readable text", "title": "Has Text", "type": "boolean"}},
+      "required": ["has_text", "title"], "type": "object"}}}]}'
+    headers:
+      accept:
+      - application/json
+      accept-encoding:
+      - gzip, deflate
+      authorization:
+      - Bearer REDACTED
+      connection:
+      - keep-alive
+      content-length:
+      - '2674'
+      content-type:
+      - application/json
+      cookie:
+      - __cf_bm=Tm6Vvnatzjw_HAEux7UDYnCqaeYS2wbl4wtpYlaPzWE-1769816086-1.0.1.1-nJvFHJ3M9zbvQgEx0CGoN4fTyxIEvjEgnrXNdqLb9Jieibrf61cnj5qbpVeA7U6E39xg3ebII8GFyI4MGXpNlrf62aligbahnh2Vp.vBt2w;
+        _cfuvid=4l1BGJVIA3HicAPrDdOIMoMrPVmVxA7u2ffYCStLGYg-1769816086892-0.0.1.1-604800000
+      host:
+      - api.openai.com
+      user-agent:
+      - OpenAI/Python 2.16.0
+      x-stainless-arch:
+      - arm64
+      x-stainless-async:
+      - 'false'
+      x-stainless-lang:
+      - python
+      x-stainless-os:
+      - MacOS
+      x-stainless-package-version:
+      - 2.16.0
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-retry-count:
+      - '0'
+      x-stainless-runtime:
+      - CPython
+      x-stainless-runtime-version:
+      - 3.12.11
+    method: POST
+    uri: https://api.openai.com/v1/chat/completions
+  response:
+    body:
+      string: "{\n    \"error\": {\n        \"message\": \"You exceeded your current
+        quota, please check your plan and billing details. For more information on
+        this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.\",\n
+        \       \"type\": \"insufficient_quota\",\n        \"param\": null,\n        \"code\":
+        \"insufficient_quota\"\n    }\n}\n"
+    headers:
+      CF-RAY:
+      - 9c64c83f9f004541-TXL
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '337'
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Fri, 30 Jan 2026 23:34:50 GMT
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      X-Content-Type-Options:
+      - nosniff
+      alt-svc:
+      - h3=":443"; ma=86400
+      cf-cache-status:
+      - DYNAMIC
+      vary:
+      - Origin
+      x-openai-proxy-wasm:
+      - v0.1
+      x-request-id:
+      - req_f718be288b2f494a8093fd82d91e0bcd
+    status:
+      code: 429
+      message: Too Many Requests
+- request:
+    body: '{"messages": [{"role": "user", "content": [{"type": "image_url", "image_url":
+      {"url": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAZAAAABkCAIAAAAnqfEgAAAFKUlEQVR4nO3bP0gbbRzA8ZiE/BEhgf6BIoLoJqI1lILWJFZUQgSXolCbgJJFBAdbcCnSrS0dbGkQR8WKOASCi4qTBAexdRQ7qKCQkg5Fo1ESkVx5DRzBS9O0sfj+2u9nynnPPc9zgl+8E0sURdEBgAT6694AABSKYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgAfhngmW32/Mc5jyVZ8xPz75+/frX9/jDeTY3NycmJn7pwnA43HLBaDRmPoRCoULWAlC8EkVRirnebrcfHh7+6DDnyDxjijxbuOLnKXyGq9ozgD/ySHhwcODz+dra2lwu1/r6es4xsVjM6/W6XC6v1xuLxbQD7Hb78+fP3W53fX19OBzW6XQvXrxIJBIdHR3a+b9+/drV1eV0Ov1+/82bN9UZ+vv7379/v7m52dzcXFtb+/bt2+x51F/otJvRrl74zQaDwYaGBofDsby8nL0WgGIpxbHZbNrDQCCwtramKMre3l59ff2lkZkPvb2909PTiqJMT08/efJEO6HVah0bG1MUZWdnp6KiIv/8Pp9vZmZGUZRwOGw2mzODLRbL0tKSoigDAwORSOTbt2937twpcDM5V89549rN3Lp16+joaGtry+/3a79FAH5bsY+EpaWl9+/fVw/X19dPT08rKiqqq6szX4lGo58/fzYYDJceCcvLy3d3d81mcyqVqqqqikajmfHqMIvFEovFMr8B2Wy2eDyuntXOX1lZub29bTabz8/PbTbbycmJTqcrKys7OjrS6/XHx8dzc3Pb29vj4+OJREL7fKrdTM7Vs6kzaDcTCATi8fjg4GB7ezuPhMAVMhZ5vclkWllZUQ8zP+Hn5+dLS0sWiyWdTq+urhoMBu2FPw2lyWRSX8CXlJRkn9LOf3Z2ljmVTqfVmY1Go17/3zNvd3f3o0ePhoaGfvSKXbuZPKtfot3M1NRUJBJ59+7d7Ozs5ORk/tsEcM3vsB48eJB577O4uPjq1aucYx4+fJj5+1ooFGppacmxs4vWXJK+oJ2/qalpfn4+81c8bX0+ffrU09OTTCZTqVT2PHk2k3P1Qm42Ho+73e7GxsYPHz4sLCxo1wLw+5Q/8A5rf3/f4/G4XK7W1tadnZ3MqXv37r18+VL9EI1GPR6P0+n0eDxfvnzRTpg9s/rZ6/V2dnZq59/d3XVeGBkZuXHjxqWrRkdHa2pqHj9+fPv27WQyqc6jjtFuJufqOW9cu5k3b944HI67d+8Gg8HstQBc8zus/4m+vr6nT5/W1dV9/Pjx2bNnkUjkuncE4Or9JcHa2NgYHh62Wq1nZ2fBYLC2tva6dwTg6v0lwQLwL+B/CQGIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAOik+A7yZCe65y64hgAAAABJRU5ErkJggg=="}},
+      {"type": "text", "text": "Extract structured data from this document.\n\nExpected
+      fields:\n  - title: str - The title or heading of the document\n  - has_text:
+      bool - Whether the document contains readable text"}]}], "model": "gpt-4o-mini",
+      "temperature": 0.0, "tool_choice": {"type": "function", "function": {"name":
+      "DocumentInfo"}}, "tools": [{"type": "function", "function": {"name": "DocumentInfo",
+      "description": "Schema for extracting document information.", "parameters":
+      {"properties": {"title": {"description": "The title or heading of the document",
+      "title": "Title", "type": "string"}, "has_text": {"description": "Whether the
+      document contains readable text", "title": "Has Text", "type": "boolean"}},
+      "required": ["has_text", "title"], "type": "object"}}}]}'
+    headers:
+      accept:
+      - application/json
+      accept-encoding:
+      - gzip, deflate
+      authorization:
+      - Bearer REDACTED
+      connection:
+      - keep-alive
+      content-length:
+      - '2674'
+      content-type:
+      - application/json
+      cookie:
+      - __cf_bm=Tm6Vvnatzjw_HAEux7UDYnCqaeYS2wbl4wtpYlaPzWE-1769816086-1.0.1.1-nJvFHJ3M9zbvQgEx0CGoN4fTyxIEvjEgnrXNdqLb9Jieibrf61cnj5qbpVeA7U6E39xg3ebII8GFyI4MGXpNlrf62aligbahnh2Vp.vBt2w;
+        _cfuvid=4l1BGJVIA3HicAPrDdOIMoMrPVmVxA7u2ffYCStLGYg-1769816086892-0.0.1.1-604800000
+      host:
+      - api.openai.com
+      user-agent:
+      - OpenAI/Python 2.16.0
+      x-stainless-arch:
+      - arm64
+      x-stainless-async:
+      - 'false'
+      x-stainless-lang:
+      - python
+      x-stainless-os:
+      - MacOS
+      x-stainless-package-version:
+      - 2.16.0
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-retry-count:
+      - '1'
+      x-stainless-runtime:
+      - CPython
+      x-stainless-runtime-version:
+      - 3.12.11
+    method: POST
+    uri: https://api.openai.com/v1/chat/completions
+  response:
+    body:
+      string: "{\n    \"error\": {\n        \"message\": \"You exceeded your current
+        quota, please check your plan and billing details. For more information on
+        this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.\",\n
+        \       \"type\": \"insufficient_quota\",\n        \"param\": null,\n        \"code\":
+        \"insufficient_quota\"\n    }\n}\n"
+    headers:
+      CF-RAY:
+      - 9c64c8466b694541-TXL
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '337'
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Fri, 30 Jan 2026 23:34:50 GMT
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      X-Content-Type-Options:
+      - nosniff
+      alt-svc:
+      - h3=":443"; ma=86400
+      cf-cache-status:
+      - DYNAMIC
+      vary:
+      - Origin
+      x-openai-proxy-wasm:
+      - v0.1
+      x-request-id:
+      - req_3cb995ebee4e4bbf9798ded5cfa16434
+    status:
+      code: 429
+      message: Too Many Requests
+- request:
+    body: '{"messages": [{"role": "user", "content": [{"type": "image_url", "image_url":
+      {"url": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAZAAAABkCAIAAAAnqfEgAAAFKUlEQVR4nO3bP0gbbRzA8ZiE/BEhgf6BIoLoJqI1lILWJFZUQgSXolCbgJJFBAdbcCnSrS0dbGkQR8WKOASCi4qTBAexdRQ7qKCQkg5Fo1ESkVx5DRzBS9O0sfj+2u9nynnPPc9zgl+8E0sURdEBgAT6694AABSKYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgAfhngmW32/Mc5jyVZ8xPz75+/frX9/jDeTY3NycmJn7pwnA43HLBaDRmPoRCoULWAlC8EkVRirnebrcfHh7+6DDnyDxjijxbuOLnKXyGq9ozgD/ySHhwcODz+dra2lwu1/r6es4xsVjM6/W6XC6v1xuLxbQD7Hb78+fP3W53fX19OBzW6XQvXrxIJBIdHR3a+b9+/drV1eV0Ov1+/82bN9UZ+vv7379/v7m52dzcXFtb+/bt2+x51F/otJvRrl74zQaDwYaGBofDsby8nL0WgGIpxbHZbNrDQCCwtramKMre3l59ff2lkZkPvb2909PTiqJMT08/efJEO6HVah0bG1MUZWdnp6KiIv/8Pp9vZmZGUZRwOGw2mzODLRbL0tKSoigDAwORSOTbt2937twpcDM5V89549rN3Lp16+joaGtry+/3a79FAH5bsY+EpaWl9+/fVw/X19dPT08rKiqqq6szX4lGo58/fzYYDJceCcvLy3d3d81mcyqVqqqqikajmfHqMIvFEovFMr8B2Wy2eDyuntXOX1lZub29bTabz8/PbTbbycmJTqcrKys7OjrS6/XHx8dzc3Pb29vj4+OJREL7fKrdTM7Vs6kzaDcTCATi8fjg4GB7ezuPhMAVMhZ5vclkWllZUQ8zP+Hn5+dLS0sWiyWdTq+urhoMBu2FPw2lyWRSX8CXlJRkn9LOf3Z2ljmVTqfVmY1Go17/3zNvd3f3o0ePhoaGfvSKXbuZPKtfot3M1NRUJBJ59+7d7Ozs5ORk/tsEcM3vsB48eJB577O4uPjq1aucYx4+fJj5+1ooFGppacmxs4vWXJK+oJ2/qalpfn4+81c8bX0+ffrU09OTTCZTqVT2PHk2k3P1Qm42Ho+73e7GxsYPHz4sLCxo1wLw+5Q/8A5rf3/f4/G4XK7W1tadnZ3MqXv37r18+VL9EI1GPR6P0+n0eDxfvnzRTpg9s/rZ6/V2dnZq59/d3XVeGBkZuXHjxqWrRkdHa2pqHj9+fPv27WQyqc6jjtFuJufqOW9cu5k3b944HI67d+8Gg8HstQBc8zus/4m+vr6nT5/W1dV9/Pjx2bNnkUjkuncE4Or9JcHa2NgYHh62Wq1nZ2fBYLC2tva6dwTg6v0lwQLwL+B/CQGIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAOik+A7yZCe65y64hgAAAABJRU5ErkJggg=="}},
+      {"type": "text", "text": "Extract structured data from this document.\n\nExpected
+      fields:\n  - title: str - The title or heading of the document\n  - has_text:
+      bool - Whether the document contains readable text"}]}], "model": "gpt-4o-mini",
+      "temperature": 0.0, "tool_choice": {"type": "function", "function": {"name":
+      "DocumentInfo"}}, "tools": [{"type": "function", "function": {"name": "DocumentInfo",
+      "description": "Schema for extracting document information.", "parameters":
+      {"properties": {"title": {"description": "The title or heading of the document",
+      "title": "Title", "type": "string"}, "has_text": {"description": "Whether the
+      document contains readable text", "title": "Has Text", "type": "boolean"}},
+      "required": ["has_text", "title"], "type": "object"}}}]}'
+    headers:
+      accept:
+      - application/json
+      accept-encoding:
+      - gzip, deflate
+      authorization:
+      - Bearer REDACTED
+      connection:
+      - keep-alive
+      content-length:
+      - '2674'
+      content-type:
+      - application/json
+      cookie:
+      - __cf_bm=Tm6Vvnatzjw_HAEux7UDYnCqaeYS2wbl4wtpYlaPzWE-1769816086-1.0.1.1-nJvFHJ3M9zbvQgEx0CGoN4fTyxIEvjEgnrXNdqLb9Jieibrf61cnj5qbpVeA7U6E39xg3ebII8GFyI4MGXpNlrf62aligbahnh2Vp.vBt2w;
+        _cfuvid=4l1BGJVIA3HicAPrDdOIMoMrPVmVxA7u2ffYCStLGYg-1769816086892-0.0.1.1-604800000
+      host:
+      - api.openai.com
+      user-agent:
+      - OpenAI/Python 2.16.0
+      x-stainless-arch:
+      - arm64
+      x-stainless-async:
+      - 'false'
+      x-stainless-lang:
+      - python
+      x-stainless-os:
+      - MacOS
+      x-stainless-package-version:
+      - 2.16.0
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-retry-count:
+      - '2'
+      x-stainless-runtime:
+      - CPython
+      x-stainless-runtime-version:
+      - 3.12.11
+    method: POST
+    uri: https://api.openai.com/v1/chat/completions
+  response:
+    body:
+      string: "{\n    \"error\": {\n        \"message\": \"You exceeded your current
+        quota, please check your plan and billing details. For more information on
+        this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.\",\n
+        \       \"type\": \"insufficient_quota\",\n        \"param\": null,\n        \"code\":
+        \"insufficient_quota\"\n    }\n}\n"
+    headers:
+      CF-RAY:
+      - 9c64c84db8d14541-TXL
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '337'
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Fri, 30 Jan 2026 23:34:51 GMT
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      X-Content-Type-Options:
+      - nosniff
+      alt-svc:
+      - h3=":443"; ma=86400
+      cf-cache-status:
+      - DYNAMIC
+      vary:
+      - Origin
+      x-openai-proxy-wasm:
+      - v0.1
+      x-request-id:
+      - req_9d770525c2f64099a1d1f966cb2f741f
+    status:
+      code: 429
+      message: Too Many Requests
+- request:
+    body: '{"messages": [{"role": "user", "content": [{"type": "image_url", "image_url":
+      {"url": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAZAAAABkCAIAAAAnqfEgAAAFKUlEQVR4nO3bP0gbbRzA8ZiE/BEhgf6BIoLoJqI1lILWJFZUQgSXolCbgJJFBAdbcCnSrS0dbGkQR8WKOASCi4qTBAexdRQ7qKCQkg5Fo1ESkVx5DRzBS9O0sfj+2u9nynnPPc9zgl+8E0sURdEBgAT6694AABSKYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgAfhngmW32/Mc5jyVZ8xPz75+/frX9/jDeTY3NycmJn7pwnA43HLBaDRmPoRCoULWAlC8EkVRirnebrcfHh7+6DDnyDxjijxbuOLnKXyGq9ozgD/ySHhwcODz+dra2lwu1/r6es4xsVjM6/W6XC6v1xuLxbQD7Hb78+fP3W53fX19OBzW6XQvXrxIJBIdHR3a+b9+/drV1eV0Ov1+/82bN9UZ+vv7379/v7m52dzcXFtb+/bt2+x51F/otJvRrl74zQaDwYaGBofDsby8nL0WgGIpxbHZbNrDQCCwtramKMre3l59ff2lkZkPvb2909PTiqJMT08/efJEO6HVah0bG1MUZWdnp6KiIv/8Pp9vZmZGUZRwOGw2mzODLRbL0tKSoigDAwORSOTbt2937twpcDM5V89549rN3Lp16+joaGtry+/3a79FAH5bsY+EpaWl9+/fVw/X19dPT08rKiqqq6szX4lGo58/fzYYDJceCcvLy3d3d81mcyqVqqqqikajmfHqMIvFEovFMr8B2Wy2eDyuntXOX1lZub29bTabz8/PbTbbycmJTqcrKys7OjrS6/XHx8dzc3Pb29vj4+OJREL7fKrdTM7Vs6kzaDcTCATi8fjg4GB7ezuPhMAVMhZ5vclkWllZUQ8zP+Hn5+dLS0sWiyWdTq+urhoMBu2FPw2lyWRSX8CXlJRkn9LOf3Z2ljmVTqfVmY1Go17/3zNvd3f3o0ePhoaGfvSKXbuZPKtfot3M1NRUJBJ59+7d7Ozs5ORk/tsEcM3vsB48eJB577O4uPjq1aucYx4+fJj5+1ooFGppacmxs4vWXJK+oJ2/qalpfn4+81c8bX0+ffrU09OTTCZTqVT2PHk2k3P1Qm42Ho+73e7GxsYPHz4sLCxo1wLw+5Q/8A5rf3/f4/G4XK7W1tadnZ3MqXv37r18+VL9EI1GPR6P0+n0eDxfvnzRTpg9s/rZ6/V2dnZq59/d3XVeGBkZuXHjxqWrRkdHa2pqHj9+fPv27WQyqc6jjtFuJufqOW9cu5k3b944HI67d+8Gg8HstQBc8zus/4m+vr6nT5/W1dV9/Pjx2bNnkUjkuncE4Or9JcHa2NgYHh62Wq1nZ2fBYLC2tva6dwTg6v0lwQLwL+B/CQGIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAOik+A7yZCe65y64hgAAAABJRU5ErkJggg=="}},
+      {"type": "text", "text": "Extract structured data from this document.\n\nExpected
+      fields:\n  - title: str - The title or heading of the document\n  - has_text:
+      bool - Whether the document contains readable text"}]}], "model": "gpt-4o-mini",
+      "temperature": 0.0, "tool_choice": {"type": "function", "function": {"name":
+      "DocumentInfo"}}, "tools": [{"type": "function", "function": {"name": "DocumentInfo",
+      "description": "Schema for extracting document information.", "parameters":
+      {"properties": {"title": {"description": "The title or heading of the document",
+      "title": "Title", "type": "string"}, "has_text": {"description": "Whether the
+      document contains readable text", "title": "Has Text", "type": "boolean"}},
+      "required": ["has_text", "title"], "type": "object"}}}]}'
+    headers:
+      accept:
+      - application/json
+      accept-encoding:
+      - gzip, deflate
+      authorization:
+      - Bearer REDACTED
+      connection:
+      - keep-alive
+      content-length:
+      - '2674'
+      content-type:
+      - application/json
+      cookie:
+      - __cf_bm=Tm6Vvnatzjw_HAEux7UDYnCqaeYS2wbl4wtpYlaPzWE-1769816086-1.0.1.1-nJvFHJ3M9zbvQgEx0CGoN4fTyxIEvjEgnrXNdqLb9Jieibrf61cnj5qbpVeA7U6E39xg3ebII8GFyI4MGXpNlrf62aligbahnh2Vp.vBt2w;
+        _cfuvid=4l1BGJVIA3HicAPrDdOIMoMrPVmVxA7u2ffYCStLGYg-1769816086892-0.0.1.1-604800000
+      host:
+      - api.openai.com
+      user-agent:
+      - OpenAI/Python 2.16.0
+      x-stainless-arch:
+      - arm64
+      x-stainless-async:
+      - 'false'
+      x-stainless-lang:
+      - python
+      x-stainless-os:
+      - MacOS
+      x-stainless-package-version:
+      - 2.16.0
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-retry-count:
+      - '0'
+      x-stainless-runtime:
+      - CPython
+      x-stainless-runtime-version:
+      - 3.12.11
+    method: POST
+    uri: https://api.openai.com/v1/chat/completions
+  response:
+    body:
+      string: "{\n    \"error\": {\n        \"message\": \"You exceeded your current
+        quota, please check your plan and billing details. For more information on
+        this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.\",\n
+        \       \"type\": \"insufficient_quota\",\n        \"param\": null,\n        \"code\":
+        \"insufficient_quota\"\n    }\n}\n"
+    headers:
+      CF-RAY:
+      - 9c64c84eda0e4541-TXL
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '337'
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Fri, 30 Jan 2026 23:34:52 GMT
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      X-Content-Type-Options:
+      - nosniff
+      alt-svc:
+      - h3=":443"; ma=86400
+      cf-cache-status:
+      - DYNAMIC
+      vary:
+      - Origin
+      x-openai-proxy-wasm:
+      - v0.1
+      x-request-id:
+      - req_a3177c736b7c4b26a83c84ab22963fa2
+    status:
+      code: 429
+      message: Too Many Requests
+- request:
+    body: '{"messages": [{"role": "user", "content": [{"type": "image_url", "image_url":
+      {"url": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAZAAAABkCAIAAAAnqfEgAAAFKUlEQVR4nO3bP0gbbRzA8ZiE/BEhgf6BIoLoJqI1lILWJFZUQgSXolCbgJJFBAdbcCnSrS0dbGkQR8WKOASCi4qTBAexdRQ7qKCQkg5Fo1ESkVx5DRzBS9O0sfj+2u9nynnPPc9zgl+8E0sURdEBgAT6694AABSKYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgAfhngmW32/Mc5jyVZ8xPz75+/frX9/jDeTY3NycmJn7pwnA43HLBaDRmPoRCoULWAlC8EkVRirnebrcfHh7+6DDnyDxjijxbuOLnKXyGq9ozgD/ySHhwcODz+dra2lwu1/r6es4xsVjM6/W6XC6v1xuLxbQD7Hb78+fP3W53fX19OBzW6XQvXrxIJBIdHR3a+b9+/drV1eV0Ov1+/82bN9UZ+vv7379/v7m52dzcXFtb+/bt2+x51F/otJvRrl74zQaDwYaGBofDsby8nL0WgGIpxbHZbNrDQCCwtramKMre3l59ff2lkZkPvb2909PTiqJMT08/efJEO6HVah0bG1MUZWdnp6KiIv/8Pp9vZmZGUZRwOGw2mzODLRbL0tKSoigDAwORSOTbt2937twpcDM5V89549rN3Lp16+joaGtry+/3a79FAH5bsY+EpaWl9+/fVw/X19dPT08rKiqqq6szX4lGo58/fzYYDJceCcvLy3d3d81mcyqVqqqqikajmfHqMIvFEovFMr8B2Wy2eDyuntXOX1lZub29bTabz8/PbTbbycmJTqcrKys7OjrS6/XHx8dzc3Pb29vj4+OJREL7fKrdTM7Vs6kzaDcTCATi8fjg4GB7ezuPhMAVMhZ5vclkWllZUQ8zP+Hn5+dLS0sWiyWdTq+urhoMBu2FPw2lyWRSX8CXlJRkn9LOf3Z2ljmVTqfVmY1Go17/3zNvd3f3o0ePhoaGfvSKXbuZPKtfot3M1NRUJBJ59+7d7Ozs5ORk/tsEcM3vsB48eJB577O4uPjq1aucYx4+fJj5+1ooFGppacmxs4vWXJK+oJ2/qalpfn4+81c8bX0+ffrU09OTTCZTqVT2PHk2k3P1Qm42Ho+73e7GxsYPHz4sLCxo1wLw+5Q/8A5rf3/f4/G4XK7W1tadnZ3MqXv37r18+VL9EI1GPR6P0+n0eDxfvnzRTpg9s/rZ6/V2dnZq59/d3XVeGBkZuXHjxqWrRkdHa2pqHj9+fPv27WQyqc6jjtFuJufqOW9cu5k3b944HI67d+8Gg8HstQBc8zus/4m+vr6nT5/W1dV9/Pjx2bNnkUjkuncE4Or9JcHa2NgYHh62Wq1nZ2fBYLC2tva6dwTg6v0lwQLwL+B/CQGIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAOik+A7yZCe65y64hgAAAABJRU5ErkJggg=="}},
+      {"type": "text", "text": "Extract structured data from this document.\n\nExpected
+      fields:\n  - title: str - The title or heading of the document\n  - has_text:
+      bool - Whether the document contains readable text"}]}], "model": "gpt-4o-mini",
+      "temperature": 0.0, "tool_choice": {"type": "function", "function": {"name":
+      "DocumentInfo"}}, "tools": [{"type": "function", "function": {"name": "DocumentInfo",
+      "description": "Schema for extracting document information.", "parameters":
+      {"properties": {"title": {"description": "The title or heading of the document",
+      "title": "Title", "type": "string"}, "has_text": {"description": "Whether the
+      document contains readable text", "title": "Has Text", "type": "boolean"}},
+      "required": ["has_text", "title"], "type": "object"}}}]}'
+    headers:
+      accept:
+      - application/json
+      accept-encoding:
+      - gzip, deflate
+      authorization:
+      - Bearer REDACTED
+      connection:
+      - keep-alive
+      content-length:
+      - '2674'
+      content-type:
+      - application/json
+      cookie:
+      - __cf_bm=Tm6Vvnatzjw_HAEux7UDYnCqaeYS2wbl4wtpYlaPzWE-1769816086-1.0.1.1-nJvFHJ3M9zbvQgEx0CGoN4fTyxIEvjEgnrXNdqLb9Jieibrf61cnj5qbpVeA7U6E39xg3ebII8GFyI4MGXpNlrf62aligbahnh2Vp.vBt2w;
+        _cfuvid=4l1BGJVIA3HicAPrDdOIMoMrPVmVxA7u2ffYCStLGYg-1769816086892-0.0.1.1-604800000
+      host:
+      - api.openai.com
+      user-agent:
+      - OpenAI/Python 2.16.0
+      x-stainless-arch:
+      - arm64
+      x-stainless-async:
+      - 'false'
+      x-stainless-lang:
+      - python
+      x-stainless-os:
+      - MacOS
+      x-stainless-package-version:
+      - 2.16.0
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-retry-count:
+      - '1'
+      x-stainless-runtime:
+      - CPython
+      x-stainless-runtime-version:
+      - 3.12.11
+    method: POST
+    uri: https://api.openai.com/v1/chat/completions
+  response:
+    body:
+      string: "{\n    \"error\": {\n        \"message\": \"You exceeded your current
+        quota, please check your plan and billing details. For more information on
+        this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.\",\n
+        \       \"type\": \"insufficient_quota\",\n        \"param\": null,\n        \"code\":
+        \"insufficient_quota\"\n    }\n}\n"
+    headers:
+      CF-RAY:
+      - 9c64c8554e574541-TXL
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '337'
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Fri, 30 Jan 2026 23:34:53 GMT
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      X-Content-Type-Options:
+      - nosniff
+      alt-svc:
+      - h3=":443"; ma=86400
+      cf-cache-status:
+      - DYNAMIC
+      vary:
+      - Origin
+      x-openai-proxy-wasm:
+      - v0.1
+      x-request-id:
+      - req_232921f33c524ca4a7d67fd0df40cf7e
+    status:
+      code: 429
+      message: Too Many Requests
+- request:
+    body: '{"messages": [{"role": "user", "content": [{"type": "image_url", "image_url":
+      {"url": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAZAAAABkCAIAAAAnqfEgAAAFKUlEQVR4nO3bP0gbbRzA8ZiE/BEhgf6BIoLoJqI1lILWJFZUQgSXolCbgJJFBAdbcCnSrS0dbGkQR8WKOASCi4qTBAexdRQ7qKCQkg5Fo1ESkVx5DRzBS9O0sfj+2u9nynnPPc9zgl+8E0sURdEBgAT6694AABSKYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgARCDYAEQg2ABEINgAfhngmW32/Mc5jyVZ8xPz75+/frX9/jDeTY3NycmJn7pwnA43HLBaDRmPoRCoULWAlC8EkVRirnebrcfHh7+6DDnyDxjijxbuOLnKXyGq9ozgD/ySHhwcODz+dra2lwu1/r6es4xsVjM6/W6XC6v1xuLxbQD7Hb78+fP3W53fX19OBzW6XQvXrxIJBIdHR3a+b9+/drV1eV0Ov1+/82bN9UZ+vv7379/v7m52dzcXFtb+/bt2+x51F/otJvRrl74zQaDwYaGBofDsby8nL0WgGIpxbHZbNrDQCCwtramKMre3l59ff2lkZkPvb2909PTiqJMT08/efJEO6HVah0bG1MUZWdnp6KiIv/8Pp9vZmZGUZRwOGw2mzODLRbL0tKSoigDAwORSOTbt2937twpcDM5V89549rN3Lp16+joaGtry+/3a79FAH5bsY+EpaWl9+/fVw/X19dPT08rKiqqq6szX4lGo58/fzYYDJceCcvLy3d3d81mcyqVqqqqikajmfHqMIvFEovFMr8B2Wy2eDyuntXOX1lZub29bTabz8/PbTbbycmJTqcrKys7OjrS6/XHx8dzc3Pb29vj4+OJREL7fKrdTM7Vs6kzaDcTCATi8fjg4GB7ezuPhMAVMhZ5vclkWllZUQ8zP+Hn5+dLS0sWiyWdTq+urhoMBu2FPw2lyWRSX8CXlJRkn9LOf3Z2ljmVTqfVmY1Go17/3zNvd3f3o0ePhoaGfvSKXbuZPKtfot3M1NRUJBJ59+7d7Ozs5ORk/tsEcM3vsB48eJB577O4uPjq1aucYx4+fJj5+1ooFGppacmxs4vWXJK+oJ2/qalpfn4+81c8bX0+ffrU09OTTCZTqVT2PHk2k3P1Qm42Ho+73e7GxsYPHz4sLCxo1wLw+5Q/8A5rf3/f4/G4XK7W1tadnZ3MqXv37r18+VL9EI1GPR6P0+n0eDxfvnzRTpg9s/rZ6/V2dnZq59/d3XVeGBkZuXHjxqWrRkdHa2pqHj9+fPv27WQyqc6jjtFuJufqOW9cu5k3b944HI67d+8Gg8HstQBc8zus/4m+vr6nT5/W1dV9/Pjx2bNnkUjkuncE4Or9JcHa2NgYHh62Wq1nZ2fBYLC2tva6dwTg6v0lwQLwL+B/CQGIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAIhBsACIQbAAiEGwAOik+A7yZCe65y64hgAAAABJRU5ErkJggg=="}},
+      {"type": "text", "text": "Extract structured data from this document.\n\nExpected
+      fields:\n  - title: str - The title or heading of the document\n  - has_text:
+      bool - Whether the document contains readable text"}]}], "model": "gpt-4o-mini",
+      "temperature": 0.0, "tool_choice": {"type": "function", "function": {"name":
+      "DocumentInfo"}}, "tools": [{"type": "function", "function": {"name": "DocumentInfo",
+      "description": "Schema for extracting document information.", "parameters":
+      {"properties": {"title": {"description": "The title or heading of the document",
+      "title": "Title", "type": "string"}, "has_text": {"description": "Whether the
+      document contains readable text", "title": "Has Text", "type": "boolean"}},
+      "required": ["has_text", "title"], "type": "object"}}}]}'
+    headers:
+      accept:
+      - application/json
+      accept-encoding:
+      - gzip, deflate
+      authorization:
+      - Bearer REDACTED
+      connection:
+      - keep-alive
+      content-length:
+      - '2674'
+      content-type:
+      - application/json
+      cookie:
+      - __cf_bm=Tm6Vvnatzjw_HAEux7UDYnCqaeYS2wbl4wtpYlaPzWE-1769816086-1.0.1.1-nJvFHJ3M9zbvQgEx0CGoN4fTyxIEvjEgnrXNdqLb9Jieibrf61cnj5qbpVeA7U6E39xg3ebII8GFyI4MGXpNlrf62aligbahnh2Vp.vBt2w;
+        _cfuvid=4l1BGJVIA3HicAPrDdOIMoMrPVmVxA7u2ffYCStLGYg-1769816086892-0.0.1.1-604800000
+      host:
+      - api.openai.com
+      user-agent:
+      - OpenAI/Python 2.16.0
+      x-stainless-arch:
+      - arm64
+      x-stainless-async:
+      - 'false'
+      x-stainless-lang:
+      - python
+      x-stainless-os:
+      - MacOS
+      x-stainless-package-version:
+      - 2.16.0
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-retry-count:
+      - '2'
+      x-stainless-runtime:
+      - CPython
+      x-stainless-runtime-version:
+      - 3.12.11
+    method: POST
+    uri: https://api.openai.com/v1/chat/completions
+  response:
+    body:
+      string: "{\n    \"error\": {\n        \"message\": \"You exceeded your current
+        quota, please check your plan and billing details. For more information on
+        this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.\",\n
+        \       \"type\": \"insufficient_quota\",\n        \"param\": null,\n        \"code\":
+        \"insufficient_quota\"\n    }\n}\n"
+    headers:
+      CF-RAY:
+      - 9c64c85c3ae84541-TXL
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '337'
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Fri, 30 Jan 2026 23:34:54 GMT
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      X-Content-Type-Options:
+      - nosniff
+      alt-svc:
+      - h3=":443"; ma=86400
+      cf-cache-status:
+      - DYNAMIC
+      vary:
+      - Origin
+      x-openai-proxy-wasm:
+      - v0.1
+      x-request-id:
+      - req_64c85b12756645c9b2863f78a30bc67f
+    status:
+      code: 429
+      message: Too Many Requests
+version: 1
