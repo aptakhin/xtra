@@ -2,7 +2,7 @@
 name = "xtra"
 version = "0.1.0"
 description = ""
-authors = ["SL team <slteam@prestatech.com>"]
+authors = ["SL team <alex.ptakhin@prestatech.com>"]
 license = "BSD-3-Clause"
 readme = "README.md"
 
