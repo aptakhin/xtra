@@ -2,6 +2,8 @@
 
 A Python library for document text extraction with local and cloud OCR solutions.
 
+**Focus:** Built for tasks like fraud detection where precision matters. We needed a universal tool for both PDF and image processing with best-in-class OCR support through local engines (EasyOCR, Tesseract, PaddleOCR) and cloud services (Azure Document Intelligence, Google Document AI).
+
 ## Features
 
 - **Multiple OCR Backends**: Local (EasyOCR, Tesseract, PaddleOCR) and cloud (Azure Document Intelligence, Google Document AI) OCR support
@@ -9,6 +11,10 @@ A Python library for document text extraction with local and cloud OCR solutions
 - **Unified Extractors**: Each OCR extractor auto-detects file type (PDF vs image) and handles conversion internally
 - **Schema Adapters**: Clean separation of external API schemas from internal models
 - **Pydantic Models**: Type-safe document representation with pydantic v1/v2 compatibility
+
+## Alternatives
+
+For broader document processing, check out [Docling](https://docling-project.github.io) and [Kreuzberg](https://kreuzberg.dev/).
 
 ## Installation
 
