@@ -134,3 +134,78 @@ def test_ocr_extract_pdf(extractor_type: ExtractorType, ocr_engine: str) -> None
         for text in page.texts:
             assert text.confidence is not None
             assert 0.0 <= text.confidence <= 1.0
+
+
+# Parallel extraction integration tests
+
+
+@pytest.mark.parametrize("max_workers", [1, 2])
+def test_pdf_extractor_parallel(max_workers: int) -> None:
+    """Test PDF extractor with different worker counts."""
+    with create_extractor(TEST_DATA_DIR / "test_pdf_2p_text.pdf", ExtractorType.PDF) as extractor:
+        doc = extractor.extract(max_workers=max_workers)
+
+    assert len(doc.pages) == 2
+    # Verify content is identical regardless of worker count
+    page1_texts = [t.text for t in doc.pages[0].texts]
+    assert "First page. First text" in page1_texts
+
+
+def test_pdf_extractor_thread_executor() -> None:
+    """Test PDF extractor with thread executor.
+
+    Note: Process executor is not supported for PDF extractor because
+    pypdfium2 document handles cannot be pickled across processes.
+    Use thread executor (default) for parallel PDF extraction.
+    """
+    with create_extractor(TEST_DATA_DIR / "test_pdf_2p_text.pdf", ExtractorType.PDF) as extractor:
+        doc = extractor.extract(max_workers=2, executor="thread")
+
+    assert len(doc.pages) == 2
+
+
+@pytest.mark.parametrize("extractor_type,_ocr_engine", LOCAL_OCR_EXTRACTORS)
+@pytest.mark.parametrize("max_workers", [1, 2])
+def test_ocr_extract_parallel(
+    extractor_type: ExtractorType, _ocr_engine: str, max_workers: int
+) -> None:
+    """Test OCR extractors with parallel extraction."""
+    with create_extractor(
+        TEST_DATA_DIR / "test_pdf_2p_text.pdf",
+        extractor_type,
+        languages=["en"],
+        dpi=100,
+    ) as extractor:
+        doc = extractor.extract(max_workers=max_workers)
+
+    assert len(doc.pages) == 2
+    for page in doc.pages:
+        assert len(page.texts) > 0
+
+
+@pytest.mark.asyncio
+async def test_pdf_extractor_async() -> None:
+    """Test PDF extractor with async extraction."""
+    with create_extractor(TEST_DATA_DIR / "test_pdf_2p_text.pdf", ExtractorType.PDF) as extractor:
+        doc = await extractor.extract_async(max_workers=2)
+
+    assert len(doc.pages) == 2
+    page1_texts = [t.text for t in doc.pages[0].texts]
+    assert "First page. First text" in page1_texts
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("extractor_type,_ocr_engine", LOCAL_OCR_EXTRACTORS)
+async def test_ocr_extract_async(extractor_type: ExtractorType, _ocr_engine: str) -> None:
+    """Test OCR extractors with async extraction."""
+    with create_extractor(
+        TEST_DATA_DIR / "test_pdf_2p_text.pdf",
+        extractor_type,
+        languages=["en"],
+        dpi=100,
+    ) as extractor:
+        doc = await extractor.extract_async(max_workers=2)
+
+    assert len(doc.pages) == 2
+    for page in doc.pages:
+        assert len(page.texts) > 0

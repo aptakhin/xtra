@@ -101,6 +101,19 @@ def main() -> None:
         help="Character merger for PDF extractor: basic-line (default), keep-char",
     )
     parser.add_argument(
+        "--workers",
+        type=int,
+        default=1,
+        help="Number of parallel workers for page extraction (default: 1, sequential)",
+    )
+    parser.add_argument(
+        "--executor",
+        type=str,
+        choices=["thread", "process"],
+        default="thread",
+        help="Executor type for parallel extraction: thread (default), process",
+    )
+    parser.add_argument(
         "--azure-endpoint",
         type=str,
         default=None,
@@ -138,7 +151,7 @@ def main() -> None:
     extractor = _create_extractor(args, languages)
 
     with extractor:
-        doc = extractor.extract(pages=pages)
+        doc = extractor.extract(pages=pages, max_workers=args.workers, executor=args.executor)
 
     if args.json:
         # pydantic v2 uses model_dump_json, v1 uses json

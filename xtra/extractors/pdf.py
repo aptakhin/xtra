@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import threading
 from pathlib import Path
 from typing import List, Optional
 
@@ -35,16 +36,21 @@ class PdfExtractor(BaseExtractor):
         super().__init__(path, output_unit)
         self._pdf = pdfium.PdfDocument(self.path)
         self._merger = character_merger if character_merger is not None else BasicLineMerger()
+        self._lock = threading.Lock()
 
     def get_page_count(self) -> int:
         return len(self._pdf)
 
     def extract_page(self, page: int) -> ExtractionResult:
-        """Extract a single page by number (0-indexed)."""
+        """Extract a single page by number (0-indexed).
+
+        Thread-safe: uses internal lock for parallel access.
+        """
         try:
-            pdf_page = self._pdf[page]
-            width, height = pdf_page.get_size()
-            text_blocks = self._extract_text_blocks(pdf_page, height)
+            with self._lock:
+                pdf_page = self._pdf[page]
+                width, height = pdf_page.get_size()
+                text_blocks = self._extract_text_blocks(pdf_page, height)
             result_page = Page(
                 page=page,
                 width=width,

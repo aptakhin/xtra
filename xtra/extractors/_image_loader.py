@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import threading
 from pathlib import Path
 from typing import Dict, Optional
 
@@ -34,17 +35,19 @@ class ImageLoader:
         self._pdf: Optional[pdfium.PdfDocument] = None
         self._page_count: Optional[int] = None
         self._image_cache: Dict[int, Image.Image] = {}
+        self._lock = threading.Lock()
 
     @property
     def page_count(self) -> int:
         """Return number of pages/images (lazy loaded for PDFs)."""
-        if self._page_count is None:
-            if self.is_pdf:
-                self._open_pdf()
-                self._page_count = len(self._pdf)  # type: ignore[arg-type]
-            else:
-                self._page_count = 1
-        return self._page_count
+        with self._lock:
+            if self._page_count is None:
+                if self.is_pdf:
+                    self._open_pdf()
+                    self._page_count = len(self._pdf)  # type: ignore[arg-type]
+                else:
+                    self._page_count = 1
+            return self._page_count
 
     def _open_pdf(self) -> None:
         """Open PDF document if not already open."""
@@ -65,6 +68,8 @@ class ImageLoader:
     def get_page(self, page: int) -> Image.Image:
         """Get a specific page image (lazy loaded and cached).
 
+        Thread-safe: uses internal lock for parallel access.
+
         Args:
             page: Zero-indexed page number.
 
@@ -77,18 +82,19 @@ class ImageLoader:
         if page >= self.page_count:
             raise IndexError(f"Page {page} out of range (have {self.page_count} pages)")
 
-        # Return cached image if available
-        if page in self._image_cache:
-            return self._image_cache[page]
+        with self._lock:
+            # Return cached image if available
+            if page in self._image_cache:
+                return self._image_cache[page]
 
-        # Load and cache image
-        if self.is_pdf:
-            img = self._render_page(page)
-        else:
-            img = Image.open(self.path)
+            # Load and cache image
+            if self.is_pdf:
+                img = self._render_page(page)
+            else:
+                img = Image.open(self.path)
 
-        self._image_cache[page] = img
-        return img
+            self._image_cache[page] = img
+            return img
 
     def close(self) -> None:
         """Close image handles and release resources."""

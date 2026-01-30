@@ -32,6 +32,7 @@ all = ["easyocr", "pytesseract", "paddleocr", "paddlepaddle", "azure-ai-document
 [tool.poetry.group.dev.dependencies]
 pytest = "^9.0.2"
 pytest-cov = "^7.0.0"
+pytest-asyncio = "^1.0.0"
 ruff = "^0.14.11"
 ty = "^0.0.11"
 reportlab = "^4.4.7"
@@ -112,6 +113,8 @@ max-complexity = 10
 [tool.pytest.ini_options]
 # NOTE: Do not add pytest markers to skip tests without explicit user request.
 # All tests should run by default to ensure full coverage.
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
 
 [build-system]
 requires = ["poetry-core"]
