@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+from html.parser import HTMLParser
+
 from pydantic import BaseModel, field_validator
 
-from xtra.models import TextBlock
+from xtra.models import Table, TableCell, TextBlock
 from xtra.utils.geometry import polygon_to_bbox_and_rotation
 
 POLYGON_POINTS = 4
@@ -104,8 +106,68 @@ class PaddleOCRResult(BaseModel):
         return cls(detections=detections)
 
 
+class TableHTMLParser(HTMLParser):
+    """Parse HTML table into rows and cells."""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.rows: list[list[str]] = []
+        self.current_row: list[str] = []
+        self.current_cell: str = ""
+        self.in_cell: bool = False
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        if tag == "tr":
+            self.current_row = []
+        elif tag in ("td", "th"):
+            self.in_cell = True
+            self.current_cell = ""
+
+    def handle_endtag(self, tag: str) -> None:
+        if tag in ("td", "th"):
+            self.in_cell = False
+            self.current_row.append(self.current_cell.strip())
+        elif tag == "tr":
+            if self.current_row:
+                self.rows.append(self.current_row)
+
+    def handle_data(self, data: str) -> None:
+        if self.in_cell:
+            self.current_cell += data
+
+
 class PaddleOCRAdapter:
     """Converts PaddleOCR output to internal schema."""
+
+    def convert_table_result(self, table_result: dict, page: int = 0) -> Table:
+        """Convert PPStructure table output to internal Table model.
+
+        Args:
+            table_result: PPStructure result dict with 'type': 'table' and 'res': {'html': '...'}
+            page: Page number for the table.
+
+        Returns:
+            Table model with cells extracted from HTML.
+        """
+        cells: list[TableCell] = []
+        row_count = 0
+        col_count = 0
+
+        if not table_result.get("res") or not table_result["res"].get("html"):
+            return Table(page=page, cells=cells, row_count=0, col_count=0)
+
+        html = table_result["res"]["html"]
+        parser = TableHTMLParser()
+        parser.feed(html)
+
+        for row_idx, row in enumerate(parser.rows):
+            col_count = max(col_count, len(row))
+            for col_idx, cell_text in enumerate(row):
+                cells.append(TableCell(text=cell_text, row=row_idx, col=col_idx))
+
+        row_count = len(parser.rows)
+
+        return Table(page=page, cells=cells, row_count=row_count, col_count=col_count)
 
     def convert_result(self, result: list | None, major_version: int = 2) -> list[TextBlock]:
         """Convert PaddleOCR output to TextBlocks.

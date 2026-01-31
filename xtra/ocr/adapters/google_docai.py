@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from xtra.models import BBox, ExtractorMetadata, ExtractorType, Page, TextBlock
+from xtra.models import BBox, ExtractorMetadata, ExtractorType, Page, Table, TableCell, TextBlock
 from xtra.utils.geometry import polygon_to_bbox_and_rotation
 
 if TYPE_CHECKING:
@@ -47,12 +47,14 @@ class GoogleDocumentAIAdapter:
         width = docai_page.dimension.width if docai_page.dimension else 0.0
         height = docai_page.dimension.height if docai_page.dimension else 0.0
         text_blocks = self._convert_page_to_blocks(docai_page)
+        tables = self._convert_tables(docai_page, page)
 
         return Page(
             page=page,
             width=float(width),
             height=float(height),
             texts=text_blocks,
+            tables=tables,
         )
 
     def get_metadata(self) -> ExtractorMetadata:
@@ -107,6 +109,57 @@ class GoogleDocumentAIAdapter:
             )
 
         return blocks
+
+    def _convert_tables(self, docai_page, page_num: int) -> list[Table]:
+        """Convert Google Document AI tables to internal Table models."""
+        if not hasattr(docai_page, "tables") or not docai_page.tables:
+            return []
+
+        return [self._convert_single_table(t, page_num) for t in docai_page.tables]
+
+    def _convert_single_table(self, docai_table, page_num: int) -> Table:
+        """Convert a single Google Document AI table to internal Table model."""
+        cells: list[TableCell] = []
+        col_count = 0
+
+        # Process header rows
+        header_rows = getattr(docai_table, "header_rows", None) or []
+        for row_idx, row in enumerate(header_rows):
+            row_cells, row_cols = self._process_table_row(row, row_idx)
+            cells.extend(row_cells)
+            col_count = max(col_count, row_cols)
+
+        # Process body rows
+        body_rows = getattr(docai_table, "body_rows", None) or []
+        header_offset = len(header_rows)
+        for row_idx, row in enumerate(body_rows):
+            row_cells, row_cols = self._process_table_row(row, header_offset + row_idx)
+            cells.extend(row_cells)
+            col_count = max(col_count, row_cols)
+
+        return Table(
+            page=page_num,
+            cells=cells,
+            row_count=len(header_rows) + len(body_rows),
+            col_count=col_count,
+        )
+
+    def _process_table_row(self, row, row_idx: int) -> tuple[list[TableCell], int]:
+        """Process a single table row and return cells and column count."""
+        if not hasattr(row, "cells") or not row.cells:
+            return [], 0
+
+        cells = [
+            TableCell(text=self._get_cell_text(cell), row=row_idx, col=col_idx)
+            for col_idx, cell in enumerate(row.cells)
+        ]
+        return cells, len(row.cells)
+
+    def _get_cell_text(self, cell) -> str:
+        """Extract text from a table cell."""
+        if not hasattr(cell, "layout") or cell.layout is None:
+            return ""
+        return self._get_text_from_layout(cell.layout)
 
     def _get_text_from_layout(self, layout) -> str:
         """Extract text from layout using text_anchor."""

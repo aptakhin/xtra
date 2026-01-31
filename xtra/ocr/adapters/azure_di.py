@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from xtra.models import ExtractorMetadata, ExtractorType, Page, TextBlock
+from xtra.models import ExtractorMetadata, ExtractorType, Page, Table, TableCell, TextBlock
 from xtra.utils.geometry import polygon_to_bbox_and_rotation
 
 if TYPE_CHECKING:
@@ -47,12 +47,14 @@ class AzureDocumentIntelligenceAdapter:
         width = azure_page.width or 0.0
         height = azure_page.height or 0.0
         text_blocks = self._convert_page_to_blocks(azure_page)
+        tables = self._convert_tables_for_page(page)
 
         return Page(
             page=page,
             width=float(width),
             height=float(height),
             texts=text_blocks,
+            tables=tables,
         )
 
     def get_metadata(self) -> ExtractorMetadata:
@@ -72,6 +74,67 @@ class AzureDocumentIntelligenceAdapter:
             extractor_type=ExtractorType.AZURE_DI,
             extra=extra,
         )
+
+    def _convert_tables_for_page(self, page: int) -> list[Table]:
+        """Extract tables that belong to the specified page.
+
+        Azure DI stores tables at the result level with bounding_regions
+        indicating which page(s) the table appears on.
+        """
+        tables: list[Table] = []
+
+        if (
+            self._result is None
+            or not hasattr(self._result, "tables")
+            or self._result.tables is None
+        ):
+            return tables
+
+        for azure_table in self._result.tables:
+            # Check if this table belongs to the current page
+            table_page = self._get_table_page(azure_table)
+            if table_page != page:
+                continue
+
+            cells: list[TableCell] = []
+            if hasattr(azure_table, "cells") and azure_table.cells:
+                for cell in azure_table.cells:
+                    cell_text = cell.content if hasattr(cell, "content") and cell.content else ""
+                    row_idx = cell.row_index if hasattr(cell, "row_index") else 0
+                    col_idx = cell.column_index if hasattr(cell, "column_index") else 0
+                    cells.append(TableCell(text=cell_text, row=row_idx, col=col_idx))
+
+            row_count = azure_table.row_count if hasattr(azure_table, "row_count") else 0
+            col_count = azure_table.column_count if hasattr(azure_table, "column_count") else 0
+
+            tables.append(
+                Table(
+                    page=page,
+                    cells=cells,
+                    row_count=row_count,
+                    col_count=col_count,
+                )
+            )
+
+        return tables
+
+    def _get_table_page(self, azure_table) -> int:
+        """Get the page number for a table from its bounding_regions.
+
+        Azure uses 1-indexed page numbers, we convert to 0-indexed.
+        """
+        if not hasattr(azure_table, "bounding_regions") or not azure_table.bounding_regions:
+            return 0  # Default to first page if no bounding region
+
+        first_region = azure_table.bounding_regions[0]
+        if isinstance(first_region, dict):
+            page_num = first_region.get("page_number", 1)
+        elif hasattr(first_region, "page_number"):
+            page_num = first_region.page_number
+        else:
+            page_num = 1
+
+        return page_num - 1  # Convert to 0-indexed
 
     def _convert_page_to_blocks(self, azure_page: DocumentPage) -> list[TextBlock]:
         """Convert Azure DI page words to TextBlocks."""
