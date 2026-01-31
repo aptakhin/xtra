@@ -581,7 +581,7 @@ This runs:
 - `ruff format` - Code formatting
 - `ruff check --fix` - Linting with auto-fix
 - `ty check` - Type checking
-- `pytest` with 85% coverage requirement
+- `pytest` - Test suite
 
 ## Architecture
 
