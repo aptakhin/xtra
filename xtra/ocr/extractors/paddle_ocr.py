@@ -12,6 +12,7 @@ from xtra.models import (
     ExtractorMetadata,
     ExtractorType,
     Page,
+    Table,
 )
 from xtra.ocr.adapters.paddle_ocr import PaddleOCRAdapter
 from xtra.utils.image_loader import ImageLoader
@@ -22,6 +23,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 _ocr_cache: dict[tuple, Any] = {}
+_ppstructure_cache: dict[tuple, Any] = {}
 _paddle_major_version: dict[str, int] = {}
 
 # PaddleOCR 3.x introduced breaking API changes
@@ -45,6 +47,35 @@ def _check_paddleocr_installed() -> None:
         raise ImportError(
             "PaddleOCR is not installed. Install it with: pip install xtra[paddle]"
         ) from e
+
+
+def _check_ppstructure_installed() -> None:
+    """Check if PPStructure is available."""
+    try:
+        from paddleocr import PPStructure  # type: ignore[attr-defined] # noqa: F401
+    except ImportError as e:
+        raise ImportError(
+            "PPStructure is not available. Install with: pip install 'paddleocr>=2.6'"
+        ) from e
+
+
+def get_ppstructure(lang: str, use_gpu: bool) -> Any:
+    """Get or create a cached PPStructure instance for table extraction."""
+    _check_ppstructure_installed()
+    from paddleocr import PPStructure  # type: ignore[attr-defined]
+
+    key = ("ppstructure", lang, use_gpu)
+    if key not in _ppstructure_cache:
+        major_version = _get_paddle_major_version()
+        if major_version >= PADDLEOCR_V3_MAJOR:
+            # PaddleOCR 3.x API
+            _ppstructure_cache[key] = PPStructure(lang=lang, return_ocr_result_in_table=True)
+        else:
+            # PaddleOCR 2.x API
+            _ppstructure_cache[key] = PPStructure(
+                lang=lang, use_gpu=use_gpu, show_log=False, return_ocr_result_in_table=True
+            )
+    return _ppstructure_cache[key]
 
 
 def get_paddle_ocr(lang: str, use_gpu: bool) -> PaddleOCR:
@@ -151,6 +182,45 @@ class PaddleOcrExtractor(BaseExtractor):
                 success=False,
                 error=str(e),
             )
+
+    def extract_tables(
+        self,
+        pages: list[int] | None = None,
+    ) -> list[Table]:
+        """Extract tables from document using PPStructure.
+
+        Args:
+            pages: List of page numbers to extract (0-indexed).
+                   If None, extracts from all pages.
+
+        Returns:
+            List of Table objects with page field indicating source page.
+        """
+        import numpy as np
+
+        if pages is None:
+            pages = list(range(self.get_page_count()))
+
+        all_tables: list[Table] = []
+        engine = get_ppstructure(self.lang, self.use_gpu)
+
+        for page_num in pages:
+            try:
+                img = self._images.get_page(page_num)
+                img_array = np.array(img)
+
+                # PPStructure returns list of layout elements
+                result = engine(img_array)
+
+                for element in result:
+                    if element.get("type") == "table":
+                        table = self._adapter.convert_table_result(element, page=page_num)
+                        all_tables.append(table)
+
+            except Exception as e:
+                logger.warning("Failed to extract tables from page %d: %s", page_num, e)
+
+        return all_tables
 
     def get_extractor_metadata(self) -> ExtractorMetadata:
         """Return extractor metadata."""

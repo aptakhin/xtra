@@ -123,6 +123,16 @@ def _print_table(table: Any) -> None:
             print("|-" + "-|-".join(sep) + "-|")
 
 
+def _attach_tables_to_pages(result: Any, tables: list[Any]) -> None:
+    """Attach extracted tables to their respective pages."""
+    tables_by_page: dict[int, list[Any]] = {}
+    for table in tables:
+        tables_by_page.setdefault(table.page, []).append(table)
+
+    for page in result.document.pages:
+        page.tables = tables_by_page.get(page.page, [])
+
+
 def _extract_and_attach_tables(
     extractor: Any,
     result: Any,
@@ -137,15 +147,27 @@ def _extract_and_attach_tables(
         table_options["stream"] = True
 
     tables = extractor.extract_tables(pages=pages, table_options=table_options)
+    _attach_tables_to_pages(result, tables)
 
-    # Group tables by page
-    tables_by_page: dict[int, list[Any]] = {}
-    for table in tables:
-        tables_by_page.setdefault(table.page, []).append(table)
 
-    # Attach to pages
-    for page in result.document.pages:
-        page.tables = tables_by_page.get(page.page, [])
+def _extract_paddle_tables(
+    extractor: Any,
+    result: Any,
+    pages: Sequence[int] | None,
+) -> None:
+    """Extract tables from PaddleOCR using PPStructure."""
+    try:
+        from paddleocr import PPStructure  # type: ignore[attr-defined] # noqa: F401
+    except ImportError:
+        print(
+            "Warning: PPStructure not available. Install with: pip install 'paddleocr>=2.6'",
+            file=sys.stderr,
+        )
+        return
+
+    pages_list = list(pages) if pages else None
+    tables = extractor.extract_tables(pages=pages_list)
+    _attach_tables_to_pages(result, tables)
 
 
 def _run_llm_extraction(args: argparse.Namespace, pages: Sequence[int] | None) -> None:
@@ -230,7 +252,7 @@ def _setup_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--tables",
         action="store_true",
-        help="Extract tables from PDF (requires tabula-py)",
+        help="Extract tables (PDF requires tabula-py; Azure/Google extract automatically)",
     )
     parser.add_argument(
         "--table-mode",
@@ -335,12 +357,21 @@ def main() -> None:
     with extractor:
         result = extractor.extract(pages=pages, max_workers=args.workers, executor=executor_type)
 
-        # Extract tables if requested (PDF only)
+        # Extract tables if requested
         if args.tables:
-            if args.extractor != "pdf":
-                print("Warning: --tables is only supported for PDF extractor", file=sys.stderr)
-            else:
+            if args.extractor == "pdf":
                 _extract_and_attach_tables(extractor, result, pages, args.table_mode)
+            elif args.extractor in ("azure-di", "google-docai"):
+                # Tables are extracted automatically by these extractors
+                pass
+            elif args.extractor == "paddle":
+                # PaddleOCR uses PPStructure for table extraction
+                _extract_paddle_tables(extractor, result, pages)
+            else:
+                print(
+                    f"Warning: --tables is not supported for {args.extractor} extractor",
+                    file=sys.stderr,
+                )
 
     doc = result.document
     if args.json:
