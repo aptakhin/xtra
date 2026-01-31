@@ -452,8 +452,8 @@ Cloud extractors and LLM providers support configuration via environment variabl
 # Install dependencies
 uv sync
 
-# Install git pre-commit hook
-./scripts/install-hooks.sh
+# Install pre-commit hooks
+uv run pre-commit install
 ```
 
 ### Running Tests
@@ -542,12 +542,26 @@ Azure integration tests are automatically skipped if credentials are not configu
 
 Google Document AI integration tests are automatically skipped if credentials are not configured.
 
+### Documentation
+
+Build and serve the documentation locally:
+
+```bash
+# Serve docs with live reload
+uv run mkdocs serve
+
+# Build static site
+uv run mkdocs build
+```
+
+Open http://localhost:8000 to view the documentation.
+
 ### Pre-commit Checks
 
 The pre-commit hook runs automatically on `git commit`. To run manually:
 
 ```bash
-./scripts/pre-commit.sh
+uv run pre-commit run --all-files
 ```
 
 This runs:

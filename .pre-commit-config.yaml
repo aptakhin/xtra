@@ -67,3 +67,10 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
+
+      - id: docs-build
+        name: mkdocs build
+        entry: ./scripts/ci/docs-build.sh
+        language: system
+        pass_filenames: false
+        files: ^(docs/|mkdocs\.yml)$

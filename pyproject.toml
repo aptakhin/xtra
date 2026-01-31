@@ -56,6 +56,11 @@ dev = [
     "google-api-core>=2.29.0",
     "grpcio>=1.76.0",
     "import-linter>=2.0",
+    # Documentation
+    "mkdocs>=1.6",
+    "mkdocs-material>=9.5",
+    "mkdocstrings[python]>=0.27",
+    "sybil>=8.0",
 ]
 
 [tool.ruff]
