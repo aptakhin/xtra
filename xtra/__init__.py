@@ -9,9 +9,9 @@ from xtra.base import (
     Page,
     TextBlock,
 )
-from xtra.doc_factory import create_extractor
 from xtra.ocr.adapters import AzureDocumentIntelligenceAdapter
 from xtra.pdf import PdfExtractor
+from xtra.text_factory import create_extractor
 
 __all__ = [
     # Adapters

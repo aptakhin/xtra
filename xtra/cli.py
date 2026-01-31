@@ -17,7 +17,7 @@ from pathlib import Path
 from typing import Any
 
 from xtra.base import CoordinateUnit, ExecutorType, ExtractorType
-from xtra.doc_factory import CHARACTER_MERGER_CHOICES, create_extractor
+from xtra.text_factory import CHARACTER_MERGER_CHOICES, create_extractor
 
 # Extractors that support table extraction
 TABLE_SUPPORTED_EXTRACTORS = {"pdf", "azure-di", "google-docai", "paddle"}

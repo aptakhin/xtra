@@ -14,7 +14,7 @@ from pathlib import Path
 import pytest
 
 from xtra.base import ExecutorType, ExtractorType
-from xtra.doc_factory import create_extractor
+from xtra.text_factory import create_extractor
 
 TEST_DATA_DIR = Path(__file__).parent.parent.parent / "data"
 

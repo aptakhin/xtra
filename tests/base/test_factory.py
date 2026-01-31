@@ -9,7 +9,7 @@ from pathlib import Path
 import pytest
 
 from xtra.base import ExtractorType
-from xtra.doc_factory import _get_credential, create_extractor
+from xtra.text_factory import _get_credential, create_extractor
 
 TEST_DATA_DIR = Path(__file__).parent.parent / "data"
 

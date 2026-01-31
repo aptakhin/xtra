@@ -138,7 +138,7 @@ ignore = [
 "**/__init__.py" = [
    "RUF022", # __all__ organized by category, not alphabetically
 ]
-"**/doc_factory.py" = [
+"**/text_factory.py" = [
    "TC001",   # BaseExtractor used at runtime (returned from factory)
 ]
 
@@ -179,7 +179,7 @@ name = "Core layered architecture"
 type = "layers"
 layers = [
     "xtra.cli",
-    "xtra.doc_factory",
+    "xtra.text_factory",
     "xtra.pdf",
     "xtra.base",
 ]
@@ -190,7 +190,7 @@ type = "forbidden"
 source_modules = ["xtra.base"]
 forbidden_modules = [
     "xtra.pdf",
-    "xtra.doc_factory",
+    "xtra.text_factory",
     "xtra.ocr",
     "xtra.llm",
     "xtra.cli",
