@@ -4,6 +4,8 @@ A Python library for document text extraction with local and cloud OCR solutions
 
 **Focus:** Built for tasks like fraud detection where precision matters. We needed a universal tool for both PDF and image processing with best-in-class OCR support through local engines (EasyOCR, Tesseract, PaddleOCR) and cloud services (Azure Document Intelligence, Google Document AI).
 
+📖 **[Documentation](https://aptakhin.name/unifex/)**
+
 ## Features
 
 - **Multiple OCR Backends**: Local (EasyOCR, Tesseract, PaddleOCR) and cloud (Azure Document Intelligence, Google Document AI) OCR support
@@ -113,6 +115,8 @@ Page 2 (595x842):
   - "Second page. Third text"
     bbox: (47.4, 81.1, 236.9, 98.3)
 ```
+
+For more detailed examples, see the [documentation](https://aptakhin.name/unifex/).
 
 ### PDF Text Extraction
 
