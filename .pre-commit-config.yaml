@@ -37,6 +37,13 @@ repos:
         types: [python]
         pass_filenames: false
 
+      - id: lint-imports
+        name: lint-imports (architecture)
+        entry: uv run lint-imports
+        language: system
+        pass_filenames: false
+        always_run: true
+
       - id: pytest-fast
         name: pytest (fast tests)
         entry: uv run pytest -k "not (azure and test_ocr_extract_pdf) and not (google and test_ocr_extract_pdf) and not test_llm_vcr" --cov=xtra --cov-report=term-missing --cov-fail-under=78

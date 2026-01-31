@@ -9,7 +9,7 @@ from pydantic import BaseModel
 
 from xtra.llm.adapters.image_encoder import ImageEncoder
 from xtra.llm.models import LLMExtractionResult, LLMProvider
-from xtra.ocr.extractors._image_loader import ImageLoader
+from xtra.utils.image_loader import ImageLoader
 
 T = TypeVar("T", bound=BaseModel)
 

@@ -13,7 +13,7 @@ from xtra.models import (
     Page,
 )
 from xtra.ocr.adapters.tesseract_ocr import TesseractAdapter
-from xtra.ocr.extractors._image_loader import ImageLoader
+from xtra.utils.image_loader import ImageLoader
 
 logger = logging.getLogger(__name__)
 

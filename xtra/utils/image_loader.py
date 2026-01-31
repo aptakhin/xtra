@@ -1,4 +1,4 @@
-"""Image loading for OCR extractors."""
+"""Image loading utilities for document processing."""
 
 from __future__ import annotations
 
@@ -10,10 +10,10 @@ from PIL import Image
 
 
 class ImageLoader:
-    """Loads and manages images from files for OCR processing.
+    """Loads and manages images from files for document processing.
 
     Handles both single images and PDFs (converting pages to images lazily).
-    Use as a composable component in OCR extractors.
+    Use as a composable component in OCR and LLM extractors.
 
     PDF pages are only converted to images when requested via get_page(),
     and cached for subsequent access.

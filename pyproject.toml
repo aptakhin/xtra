@@ -52,6 +52,7 @@ dev = [
     "reportlab>=4.4.7",
     "google-api-core>=2.29.0",
     "grpcio>=1.76.0",
+    "import-linter>=2.0",
 ]
 
 [tool.ruff]
@@ -155,6 +156,61 @@ omit = [
     "xtra/llm/extractors/openai.py",
     "xtra/llm/extractors/anthropic.py",
     "xtra/llm/extractors/google.py",
+]
+
+# Architecture rules - enforced by `lint-imports`
+[tool.importlinter]
+root_package = "xtra"
+
+[[tool.importlinter.contracts]]
+name = "OCR and LLM modules are independent"
+type = "independence"
+modules = ["xtra.ocr", "xtra.llm"]
+
+[[tool.importlinter.contracts]]
+name = "Core layered architecture"
+type = "layers"
+layers = [
+    "xtra.cli",
+    "xtra.extractors.factory",
+    "xtra.extractors.base",
+    "xtra.coordinates",
+    "xtra.models",
+]
+
+[[tool.importlinter.contracts]]
+name = "Models module has no internal dependencies"
+type = "forbidden"
+source_modules = ["xtra.models"]
+forbidden_modules = [
+    "xtra.extractors",
+    "xtra.ocr",
+    "xtra.llm",
+    "xtra.utils",
+    "xtra.coordinates",
+    "xtra.cli",
+]
+
+[[tool.importlinter.contracts]]
+name = "Utils has no upward dependencies"
+type = "forbidden"
+source_modules = ["xtra.utils"]
+forbidden_modules = [
+    "xtra.extractors",
+    "xtra.ocr",
+    "xtra.llm",
+    "xtra.cli",
+]
+
+[[tool.importlinter.contracts]]
+name = "OCR extractors are independent of each other"
+type = "independence"
+modules = [
+    "xtra.ocr.extractors.easy_ocr",
+    "xtra.ocr.extractors.tesseract_ocr",
+    "xtra.ocr.extractors.paddle_ocr",
+    "xtra.ocr.extractors.azure_di",
+    "xtra.ocr.extractors.google_docai",
 ]
 
 [build-system]
