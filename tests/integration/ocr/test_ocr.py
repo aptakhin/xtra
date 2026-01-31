@@ -19,10 +19,18 @@ from xtra.text_factory import create_extractor
 TEST_DATA_DIR = Path(__file__).parent.parent.parent / "data"
 
 # All OCR extractors with their expected ocr_engine metadata value
+# Note: PaddleOCR is tested separately in test_paddle_ocr.py due to oneDNN/MKL-DNN
+# compatibility issues in CI environments. The dedicated tests use different
+# initialization that avoids these issues.
 OCR_EXTRACTORS = [
     pytest.param(ExtractorType.EASYOCR, "easyocr", id="easyocr"),
     pytest.param(ExtractorType.TESSERACT, "tesseract", id="tesseract"),
-    pytest.param(ExtractorType.PADDLE, "paddleocr", id="paddle"),
+    pytest.param(
+        ExtractorType.PADDLE,
+        "paddleocr",
+        id="paddle",
+        marks=pytest.mark.skip(reason="Tested in test_paddle_ocr.py; CI has oneDNN issues"),
+    ),
     pytest.param(ExtractorType.AZURE_DI, "azure_document_intelligence", id="azure"),
     pytest.param(ExtractorType.GOOGLE_DOCAI, "google_document_ai", id="google"),
 ]
@@ -31,7 +39,12 @@ OCR_EXTRACTORS = [
 LOCAL_OCR_EXTRACTORS = [
     pytest.param(ExtractorType.EASYOCR, "easyocr", id="easyocr"),
     pytest.param(ExtractorType.TESSERACT, "tesseract", id="tesseract"),
-    pytest.param(ExtractorType.PADDLE, "paddleocr", id="paddle"),
+    pytest.param(
+        ExtractorType.PADDLE,
+        "paddleocr",
+        id="paddle",
+        marks=pytest.mark.skip(reason="Tested in test_paddle_ocr.py; CI has oneDNN issues"),
+    ),
 ]
 
 
