@@ -257,18 +257,18 @@ def _run_llm_extraction(args: argparse.Namespace, pages: Sequence[int] | None) -
         sys.exit(1)
 
     credentials = _build_credentials(args)
-    headers = _parse_headers(args.headers)
+    headers = _parse_headers(args.llm_headers)
     pages_list = list(pages) if pages else None
 
     try:
         result = extract_structured(
             path=args.input,
             model=args.llm,
-            prompt=args.prompt,
+            prompt=args.llm_prompt,
             pages=pages_list,
             dpi=args.dpi,
             credentials=credentials,
-            base_url=args.base_url,
+            base_url=args.llm_base_url,
             headers=headers,
         )
     except ValueError as e:
@@ -398,24 +398,24 @@ def _setup_parser() -> argparse.ArgumentParser:
         help="LLM model for extraction (e.g., gpt-4o, claude-3-5-sonnet, azure-openai/gpt-4o)",
     )
     parser.add_argument(
-        "--prompt",
+        "--llm-prompt",
         type=str,
         default=None,
         help="Custom prompt for LLM extraction (default: extract all key-value pairs)",
     )
     parser.add_argument(
-        "--base-url",
+        "--llm-base-url",
         type=str,
         default=None,
         help="Custom API base URL for OpenAI-compatible LLMs (vLLM, Ollama, etc.)",
     )
     parser.add_argument(
-        "--header",
+        "--llm-header",
         type=str,
         action="append",
-        dest="headers",
+        dest="llm_headers",
         metavar="KEY=VALUE",
-        help="Custom HTTP header (can be repeated). Example: --header 'Authorization=Bearer token'",
+        help="Custom HTTP header (can be repeated). Example: --llm-header 'X-Api-Key=secret'",
     )
     return parser
 
