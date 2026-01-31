@@ -3,12 +3,19 @@
 from __future__ import annotations
 
 import os
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import Any, TypeVar, overload
 
 from pydantic import BaseModel
 
-from xtra.llm.models import LLMExtractionResult, LLMProvider
+from xtra.base import ExecutorType
+from xtra.llm.models import (
+    LLMBatchExtractionResult,
+    LLMBatchResult,
+    LLMExtractionResult,
+    LLMProvider,
+)
 
 T = TypeVar("T", bound=BaseModel)
 
@@ -336,3 +343,193 @@ async def extract_structured_async(  # noqa: PLR0913
 
     else:
         raise ValueError(f"Unknown provider: {provider}")
+
+
+def _batch_pages(pages: list[int], pages_per_batch: int) -> list[list[int]]:
+    """Split pages into batches.
+
+    Args:
+        pages: List of page numbers to split.
+        pages_per_batch: Number of pages per batch.
+
+    Returns:
+        List of page batches.
+    """
+    if not pages:
+        return []
+    return [pages[i : i + pages_per_batch] for i in range(0, len(pages), pages_per_batch)]
+
+
+def _extract_batch(  # noqa: PLR0913
+    path: Path,
+    model: str,
+    batch_pages: list[int],
+    provider: LLMProvider,
+    model_name: str,
+    schema: type[T] | None,
+    prompt: str | None,
+    dpi: int,
+    max_retries: int,
+    temperature: float,
+    credentials: dict[str, str] | None,
+    base_url: str | None,
+    headers: dict[str, str] | None,
+) -> LLMBatchResult[T | dict[str, Any]]:
+    """Extract a single batch of pages.
+
+    Internal helper that wraps extract_structured and returns a batch result.
+    """
+    try:
+        result = extract_structured(
+            path=path,
+            model=model,
+            schema=schema,
+            prompt=prompt,
+            pages=batch_pages,
+            dpi=dpi,
+            max_retries=max_retries,
+            temperature=temperature,
+            credentials=credentials,
+            base_url=base_url,
+            headers=headers,
+        )
+        return LLMBatchResult(
+            data=result.data,
+            pages=batch_pages,
+            model=model_name,
+            provider=provider,
+            usage=result.usage,
+            success=True,
+        )
+    except Exception as e:
+        return LLMBatchResult(
+            data=None,
+            pages=batch_pages,
+            model=model_name,
+            provider=provider,
+            success=False,
+            error=str(e),
+        )
+
+
+def extract_structured_parallel(  # noqa: PLR0913
+    path: Path | str,
+    model: str,
+    *,
+    schema: type[T] | None = None,
+    prompt: str | None = None,
+    pages: list[int] | None = None,
+    pages_per_batch: int = 1,
+    max_workers: int = 1,
+    executor: ExecutorType = ExecutorType.THREAD,
+    dpi: int = 200,
+    max_retries: int = 3,
+    temperature: float = 0.0,
+    credentials: dict[str, str] | None = None,
+    base_url: str | None = None,
+    headers: dict[str, str] | None = None,
+) -> LLMBatchExtractionResult[T | dict[str, Any]]:
+    """Extract structured data with parallel processing across page batches.
+
+    Args:
+        path: Path to document/image file.
+        model: Model identifier (e.g., "openai/gpt-4o").
+        schema: Pydantic model for structured output. None for free-form dict.
+        prompt: Custom extraction prompt.
+        pages: Page numbers to extract (0-indexed). None for all pages.
+        pages_per_batch: Number of pages per LLM request.
+        max_workers: Number of parallel workers. 1 means sequential.
+        executor: Type of executor (THREAD or PROCESS).
+        dpi: DPI for PDF-to-image conversion.
+        max_retries: Max retry attempts with validation feedback.
+        temperature: Sampling temperature.
+        credentials: Override credentials dict.
+        base_url: Custom API base URL for OpenAI-compatible APIs.
+        headers: Custom HTTP headers.
+
+    Returns:
+        LLMBatchExtractionResult containing results from each batch.
+    """
+    path = Path(path) if isinstance(path, str) else path
+    provider, model_name = _parse_model_string(model)
+
+    # Get page count if pages not specified
+    if pages is None:
+        from xtra.base import ImageLoader
+
+        loader = ImageLoader(path, dpi=dpi)
+        pages = list(range(loader.page_count))
+        loader.close()
+
+    # Create batches
+    batches = _batch_pages(pages, pages_per_batch)
+
+    # Sequential execution for single batch or single worker
+    if max_workers <= 1 or len(batches) <= 1:
+        results: list[LLMBatchResult[T | dict[str, Any]]] = []
+        for batch in batches:
+            result = _extract_batch(
+                path=path,
+                model=model,
+                batch_pages=batch,
+                provider=provider,
+                model_name=model_name,
+                schema=schema,
+                prompt=prompt,
+                dpi=dpi,
+                max_retries=max_retries,
+                temperature=temperature,
+                credentials=credentials,
+                base_url=base_url,
+                headers=headers,
+            )
+            results.append(result)
+        return LLMBatchExtractionResult(
+            batch_results=results,
+            model=model_name,
+            provider=provider,
+        )
+
+    # Parallel execution
+    executor_class = ProcessPoolExecutor if executor == ExecutorType.PROCESS else ThreadPoolExecutor
+
+    parallel_results: list[LLMBatchResult[T | dict[str, Any]] | None] = [None] * len(batches)
+    with executor_class(max_workers=max_workers) as pool:
+        future_to_idx = {
+            pool.submit(
+                _extract_batch,
+                path,
+                model,
+                batch,
+                provider,
+                model_name,
+                schema,
+                prompt,
+                dpi,
+                max_retries,
+                temperature,
+                credentials,
+                base_url,
+                headers,
+            ): i
+            for i, batch in enumerate(batches)
+        }
+        for future in as_completed(future_to_idx):
+            idx = future_to_idx[future]
+            try:
+                parallel_results[idx] = future.result()
+            except Exception as e:
+                parallel_results[idx] = LLMBatchResult(
+                    data=None,
+                    pages=batches[idx],
+                    model=model_name,
+                    provider=provider,
+                    success=False,
+                    error=str(e),
+                )
+
+    return LLMBatchExtractionResult(
+        batch_results=parallel_results,  # type: ignore[arg-type]
+        model=model_name,
+        provider=provider,
+    )

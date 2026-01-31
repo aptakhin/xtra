@@ -251,7 +251,7 @@ def _extract_paddle_tables(
 def _run_llm_extraction(args: argparse.Namespace, pages: Sequence[int] | None) -> None:
     """Run LLM-based extraction."""
     try:
-        from xtra.llm_factory import extract_structured
+        from xtra.llm_factory import extract_structured, extract_structured_parallel
     except ImportError as e:
         print(f"Error: LLM dependencies not installed: {e}", file=sys.stderr)
         sys.exit(1)
@@ -261,21 +261,43 @@ def _run_llm_extraction(args: argparse.Namespace, pages: Sequence[int] | None) -
     pages_list = list(pages) if pages else None
 
     try:
-        result = extract_structured(
-            path=args.input,
-            model=args.llm,
-            prompt=args.llm_prompt,
-            pages=pages_list,
-            dpi=args.dpi,
-            credentials=credentials,
-            base_url=args.llm_base_url,
-            headers=headers,
-        )
+        if args.workers > 1:
+            # Parallel mode: 1 page per request
+            executor_type = ExecutorType(args.executor)
+            result = extract_structured_parallel(
+                path=args.input,
+                model=args.llm,
+                prompt=args.llm_prompt,
+                pages=pages_list,
+                pages_per_batch=1,
+                max_workers=args.workers,
+                executor=executor_type,
+                dpi=args.dpi,
+                credentials=credentials,
+                base_url=args.llm_base_url,
+                headers=headers,
+            )
+            # Combine all successful batch data into single output
+            all_data = result.all_data
+            if len(all_data) == 1:
+                _print_llm_result(all_data[0], args.json)
+            else:
+                _print_llm_result(all_data, args.json)
+        else:
+            result = extract_structured(
+                path=args.input,
+                model=args.llm,
+                prompt=args.llm_prompt,
+                pages=pages_list,
+                dpi=args.dpi,
+                credentials=credentials,
+                base_url=args.llm_base_url,
+                headers=headers,
+            )
+            _print_llm_result(result.data, args.json)
     except ValueError as e:
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
-
-    _print_llm_result(result.data, args.json)
 
 
 def _run_doc_extraction(args: argparse.Namespace, pages: Sequence[int] | None) -> None:
