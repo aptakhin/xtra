@@ -35,11 +35,11 @@ __all__ = [
 
 # Lazy loading for optional dependencies
 _LAZY_IMPORTS = {
-    "AzureDocumentIntelligenceExtractor": "xtra.extractors.ocr.azure_di",
-    "GoogleDocumentAIExtractor": "xtra.extractors.ocr.google_docai",
-    "EasyOcrExtractor": "xtra.extractors.ocr.easy_ocr",
-    "TesseractOcrExtractor": "xtra.extractors.ocr.tesseract_ocr",
-    "PaddleOcrExtractor": "xtra.extractors.ocr.paddle_ocr",
+    "AzureDocumentIntelligenceExtractor": "xtra.ocr.extractors.azure_di",
+    "GoogleDocumentAIExtractor": "xtra.ocr.extractors.google_docai",
+    "EasyOcrExtractor": "xtra.ocr.extractors.easy_ocr",
+    "TesseractOcrExtractor": "xtra.ocr.extractors.tesseract_ocr",
+    "PaddleOcrExtractor": "xtra.ocr.extractors.paddle_ocr",
 }
 
 

@@ -10,9 +10,9 @@ from typing import Any, TypeVar, cast
 
 from pydantic import BaseModel
 
-from xtra.extractors.ocr._image_loader import ImageLoader
 from xtra.llm.extractors.openai import _build_prompt
 from xtra.llm.models import LLMExtractionResult, LLMProvider
+from xtra.ocr.extractors._image_loader import ImageLoader
 
 T = TypeVar("T", bound=BaseModel)
 

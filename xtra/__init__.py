@@ -1,4 +1,3 @@
-from xtra.adapters import AzureDocumentIntelligenceAdapter
 from xtra.extractors import (
     BaseExtractor,
     ExtractionResult,
@@ -14,6 +13,7 @@ from xtra.models import (
     Page,
     TextBlock,
 )
+from xtra.ocr.adapters import AzureDocumentIntelligenceAdapter
 
 __all__ = [
     # Adapters
@@ -41,11 +41,11 @@ __all__ = [
 
 # Lazy loading for optional dependencies
 _LAZY_IMPORTS = {
-    "AzureDocumentIntelligenceExtractor": "xtra.extractors.ocr.azure_di",
-    "GoogleDocumentAIExtractor": "xtra.extractors.ocr.google_docai",
-    "EasyOcrExtractor": "xtra.extractors.ocr.easy_ocr",
-    "TesseractOcrExtractor": "xtra.extractors.ocr.tesseract_ocr",
-    "PaddleOcrExtractor": "xtra.extractors.ocr.paddle_ocr",
+    "AzureDocumentIntelligenceExtractor": "xtra.ocr.extractors.azure_di",
+    "GoogleDocumentAIExtractor": "xtra.ocr.extractors.google_docai",
+    "EasyOcrExtractor": "xtra.ocr.extractors.easy_ocr",
+    "TesseractOcrExtractor": "xtra.ocr.extractors.tesseract_ocr",
+    "PaddleOcrExtractor": "xtra.ocr.extractors.paddle_ocr",
 }
 
 

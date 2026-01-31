@@ -3,7 +3,7 @@
 import pytest
 from pydantic import ValidationError
 
-from xtra.adapters.paddle_ocr import (
+from xtra.ocr.adapters.paddle_ocr import (
     PaddleOCRAdapter,
     PaddleOCRDetection,
     PaddleOCRResult,

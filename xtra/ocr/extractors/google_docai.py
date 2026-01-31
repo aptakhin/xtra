@@ -6,9 +6,9 @@ import logging
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from xtra.adapters.google_docai import GoogleDocumentAIAdapter
 from xtra.extractors.base import BaseExtractor, PageExtractionResult
 from xtra.models import CoordinateUnit, ExtractorMetadata, Page
+from xtra.ocr.adapters.google_docai import GoogleDocumentAIAdapter
 
 if TYPE_CHECKING:
     from google.cloud.documentai_v1 import Document

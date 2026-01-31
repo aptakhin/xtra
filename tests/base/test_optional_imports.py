@@ -44,7 +44,7 @@ class TestCheckFunctions:
 
     def test_check_easyocr_installed_raises_when_missing(self):
         """Test that _check_easyocr_installed raises ImportError when easyocr is missing."""
-        from xtra.extractors.ocr.easy_ocr import _check_easyocr_installed
+        from xtra.ocr.extractors.easy_ocr import _check_easyocr_installed
 
         original_import = builtins.__import__
 
@@ -67,7 +67,7 @@ class TestCheckFunctions:
 
     def test_check_pytesseract_installed_raises_when_missing(self):
         """Test that _check_pytesseract_installed raises ImportError when pytesseract is missing."""
-        from xtra.extractors.ocr.tesseract_ocr import _check_pytesseract_installed
+        from xtra.ocr.extractors.tesseract_ocr import _check_pytesseract_installed
 
         original_import = builtins.__import__
 
@@ -88,7 +88,7 @@ class TestCheckFunctions:
 
     def test_check_paddleocr_installed_raises_when_missing(self):
         """Test that _check_paddleocr_installed raises ImportError when paddleocr is missing."""
-        from xtra.extractors.ocr.paddle_ocr import _check_paddleocr_installed
+        from xtra.ocr.extractors.paddle_ocr import _check_paddleocr_installed
 
         original_import = builtins.__import__
 
@@ -109,7 +109,7 @@ class TestCheckFunctions:
 
     def test_check_azure_installed_raises_when_missing(self):
         """Test that _check_azure_installed raises ImportError when azure SDK is missing."""
-        from xtra.extractors.ocr.azure_di import _check_azure_installed
+        from xtra.ocr.extractors.azure_di import _check_azure_installed
 
         original_import = builtins.__import__
 
@@ -130,7 +130,7 @@ class TestCheckFunctions:
 
     def test_check_google_docai_installed_raises_when_missing(self):
         """Test that _check_google_docai_installed raises ImportError when google SDK is missing."""
-        from xtra.extractors.ocr.google_docai import _check_google_docai_installed
+        from xtra.ocr.extractors.google_docai import _check_google_docai_installed
 
         original_import = builtins.__import__
 

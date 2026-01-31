@@ -6,9 +6,9 @@ import logging
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
-from xtra.adapters.azure_di import AzureDocumentIntelligenceAdapter
 from xtra.extractors.base import BaseExtractor, PageExtractionResult
 from xtra.models import CoordinateUnit, ExtractorMetadata, Page
+from xtra.ocr.adapters.azure_di import AzureDocumentIntelligenceAdapter
 
 if TYPE_CHECKING:
     from azure.ai.documentintelligence import DocumentIntelligenceClient
