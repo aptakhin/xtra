@@ -61,11 +61,31 @@ class CoordinateInfo(BaseModel):
     dpi: float | None = None  # Only meaningful for pixel-based coords
 
 
+class TableCell(BaseModel):
+    """A cell within a table."""
+
+    text: str
+    row: int
+    col: int
+    bbox: BBox | None = None  # Cell bbox if available
+
+
+class Table(BaseModel):
+    """A table extracted from a document page."""
+
+    page: int  # Page number (0-indexed)
+    cells: list[TableCell] = Field(default_factory=list)
+    row_count: int = 0
+    col_count: int = 0
+    bbox: BBox | None = None  # Table bbox if available
+
+
 class Page(BaseModel):
     page: int
     width: float
     height: float
     texts: list[TextBlock] = Field(default_factory=list)
+    tables: list[Table] = Field(default_factory=list)
     coordinate_info: CoordinateInfo | None = None
 
 

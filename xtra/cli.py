@@ -96,6 +96,58 @@ def _print_llm_result(data: Any, as_json: bool) -> None:
         print(data)
 
 
+def _print_table(table: Any) -> None:
+    """Print a table in ASCII format."""
+    if not table.cells:
+        print("(empty table)")
+        return
+
+    # Build grid from cells
+    grid: dict[tuple[int, int], str] = {}
+    for cell in table.cells:
+        grid[(cell.row, cell.col)] = cell.text
+
+    # Calculate column widths
+    col_widths: dict[int, int] = {}
+    for col in range(table.col_count):
+        col_widths[col] = max(len(grid.get((row, col), "")) for row in range(table.row_count))
+        col_widths[col] = max(col_widths[col], 3)  # Minimum width
+
+    # Print rows
+    for row in range(table.row_count):
+        cells = [grid.get((row, col), "").ljust(col_widths[col]) for col in range(table.col_count)]
+        print("| " + " | ".join(cells) + " |")
+        if row == 0:
+            # Print header separator
+            sep = ["-" * col_widths[col] for col in range(table.col_count)]
+            print("|-" + "-|-".join(sep) + "-|")
+
+
+def _extract_and_attach_tables(
+    extractor: Any,
+    result: Any,
+    pages: Sequence[int] | None,
+    table_mode: str | None,
+) -> None:
+    """Extract tables and attach them to document pages."""
+    table_options: dict[str, Any] = {}
+    if table_mode == "lattice":
+        table_options["lattice"] = True
+    elif table_mode == "stream":
+        table_options["stream"] = True
+
+    tables = extractor.extract_tables(pages=pages, table_options=table_options)
+
+    # Group tables by page
+    tables_by_page: dict[int, list[Any]] = {}
+    for table in tables:
+        tables_by_page.setdefault(table.page, []).append(table)
+
+    # Attach to pages
+    for page in result.document.pages:
+        page.tables = tables_by_page.get(page.page, [])
+
+
 def _run_llm_extraction(args: argparse.Namespace, pages: Sequence[int] | None) -> None:
     """Run LLM-based extraction."""
     try:
@@ -126,7 +178,8 @@ def _run_llm_extraction(args: argparse.Namespace, pages: Sequence[int] | None) -
     _print_llm_result(result.data, args.json)
 
 
-def main() -> None:
+def _setup_parser() -> argparse.ArgumentParser:
+    """Set up argument parser with all CLI options."""
     parser = argparse.ArgumentParser(description="Extract text from PDF/image files")
     parser.add_argument("input", type=Path, help="Input file path")
     parser.add_argument(
@@ -173,6 +226,18 @@ def main() -> None:
         choices=list(CHARACTER_MERGER_CHOICES.keys()),
         default=None,
         help="Character merger for PDF extractor: basic-line (default), keep-char",
+    )
+    parser.add_argument(
+        "--tables",
+        action="store_true",
+        help="Extract tables from PDF (requires tabula-py)",
+    )
+    parser.add_argument(
+        "--table-mode",
+        type=str,
+        choices=["lattice", "stream"],
+        default=None,
+        help="Table extraction mode: lattice (bordered tables), stream (borderless)",
     )
     parser.add_argument(
         "--workers",
@@ -237,6 +302,11 @@ def main() -> None:
         metavar="KEY=VALUE",
         help="Custom HTTP header (can be repeated). Example: --header 'Authorization=Bearer token'",
     )
+    return parser
+
+
+def main() -> None:
+    parser = _setup_parser()
     args = parser.parse_args()
 
     if not args.input.exists():
@@ -265,6 +335,13 @@ def main() -> None:
     with extractor:
         result = extractor.extract(pages=pages, max_workers=args.workers, executor=executor_type)
 
+        # Extract tables if requested (PDF only)
+        if args.tables:
+            if args.extractor != "pdf":
+                print("Warning: --tables is only supported for PDF extractor", file=sys.stderr)
+            else:
+                _extract_and_attach_tables(extractor, result, pages, args.table_mode)
+
     doc = result.document
     if args.json:
         # pydantic v2 uses model_dump_json, v1 uses json
@@ -281,6 +358,10 @@ def main() -> None:
                 print(
                     f"[{bbox.x0:.1f},{bbox.y0:.1f},{bbox.x1:.1f},{bbox.y1:.1f}]{conf} {text.text}"
                 )
+            # Print tables if present
+            for i, table in enumerate(page.tables):
+                print(f"\n--- Table {i + 1} ({table.row_count}x{table.col_count}) ---")
+                _print_table(table)
             print()
 
 

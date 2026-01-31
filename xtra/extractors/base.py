@@ -7,6 +7,7 @@ from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_compl
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
+from typing import Self
 
 from xtra.coordinates import CoordinateConverter
 from xtra.models import CoordinateUnit, Document, ExtractorMetadata, Page
@@ -255,7 +256,7 @@ class BaseExtractor(ABC):
         )
         return converter.convert_page(page, self.output_unit, target_dpi=dpi)
 
-    def __enter__(self) -> BaseExtractor:
+    def __enter__(self) -> Self:
         return self
 
     def __exit__(self, *args: object) -> None:

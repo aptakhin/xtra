@@ -15,6 +15,7 @@ dependencies = [
 
 [project.optional-dependencies]
 pdf = ["pypdfium2>=4.0"]
+tables = ["tabula-py>=2.0"]
 easyocr = ["easyocr>=1.4"]
 tesseract = ["pytesseract>=0.3.8"]
 paddle = ["paddleocr>=2.9", "paddlepaddle>=2.6"]
@@ -26,6 +27,7 @@ llm-google = ["instructor>=1.0", "google-genai>=1.0", "jsonref>=1.1.0"]
 llm-all = ["instructor>=1.0", "openai>=1.0", "anthropic>=0.20", "google-genai>=1.0", "jsonref>=1.1.0"]
 all = [
     "pypdfium2>=4.0",
+    "tabula-py>=2.0",
     "easyocr>=1.4",
     "pytesseract>=0.3.8",
     "paddleocr>=2.9",

@@ -3178,6 +3178,20 @@ wheels = [
 ]
 
 [[package]]
+name = "tabula-py"
+version = "2.10.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "distro" },
+    { name = "numpy" },
+    { name = "pandas" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/e2/31/2a14a5048f681c404ae0b32a00d141128dd3065965190fdcae3b33e2bcae/tabula_py-2.10.0.tar.gz", hash = "sha256:75968a83fe978e5d56ccf23f0f0255a459c256b7b52db7cabe5ac795bb3b12df", size = 12459408 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/2f/80/10bc6f303054d1a06eb8628f90e5997f4b1272956a477230f3fa95637c28/tabula_py-2.10.0-py3-none-any.whl", hash = "sha256:c7596c559fc813e313eb4fbc7aabe7e4290dbd04717c4cbe4aa4a2cafd00ab63", size = 12021009 },
+]
+
+[[package]]
 name = "tenacity"
 version = "9.1.2"
 source = { registry = "https://pypi.org/simple" }
@@ -3713,6 +3727,7 @@ all = [
     { name = "paddlepaddle" },
     { name = "pypdfium2" },
     { name = "pytesseract" },
+    { name = "tabula-py" },
 ]
 azure = [
     { name = "azure-ai-documentintelligence" },
@@ -3749,6 +3764,9 @@ paddle = [
 ]
 pdf = [
     { name = "pypdfium2" },
+]
+tables = [
+    { name = "tabula-py" },
 ]
 tesseract = [
     { name = "pytesseract" },
@@ -3807,8 +3825,10 @@ requires-dist = [
     { name = "pypdfium2", marker = "extra == 'pdf'", specifier = ">=4.0" },
     { name = "pytesseract", marker = "extra == 'all'", specifier = ">=0.3.8" },
     { name = "pytesseract", marker = "extra == 'tesseract'", specifier = ">=0.3.8" },
+    { name = "tabula-py", marker = "extra == 'all'", specifier = ">=2.0" },
+    { name = "tabula-py", marker = "extra == 'tables'", specifier = ">=2.0" },
 ]
-provides-extras = ["pdf", "easyocr", "tesseract", "paddle", "azure", "google", "llm-openai", "llm-anthropic", "llm-google", "llm-all", "all"]
+provides-extras = ["pdf", "tables", "easyocr", "tesseract", "paddle", "azure", "google", "llm-openai", "llm-anthropic", "llm-google", "llm-all", "all"]
 
 [package.metadata.requires-dev]
 dev = [
