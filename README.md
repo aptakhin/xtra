@@ -8,6 +8,7 @@ A Python library for document text extraction with local and cloud OCR solutions
 
 - **Multiple OCR Backends**: Local (EasyOCR, Tesseract, PaddleOCR) and cloud (Azure Document Intelligence, Google Document AI) OCR support
 - **PDF Text Extraction**: Native PDF text extraction using pypdfium2
+- **LLM Extraction**: Extract structured data using GPT-4o, Claude, Gemini, or OpenAI-compatible APIs
 - **Parallel Extraction**: Process multiple pages concurrently with thread or process executors
 - **Async Support**: Native async/await API for integration with async applications
 - **Unified Extractors**: Each OCR extractor auto-detects file type (PDF vs image) and handles conversion internally
@@ -240,6 +241,118 @@ with GoogleDocumentAIExtractor(
     result = extractor.extract()
 ```
 
+### LLM Extraction
+
+Extract structured data from documents using vision-capable LLMs. Supports OpenAI, Anthropic, Google, and Azure OpenAI.
+
+```python
+from xtra.llm import extract_structured
+
+# Free-form extraction (returns dict)
+result = extract_structured(
+    "invoice.pdf",
+    model="openai/gpt-4o",
+)
+print(result.data)  # {"invoice_number": "INV-001", "total": 150.00, ...}
+
+# With custom prompt
+result = extract_structured(
+    "receipt.png",
+    model="anthropic/claude-sonnet-4-20250514",
+    prompt="Extract the merchant name, date, and total amount",
+)
+```
+
+#### Structured Extraction with Pydantic Schema
+
+Define a Pydantic model and get type-safe structured output:
+
+```python
+from pydantic import BaseModel
+from xtra.llm import extract_structured
+
+class Invoice(BaseModel):
+    invoice_number: str
+    date: str
+    total: float
+    items: list[dict]
+
+result = extract_structured(
+    "invoice.pdf",
+    model="openai/gpt-4o",
+    schema=Invoice,
+)
+invoice: Invoice = result.data  # Typed as Invoice
+print(f"Invoice {invoice.invoice_number}: ${invoice.total}")
+```
+
+#### OpenAI-Compatible APIs (vLLM, Ollama, etc.)
+
+Use custom base URLs for self-hosted or alternative OpenAI-compatible APIs:
+
+```python
+from xtra.llm import extract_structured
+
+# vLLM server
+result = extract_structured(
+    "document.pdf",
+    model="openai/meta-llama/Llama-3.2-90B-Vision-Instruct",
+    base_url="http://localhost:8000/v1",
+)
+
+# Ollama
+result = extract_structured(
+    "document.pdf",
+    model="openai/llava",
+    base_url="http://localhost:11434/v1",
+)
+
+# With custom headers
+result = extract_structured(
+    "document.pdf",
+    model="openai/gpt-4o",
+    base_url="https://your-proxy.com/v1",
+    headers={"X-Custom-Auth": "your-token"},
+)
+```
+
+#### Parallel Extraction
+
+Process multiple pages in parallel for faster extraction:
+
+```python
+from xtra.llm import extract_structured
+
+# Sequential: all pages sent in one request (default)
+result = extract_structured("document.pdf", model="openai/gpt-4o")
+
+# Parallel: each page processed separately with 4 concurrent workers
+result = extract_structured(
+    "large_document.pdf",
+    model="openai/gpt-4o",
+    max_workers=4,
+)
+# result.data is a list of per-page results
+# result.usage contains aggregated token usage
+```
+
+#### Async API
+
+```python
+import asyncio
+from xtra.llm import extract_structured_async
+
+async def extract():
+    result = await extract_structured_async(
+        "document.pdf",
+        model="openai/gpt-4o",
+        max_workers=4,  # Concurrent requests limited by semaphore
+    )
+    return result.data
+
+data = asyncio.run(extract())
+```
+
 ## CLI Usage
 
 ```bash
@@ -282,11 +395,35 @@ uv run python -m xtra.cli document.pdf --extractor pdf --json
 
 # Specific pages
 uv run python -m xtra.cli document.pdf --extractor pdf --pages 0,1,2
+
+# LLM extraction (free-form)
+uv run python -m xtra.cli invoice.pdf --llm openai/gpt-4o
+
+# LLM extraction with custom prompt
+uv run python -m xtra.cli receipt.png --llm anthropic/claude-sonnet-4-20250514 \
+    --llm-prompt "Extract merchant name, date, and total"
+
+# LLM with parallel workers (each page processed separately)
+uv run python -m xtra.cli large_document.pdf --llm openai/gpt-4o --workers 4
+
+# LLM with OpenAI-compatible API (vLLM, Ollama, etc.)
+uv run python -m xtra.cli document.pdf --llm openai/llava \
+    --llm-base-url http://localhost:11434/v1
+
+# LLM with custom headers
+uv run python -m xtra.cli document.pdf --llm openai/gpt-4o \
+    --llm-base-url https://your-proxy.com/v1 \
+    --llm-header "X-Custom-Auth=your-token"
+
+# LLM JSON output
+uv run python -m xtra.cli document.pdf --llm openai/gpt-4o --json
 ```
 
 ## Environment Variables
 
-Cloud extractors support configuration via environment variables:
+Cloud extractors and LLM providers support configuration via environment variables:
+
+**OCR Extractors:**
 
 | Variable | Description |
 |----------|-------------|
@@ -295,6 +432,17 @@ Cloud extractors support configuration via environment variables:
 | `XTRA_AZURE_DI_MODEL` | Azure model ID (default: `prebuilt-read`) |
 | `XTRA_GOOGLE_DOCAI_PROCESSOR_NAME` | Google Document AI processor name |
 | `XTRA_GOOGLE_DOCAI_CREDENTIALS_PATH` | Path to Google service account JSON |
+
+**LLM Providers:**
+
+| Variable | Description |
+|----------|-------------|
+| `OPENAI_API_KEY` | OpenAI API key |
+| `ANTHROPIC_API_KEY` | Anthropic API key |
+| `GOOGLE_API_KEY` | Google AI API key |
+| `AZURE_OPENAI_API_KEY` | Azure OpenAI API key |
+| `AZURE_OPENAI_ENDPOINT` | Azure OpenAI endpoint URL |
+| `AZURE_OPENAI_API_VERSION` | Azure OpenAI API version (default: `2024-02-15-preview`) |
 
 ## Development
 
