@@ -172,9 +172,13 @@ class TestExtractStructuredRouting:
         assert result == mock_result
         mock_extract_azure.assert_called_once()
 
-    def test_azure_openai_raises_without_endpoint(self) -> None:
+    def test_azure_openai_raises_without_endpoint(self, monkeypatch) -> None:
         """Test that Azure OpenAI raises error without endpoint."""
         from xtra.llm.factory import extract_structured
+
+        # Clear any endpoint env vars that might be set
+        monkeypatch.delenv("AZURE_OPENAI_ENDPOINT", raising=False)
+        monkeypatch.delenv("XTRA_AZURE_DI_ENDPOINT", raising=False)
 
         with pytest.raises(ValueError, match="endpoint required"):
             extract_structured(

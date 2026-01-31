@@ -4,7 +4,7 @@ from pathlib import Path
 
 from xtra.ocr.extractors.easy_ocr import EasyOcrExtractor
 
-TEST_DATA_DIR = Path(__file__).parent.parent / "data"
+TEST_DATA_DIR = Path(__file__).parent.parent.parent / "data"
 
 
 class TestEasyOcrExtractorWithPdf:

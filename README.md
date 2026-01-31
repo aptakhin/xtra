@@ -312,21 +312,37 @@ uv sync
 
 ```bash
 # Run all tests
-uv run pytest -v
+uv run pytest
+
+# Run fast tests only (unit tests, <0.5s per test)
+uv run pytest tests/base tests/ocr
+
+# Run integration tests only (slow, load ML models)
+uv run pytest tests/integration
 
 # Run with coverage
 uv run pytest --cov=xtra --cov-report=term-missing
-
-# Run specific test file
-uv run pytest tests/test_azure_di.py -v
-
-# Run integration tests only
-uv run pytest tests/test_integration.py -v
 ```
+
+### Test Structure
+
+```
+tests/
+├── base/           # Fast unit tests (<0.5s each) - run in pre-commit
+├── ocr/            # OCR adapter unit tests (mocked) - run in pre-commit
+├── llm/            # LLM unit tests (mocked) - run in pre-commit
+└── integration/    # Slow tests - NOT in pre-commit
+    ├── ocr/        # OCR integration tests (load real ML models)
+    └── llm/        # LLM integration tests (call real APIs)
+```
+
+**Pre-commit runs:** `tests/base`, `tests/ocr`, and `tests/llm` with 0.5s timeout per test.
+
+**CI runs:** All tests including integration tests.
 
 ### Integration Tests
 
-Integration tests run against real files and services without mocking. They are located in `tests/test_integration.py`.
+Integration tests load real ML models and call real services. They are in `tests/integration/`.
 
 **Local extractors** (no credentials required):
 - `PdfExtractor` - Tests PDF text extraction

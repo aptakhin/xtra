@@ -12,7 +12,7 @@ from pydantic import BaseModel
 from xtra.llm import extract_structured, extract_structured_async
 from xtra.llm.models import LLMProvider
 
-TEST_DATA_DIR = Path(__file__).parent.parent / "data"
+TEST_DATA_DIR = Path(__file__).parent.parent.parent / "data"
 
 
 class SimpleExtraction(BaseModel):

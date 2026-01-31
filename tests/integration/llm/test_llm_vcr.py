@@ -3,7 +3,7 @@
 These tests record real API responses and replay them. To record:
 1. Set API keys in environment (OPENAI_API_KEY, ANTHROPIC_API_KEY, GOOGLE_API_KEY)
 2. Delete the cassette files in tests/cassettes/llm/
-3. Run: poetry run pytest tests/llm/test_llm_vcr.py -v
+3. Run: uv run pytest tests/integration/llm/test_llm_vcr.py -v
 
 After cassettes are recorded, tests run without credentials.
 If cassettes don't exist and credentials aren't set, tests FAIL.
@@ -15,8 +15,8 @@ from pathlib import Path
 import pytest
 from pydantic import BaseModel, Field
 
-TEST_DATA_DIR = Path(__file__).parent.parent / "data"
-CASSETTE_DIR = Path(__file__).parent.parent / "cassettes" / "llm"
+TEST_DATA_DIR = Path(__file__).parent.parent.parent / "data"
+CASSETTE_DIR = Path(__file__).parent.parent.parent / "cassettes" / "llm"
 
 
 class DocumentInfo(BaseModel):
