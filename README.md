@@ -412,42 +412,73 @@ This runs:
 
 ```
 xtra/
-├── adapters/           # Schema transformation
-│   ├── azure_di.py     # Azure AnalyzeResult → internal models
-│   └── google_docai.py # Google Document → internal models
-├── extractors/         # Document extraction
-│   ├── azure_di.py     # Azure Document Intelligence
-│   ├── google_docai.py # Google Document AI
-│   ├── easy_ocr.py     # EasyOCR (local, unified for images/PDFs)
-│   ├── tesseract_ocr.py # Tesseract OCR (local, unified for images/PDFs)
-│   ├── paddle_ocr.py   # PaddleOCR (local, unified for images/PDFs)
-│   ├── pdf.py          # Native PDF extraction
-│   └── factory.py      # Unified factory interface
-└── models.py           # Internal data models
+├── cli.py              # Command-line interface
+├── coordinates.py      # Coordinate unit conversions (POINTS, PIXELS, INCHES, NORMALIZED)
+├── models.py           # Core data models (Document, Page, TextBlock, BBox)
+├── extractors/         # PDF text extraction
+│   ├── base.py         # Base extractor class
+│   ├── factory.py      # Unified factory interface
+│   ├── pdf.py          # Native PDF extraction via pypdfium2
+│   └── character_mergers.py  # Text merging strategies
+├── ocr/                # OCR extraction
+│   ├── adapters/       # External API → internal models
+│   │   ├── azure_di.py
+│   │   ├── google_docai.py
+│   │   ├── easy_ocr.py
+│   │   ├── paddle_ocr.py
+│   │   └── tesseract_ocr.py
+│   └── extractors/     # OCR extractor implementations
+│       ├── azure_di.py
+│       ├── google_docai.py
+│       ├── easy_ocr.py
+│       ├── paddle_ocr.py
+│       └── tesseract_ocr.py
+├── llm/                # LLM-based extraction
+│   ├── factory.py      # LLM extractor factory
+│   ├── models.py       # LLM-specific models
+│   ├── adapters/
+│   │   └── image_encoder.py  # Image encoding for LLM input
+│   └── extractors/     # LLM provider implementations
+│       ├── anthropic.py
+│       ├── openai.py
+│       ├── azure_openai.py
+│       └── google.py
+└── utils/              # Shared utilities
+    ├── geometry.py     # Geometric calculations
+    └── image_loader.py # Image loading utilities
 ```
 
 ### Extractors
 
-Low-level document extraction:
+**PDF Extraction:**
 - `PdfExtractor` - Native PDF text extraction via pypdfium2
-- `EasyOcrExtractor` - Image/PDF OCR via EasyOCR (auto-detects file type)
-- `TesseractOcrExtractor` - Image/PDF OCR via Tesseract (auto-detects file type)
-- `PaddleOcrExtractor` - Image/PDF OCR via PaddleOCR (auto-detects file type)
+
+**OCR Extraction:**
+- `EasyOcrExtractor` - Image/PDF OCR via EasyOCR
+- `TesseractOcrExtractor` - Image/PDF OCR via Tesseract
+- `PaddleOcrExtractor` - Image/PDF OCR via PaddleOCR
 - `AzureDocumentIntelligenceExtractor` - Azure cloud OCR
 - `GoogleDocumentAIExtractor` - Google Cloud Document AI
+
+**LLM Extraction:**
+- `AnthropicExtractor` - Claude-based text extraction
+- `OpenAIExtractor` - GPT-based text extraction
+- `AzureOpenAIExtractor` - Azure OpenAI text extraction
+- `GoogleExtractor` - Gemini-based text extraction
 
 ### Adapters
 
 Schema transformation from external APIs to internal models:
-- `AzureDocumentIntelligenceAdapter` - Converts Azure `AnalyzeResult` to `Page`/`TextBlock`
-- `GoogleDocumentAIAdapter` - Converts Google `Document` to `Page`/`TextBlock`
+- **OCR adapters** - Convert Azure, Google, EasyOCR, PaddleOCR, Tesseract results to `Page`/`TextBlock`
+- **LLM adapters** - Handle image encoding for LLM input
 
 ### Models
 
 Pydantic models for type-safe document representation:
 - `Document` - Full document with pages and metadata
-- `Page` - Single page with text blocks
+- `Page` - Single page with text blocks and tables
 - `TextBlock` - Text with bounding box and confidence
+- `Table` - Extracted table with rows and columns
 - `BBox` - Bounding box coordinates
 - `ExtractorMetadata` - Extractor type and processing details
 
@@ -474,6 +505,5 @@ BSD 3-Clause License. See [LICENSE](LICENSE) for details.
 
 ## Future plans
 
-- Table extraction for pdf (tabula)
 - Detecting language helper
 - Performance measurement
