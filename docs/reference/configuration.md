@@ -41,7 +41,8 @@ Pass these options via the `table_options` parameter to enable table extraction.
 
 ### Example
 
-```python skip: requires tabula
+<!-- skip: next -->
+```python
 from xtra import PdfExtractor
 
 with PdfExtractor("table.pdf") as extractor:

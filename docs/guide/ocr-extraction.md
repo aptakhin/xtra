@@ -11,7 +11,8 @@ Extractors that require different formats (like Tesseract) convert internally.
 
 ### EasyOCR
 
-```python skip: requires easyocr
+<!-- skip: next -->
+```python
 from xtra import EasyOcrExtractor
 
 # For images
@@ -31,7 +32,8 @@ Requires Tesseract to be installed on the system:
 - **Ubuntu**: `apt-get install tesseract-ocr`
 - **Windows**: Download from [UB-Mannheim/tesseract](https://github.com/UB-Mannheim/tesseract/wiki)
 
-```python skip: requires tesseract
+<!-- skip: next -->
+```python
 from xtra import TesseractOcrExtractor
 
 # For images
@@ -47,7 +49,8 @@ with TesseractOcrExtractor("scanned.pdf", languages=["en"], dpi=200) as extracto
 
 Excellent accuracy for multiple languages, especially Chinese.
 
-```python skip: requires paddleocr
+<!-- skip: next -->
+```python
 from xtra import PaddleOcrExtractor
 
 # For images
@@ -67,7 +70,8 @@ with PaddleOcrExtractor("chinese_doc.png", lang="ch") as extractor:
 
 ### Azure Document Intelligence
 
-```python skip: requires credentials
+<!-- skip: next -->
+```python
 from xtra import AzureDocumentIntelligenceExtractor
 
 with AzureDocumentIntelligenceExtractor(
@@ -87,7 +91,8 @@ export XTRA_AZURE_DI_KEY=your-api-key
 
 ### Google Document AI
 
-```python skip: requires credentials
+<!-- skip: next -->
+```python
 from xtra import GoogleDocumentAIExtractor
 
 with GoogleDocumentAIExtractor(
@@ -109,7 +114,8 @@ export XTRA_GOOGLE_DOCAI_CREDENTIALS_PATH=/path/to/credentials.json
 
 All OCR extractors support parallel page extraction:
 
-```python skip: requires easyocr
+<!-- skip: next -->
+```python
 from xtra import EasyOcrExtractor
 
 with EasyOcrExtractor("scanned.pdf", languages=["en"]) as extractor:
@@ -122,7 +128,8 @@ See [Parallel Processing](parallel-processing.md) for more details.
 
 Control the output coordinate system:
 
-```python skip: requires easyocr
+<!-- skip: next -->
+```python
 from xtra import EasyOcrExtractor, CoordinateUnit
 
 # Pixels (default for OCR, uses DPI for conversion)

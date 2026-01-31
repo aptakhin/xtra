@@ -19,7 +19,8 @@ print(f"Extracted {len(doc.pages)} pages asynchronously")
 
 ## Async LLM Extraction
 
-```python skip: requires API key
+<!-- skip: next -->
+```python
 import asyncio
 from xtra.llm import extract_structured_async
 
@@ -36,7 +37,8 @@ data = asyncio.run(extract())
 
 ## Using with FastAPI
 
-```python skip: requires fastapi
+<!-- skip: next -->
+```python
 from fastapi import FastAPI, UploadFile
 from xtra import create_extractor, ExtractorType
 

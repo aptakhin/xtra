@@ -95,7 +95,8 @@ uv sync --extra tables
 
 ### Basic Table Extraction
 
-```python skip: requires tabula
+<!-- skip: next -->
+```python
 from xtra import PdfExtractor
 
 with PdfExtractor("table.pdf") as extractor:
@@ -111,7 +112,8 @@ with PdfExtractor("table.pdf") as extractor:
 
 Pass tabula options to control extraction behavior:
 
-```python skip: requires tabula
+<!-- skip: next -->
+```python
 from xtra import PdfExtractor
 
 with PdfExtractor("table.pdf") as extractor:

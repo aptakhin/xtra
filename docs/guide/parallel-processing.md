@@ -61,7 +61,8 @@ with create_extractor("document.pdf", ExtractorType.PDF) as extractor:
 
 LLM extraction also supports parallel processing:
 
-```python skip: requires API key
+<!-- skip: next -->
+```python
 from xtra.llm import extract_structured
 
 result = extract_structured(

@@ -13,7 +13,8 @@ with create_extractor("document.pdf", ExtractorType.PDF) as extractor:
     print(f"Extracted {len(result.document.pages)} pages")
 ```
 
-```python skip: requires easyocr
+<!-- skip: next -->
+```python
 from xtra import create_extractor, ExtractorType
 
 # EasyOCR for images
@@ -25,7 +26,8 @@ with create_extractor("scanned.pdf", ExtractorType.EASYOCR, dpi=200) as extracto
     result = extractor.extract()
 ```
 
-```python skip: requires credentials
+<!-- skip: next -->
+```python
 from xtra import create_extractor, ExtractorType
 
 # Azure Document Intelligence (credentials from env vars)

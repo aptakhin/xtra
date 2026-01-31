@@ -14,7 +14,8 @@ Extract structured data from documents using vision-capable LLMs.
 
 ### Free-form Extraction
 
-```python skip: requires API key
+<!-- skip: next -->
+```python
 from xtra.llm import extract_structured
 
 result = extract_structured(
@@ -26,7 +27,8 @@ print(result.data)
 
 ### With Custom Prompt
 
-```python skip: requires API key
+<!-- skip: next -->
+```python
 from xtra.llm import extract_structured
 
 result = extract_structured(
@@ -40,7 +42,8 @@ result = extract_structured(
 
 Define a Pydantic model for type-safe structured output:
 
-```python skip: requires API key
+<!-- skip: next -->
+```python
 from pydantic import BaseModel
 from xtra.llm import extract_structured
 
@@ -61,7 +64,8 @@ print(f"Found {len(content.paragraphs)} paragraphs")
 
 Use custom base URLs for self-hosted or alternative APIs:
 
-```python skip: requires API key
+<!-- skip: next -->
+```python
 from xtra.llm import extract_structured
 
 # vLLM server
@@ -91,7 +95,8 @@ result = extract_structured(
 
 Process multiple pages in parallel for faster extraction:
 
-```python skip: requires API key
+<!-- skip: next -->
+```python
 from xtra.llm import extract_structured
 
 # Sequential: all pages sent in one request (default)
@@ -109,7 +114,8 @@ result = extract_structured(
 
 ## Async API
 
-```python skip: requires API key
+<!-- skip: next -->
+```python
 import asyncio
 from xtra.llm import extract_structured_async
 
