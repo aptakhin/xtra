@@ -1,0 +1,39 @@
+# Gitleaks configuration
+# Extends default rules with custom patterns for API keys
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "google-api-key"
+description = "Google API Key"
+regex = '''AIza[0-9A-Za-z\-_]{35}'''
+tags = ["key", "google"]
+
+[[rules]]
+id = "gcp-api-key"
+description = "GCP API Key (x-goog-api-key header)"
+regex = '''x-goog-api-key[:\s]+['\"]?AIza[0-9A-Za-z\-_]{35}['\"]?'''
+tags = ["key", "google", "gcp"]
+
+[[rules]]
+id = "openai-api-key"
+description = "OpenAI API Key"
+regex = '''sk-[a-zA-Z0-9]{20,}'''
+tags = ["key", "openai"]
+
+[[rules]]
+id = "anthropic-api-key"
+description = "Anthropic API Key"
+regex = '''sk-ant-[a-zA-Z0-9\-_]{40,}'''
+tags = ["key", "anthropic"]
+
+# Allow the REDACTED placeholder in VCR cassettes
+[allowlist]
+regexTarget = "match"
+regexes = [
+    '''REDACTED''',
+]
+paths = [
+    '''.secrets.baseline''',
+]

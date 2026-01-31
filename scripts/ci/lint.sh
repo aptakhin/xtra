@@ -1,10 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-echo "=== Checking code formatting with ruff ==="
-poetry run ruff format --check
+echo "=== Running pre-commit hooks (secrets, format, lint, type check, tests) ==="
+poetry run pre-commit run --all-files
 
-echo "=== Running ruff linter ==="
-poetry run ruff check
-
-echo "=== Lint passed ==="
+echo "=== All checks passed ==="

@@ -2,21 +2,12 @@
 
 set -e
 
-# Run format and lint
-echo "Running ruff format and check..."
-poetry run ruff format
-poetry run ruff check --fix
+# Run all pre-commit hooks (gitleaks, ruff, ty, pytest)
+echo "Running pre-commit hooks..."
+poetry run pre-commit run --all-files
 
 # Re-add any files modified by formatting
 git add -u
-
-# Run type check
-echo "Running ty type check..."
-poetry run ty check
-
-# Run tests with coverage (excluding cloud tests that require credentials)
-echo "Running tests with coverage..."
-poetry run pytest -k "not (azure and test_ocr_extract_pdf) and not (google and test_ocr_extract_pdf) and not test_llm_vcr" --cov=xtra --cov-report=term-missing --cov-fail-under=78
 
 # Check if there are any staged files
 if [ -z "$(git diff --cached --name-only)" ]; then

@@ -1,0 +1,45 @@
+repos:
+  # Secret detection - pattern-based (catches known API key formats)
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.21.2
+    hooks:
+      - id: gitleaks
+        args: ["--config", ".gitleaks.toml"]
+
+  # Secret detection - entropy-based (catches unknown high-entropy secrets)
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.5.0
+    hooks:
+      - id: detect-secrets
+        args: ['--baseline', '.secrets.baseline']
+
+  # Ruff linter and formatter (using local install for consistency with poetry)
+  - repo: local
+    hooks:
+      - id: ruff-format
+        name: ruff format
+        entry: poetry run ruff format
+        language: system
+        types: [python]
+        pass_filenames: false
+
+      - id: ruff-check
+        name: ruff check
+        entry: poetry run ruff check --fix
+        language: system
+        types: [python]
+        pass_filenames: false
+
+      - id: ty-check
+        name: ty type check
+        entry: poetry run ty check
+        language: system
+        types: [python]
+        pass_filenames: false
+
+      - id: pytest-fast
+        name: pytest (fast tests)
+        entry: poetry run pytest -k "not (azure and test_ocr_extract_pdf) and not (google and test_ocr_extract_pdf) and not test_llm_vcr" --cov=xtra --cov-report=term-missing --cov-fail-under=78
+        language: system
+        pass_filenames: false
+        always_run: true
