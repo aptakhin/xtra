@@ -6,8 +6,18 @@ extractors which load ML models into memory.
 
 from pathlib import Path
 
+import pytest
+
 from unifex.base import ExtractorType
 from unifex.text_factory import create_extractor
+
+# Check if paddleocr is available
+try:
+    import paddleocr  # noqa: F401
+
+    HAS_PADDLE = True
+except ImportError:
+    HAS_PADDLE = False
 
 TEST_DATA_DIR = Path(__file__).parent.parent.parent / "data"
 
@@ -49,6 +59,7 @@ class TestCreateExtractorWithRealOCR:
         assert extractor.gpu is True  # type: ignore[attr-defined]
         extractor.close()
 
+    @pytest.mark.skipif(not HAS_PADDLE, reason="paddleocr not installed")
     def test_creates_paddle_extractor(self) -> None:
         extractor = create_extractor(
             TEST_DATA_DIR / "test_pdf_2p_text.pdf",
@@ -62,6 +73,7 @@ class TestCreateExtractorWithRealOCR:
         assert extractor.get_page_count() == 2
         extractor.close()
 
+    @pytest.mark.skipif(not HAS_PADDLE, reason="paddleocr not installed")
     def test_creates_paddle_with_gpu_flag(self) -> None:
         extractor = create_extractor(
             TEST_DATA_DIR / "test_pdf_2p_text.pdf",
