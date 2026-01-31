@@ -50,6 +50,7 @@ jobs:
       - run: echo '${{ secrets.GOOGLE_DOCAI_CREDENTIALS }}' > /tmp/google_creds.json
       - run: ./scripts/ci/all-tests.sh
         env:
+          FLAGS_enable_pir_api: "0"  # Disable PaddlePaddle PIR to avoid compatibility issues
           XTRA_AZURE_DI_ENDPOINT: ${{ secrets.XTRA_AZURE_DI_ENDPOINT }}
           XTRA_AZURE_DI_KEY: ${{ secrets.XTRA_AZURE_DI_KEY }}
           XTRA_GOOGLE_DOCAI_PROCESSOR_NAME: ${{ secrets.XTRA_GOOGLE_DOCAI_PROCESSOR_NAME }}
