@@ -156,9 +156,6 @@ omit = [
     "xtra/llm/extractors/openai.py",
     "xtra/llm/extractors/anthropic.py",
     "xtra/llm/extractors/google.py",
-    # PaddleOCR API changed, tests excluded until fixed
-    "xtra/extractors/ocr/paddle_ocr.py",
-    "xtra/adapters/paddle_ocr.py",
 ]
 
 [build-system]

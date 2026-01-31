@@ -22,6 +22,19 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 _ocr_cache: dict[tuple, Any] = {}
+_paddle_major_version: dict[str, int] = {}
+
+# PaddleOCR 3.x introduced breaking API changes
+PADDLEOCR_V3_MAJOR = 3
+
+
+def _get_paddle_major_version() -> int:
+    """Get the major version of PaddleOCR."""
+    if "version" not in _paddle_major_version:
+        import paddleocr
+
+        _paddle_major_version["version"] = int(paddleocr.__version__.split(".")[0])
+    return _paddle_major_version["version"]
 
 
 def _check_paddleocr_installed() -> None:
@@ -40,7 +53,15 @@ def get_paddle_ocr(lang: str, use_gpu: bool) -> PaddleOCR:
 
     key = (lang, use_gpu)
     if key not in _ocr_cache:
-        _ocr_cache[key] = PaddleOCR(use_angle_cls=True, lang=lang, use_gpu=use_gpu, show_log=False)
+        major_version = _get_paddle_major_version()
+        if major_version >= PADDLEOCR_V3_MAJOR:
+            # PaddleOCR 3.x API: use_angle_cls renamed to use_textline_orientation, no show_log
+            _ocr_cache[key] = PaddleOCR(use_textline_orientation=True, lang=lang)
+        else:
+            # PaddleOCR 2.x API
+            _ocr_cache[key] = PaddleOCR(
+                use_angle_cls=True, lang=lang, use_gpu=use_gpu, show_log=False
+            )
     return _ocr_cache[key]
 
 
@@ -101,8 +122,16 @@ class PaddleOcrExtractor(BaseExtractor):
 
             # Run OCR pipeline (lazy load model)
             ocr = get_paddle_ocr(self.lang, self.use_gpu)
-            result = ocr.ocr(np.array(img), cls=True)
-            text_blocks = self._adapter.convert_result(result)
+            img_array = np.array(img)
+
+            # Use version-specific API
+            major_version = _get_paddle_major_version()
+            if major_version >= PADDLEOCR_V3_MAJOR:
+                result = ocr.predict(img_array)
+            else:
+                result = ocr.ocr(img_array, cls=True)
+
+            text_blocks = self._adapter.convert_result(result, major_version)
 
             result_page = Page(
                 page=page,

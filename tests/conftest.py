@@ -11,6 +11,7 @@ def vcr_config():
             ("authorization", "Bearer REDACTED"),
             ("x-api-key", "REDACTED"),
             ("api-key", "REDACTED"),
+            ("x-goog-api-key", "REDACTED"),
         ],
         "filter_post_data_parameters": [
             ("api_key", "REDACTED"),

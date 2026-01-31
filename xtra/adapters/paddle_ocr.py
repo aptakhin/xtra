@@ -10,6 +10,9 @@ from xtra.utils.geometry import polygon_to_bbox_and_rotation
 POLYGON_POINTS = 4
 COORDINATES_PER_POINT = 2
 
+# PaddleOCR 3.x introduced breaking API changes
+PADDLEOCR_V3_MAJOR = 3
+
 
 class PaddleOCRDetection(BaseModel):
     """A single text detection from PaddleOCR.
@@ -46,15 +49,17 @@ class PaddleOCRDetection(BaseModel):
 class PaddleOCRResult(BaseModel):
     """Validated PaddleOCR result for a single image.
 
-    PaddleOCR returns results as [[[bbox, (text, conf)], ...]] where the outer
+    PaddleOCR 2.x returns results as [[[bbox, (text, conf)], ...]] where the outer
     list is for batch processing (always length 1 for single image).
+
+    PaddleOCR 3.x returns results as [{rec_texts: [...], rec_scores: [...], rec_polys: [...]}]
     """
 
     detections: list[PaddleOCRDetection]
 
     @classmethod
     def from_paddle_output(cls, result: list | None) -> PaddleOCRResult:
-        """Parse and validate PaddleOCR's raw output format.
+        """Parse and validate PaddleOCR 2.x raw output format.
 
         Handles edge cases:
         - None result
@@ -73,20 +78,49 @@ class PaddleOCRResult(BaseModel):
 
         return cls(detections=detections)
 
+    @classmethod
+    def from_paddle_v3_output(cls, result: list | None) -> PaddleOCRResult:
+        """Parse and validate PaddleOCR 3.x raw output format.
+
+        PaddleOCR 3.x returns: [{rec_texts: [...], rec_scores: [...], rec_polys: [...]}]
+        """
+        detections: list[PaddleOCRDetection] = []
+
+        if not result or not result[0]:
+            return cls(detections=detections)
+
+        page_result = result[0]
+        rec_texts = page_result.get("rec_texts", [])
+        rec_scores = page_result.get("rec_scores", [])
+        rec_polys = page_result.get("rec_polys", [])
+
+        for text, score, poly in zip(rec_texts, rec_scores, rec_polys, strict=False):
+            # Convert numpy array to list of lists
+            polygon = [[float(p[0]), float(p[1])] for p in poly]
+            detections.append(
+                PaddleOCRDetection(polygon=polygon, text=text, confidence=float(score))
+            )
+
+        return cls(detections=detections)
+
 
 class PaddleOCRAdapter:
     """Converts PaddleOCR output to internal schema."""
 
-    def convert_result(self, result: list | None) -> list[TextBlock]:
+    def convert_result(self, result: list | None, major_version: int = 2) -> list[TextBlock]:
         """Convert PaddleOCR output to TextBlocks.
 
         Args:
-            result: Raw PaddleOCR output from ocr() method.
+            result: Raw PaddleOCR output from ocr() or predict() method.
+            major_version: PaddleOCR major version (2 or 3+).
 
         Returns:
             List of TextBlocks with coordinates in pixels.
         """
-        validated = PaddleOCRResult.from_paddle_output(result)
+        if major_version >= PADDLEOCR_V3_MAJOR:
+            validated = PaddleOCRResult.from_paddle_v3_output(result)
+        else:
+            validated = PaddleOCRResult.from_paddle_output(result)
         return self._detections_to_blocks(validated.detections)
 
     def _detections_to_blocks(self, detections: list[PaddleOCRDetection]) -> list[TextBlock]:
