@@ -278,6 +278,57 @@ def _run_llm_extraction(args: argparse.Namespace, pages: Sequence[int] | None) -
     _print_llm_result(result.data, args.json)
 
 
+def _run_doc_extraction(args: argparse.Namespace, pages: Sequence[int] | None) -> None:
+    """Run document extraction (OCR or PDF)."""
+    languages = [lang.strip() for lang in args.lang.split(",")]
+    extractor = _create_extractor(args, languages)
+    executor_type = ExecutorType(args.executor)
+
+    with extractor:
+        result = extractor.extract(pages=pages, max_workers=args.workers, executor=executor_type)
+
+        # Extract tables if requested
+        if args.tables:
+            if args.extractor == "pdf":
+                # Get page dimensions in points for coordinate conversion
+                # Use first page dimensions (typical for PDF documents)
+                page_width, page_height = extractor._pdf[0].get_size()
+                table_options = _build_table_options(args, page_width, page_height)
+                _extract_and_attach_tables(extractor, result, pages, table_options)
+            elif args.extractor in ("azure-di", "google-docai"):
+                # Tables are extracted automatically by these extractors
+                pass
+            elif args.extractor == "paddle":
+                # PaddleOCR uses PPStructure for table extraction
+                _extract_paddle_tables(extractor, result, pages)
+
+    _print_doc_result(result.document, args.json)
+
+
+def _print_doc_result(doc: Any, as_json: bool) -> None:
+    """Print document extraction result."""
+    if as_json:
+        # pydantic v2 uses model_dump_json, v1 uses json
+        if hasattr(doc, "model_dump_json"):
+            print(doc.model_dump_json(indent=2))
+        else:
+            print(doc.json(indent=2))
+    else:
+        for page in doc.pages:
+            print(f"=== Page {page.page + 1} ===")
+            for text in page.texts:
+                bbox = text.bbox
+                conf = f" ({text.confidence:.2f})" if text.confidence else ""
+                print(
+                    f"[{bbox.x0:.1f},{bbox.y0:.1f},{bbox.x1:.1f},{bbox.y1:.1f}]{conf} {text.text}"
+                )
+            # Print tables if present
+            for i, table in enumerate(page.tables):
+                print(f"\n--- Table {i + 1} ({table.row_count}x{table.col_count}) ---")
+                _print_table(table)
+            print()
+
+
 def _setup_parser() -> argparse.ArgumentParser:
     """Set up argument parser with all CLI options."""
     parser = argparse.ArgumentParser(description="Extract text from PDF/image files")
@@ -446,55 +497,11 @@ def main() -> None:
     if args.pages:
         pages = [int(p.strip()) for p in args.pages.split(",")]
 
-    # LLM extraction path
+    # Run extraction
     if args.llm:
         _run_llm_extraction(args, pages)
-        return
-
-    # Regular OCR extraction path
-    languages = [lang.strip() for lang in args.lang.split(",")]
-    extractor = _create_extractor(args, languages)
-    executor_type = ExecutorType(args.executor)
-
-    with extractor:
-        result = extractor.extract(pages=pages, max_workers=args.workers, executor=executor_type)
-
-        # Extract tables if requested
-        if args.tables:
-            if args.extractor == "pdf":
-                # Get page dimensions in points for coordinate conversion
-                # Use first page dimensions (typical for PDF documents)
-                page_width, page_height = extractor._pdf[0].get_size()
-                table_options = _build_table_options(args, page_width, page_height)
-                _extract_and_attach_tables(extractor, result, pages, table_options)
-            elif args.extractor in ("azure-di", "google-docai"):
-                # Tables are extracted automatically by these extractors
-                pass
-            elif args.extractor == "paddle":
-                # PaddleOCR uses PPStructure for table extraction
-                _extract_paddle_tables(extractor, result, pages)
-
-    doc = result.document
-    if args.json:
-        # pydantic v2 uses model_dump_json, v1 uses json
-        if hasattr(doc, "model_dump_json"):
-            print(doc.model_dump_json(indent=2))
-        else:
-            print(doc.json(indent=2))
     else:
-        for page in doc.pages:
-            print(f"=== Page {page.page + 1} ===")
-            for text in page.texts:
-                bbox = text.bbox
-                conf = f" ({text.confidence:.2f})" if text.confidence else ""
-                print(
-                    f"[{bbox.x0:.1f},{bbox.y0:.1f},{bbox.x1:.1f},{bbox.y1:.1f}]{conf} {text.text}"
-                )
-            # Print tables if present
-            for i, table in enumerate(page.tables):
-                print(f"\n--- Table {i + 1} ({table.row_count}x{table.col_count}) ---")
-                _print_table(table)
-            print()
+        _run_doc_extraction(args, pages)
 
 
 if __name__ == "__main__":
