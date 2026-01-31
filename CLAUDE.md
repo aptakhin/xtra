@@ -1,6 +1,16 @@
 # Project Guidelines for Claude
 
-> **Important:** Always also read [.claude/guidelines.md](.claude/guidelines.md) for additional project guidelines.
+## Critical Rules
+
+1. **TDD Always** - Write tests FIRST, then implement. Red → Green → Refactor.
+2. **Ask Questions** - Don't blindly execute. Question unclear requirements, suggest better approaches.
+3. **Always Commit** - Commit immediately after completing any feature or task.
+4. **No Mock Stubs** - Avoid mocks for coverage. If tests need credentials:
+   - Ask user to provide credentials to record cassettes
+   - Or exclude from coverage if unavailable
+   - Never fake coverage with mocks
+
+> See [.claude/guidelines.md](.claude/guidelines.md) for detailed guidelines.
 
 ## Build & Test Commands
 

@@ -48,7 +48,7 @@ jobs:
       - run: uv sync --group dev --all-extras
       - run: sudo apt-get update && sudo apt-get install -y tesseract-ocr
       - run: echo '${{ secrets.GOOGLE_DOCAI_CREDENTIALS }}' > /tmp/google_creds.json
-      - run: ./scripts/ci/test.sh
+      - run: ./scripts/ci/all-tests.sh
         env:
           XTRA_AZURE_DI_ENDPOINT: ${{ secrets.XTRA_AZURE_DI_ENDPOINT }}
           XTRA_AZURE_DI_KEY: ${{ secrets.XTRA_AZURE_DI_KEY }}
