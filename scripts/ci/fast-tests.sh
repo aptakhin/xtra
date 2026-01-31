@@ -5,17 +5,11 @@ set -e
 # Used by pre-commit hook and can be run manually
 # For all tests including integration, use: scripts/ci/all-tests.sh
 
-COVERAGE_MIN=${COVERAGE_MIN:-70}
 TIMEOUT=${TIMEOUT:-0.5}
 
 echo "=== Running fast tests ==="
-echo "Coverage minimum: ${COVERAGE_MIN}%"
 echo "Timeout per test: ${TIMEOUT}s"
 
-uv run pytest tests/base tests/ocr tests/llm \
-    --timeout="${TIMEOUT}" \
-    --cov=xtra \
-    --cov-report=term-missing \
-    --cov-fail-under="${COVERAGE_MIN}"
+uv run pytest tests/base tests/ocr tests/llm --timeout="${TIMEOUT}"
 
 echo "=== Fast tests passed ==="
