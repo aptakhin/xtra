@@ -4,9 +4,17 @@
       {
         "matcher": "Edit|Write",
         "command": "echo '⚠️  TDD: Have you written tests FIRST? Red → Green → Refactor'"
+      },
+      {
+        "matcher": "Edit|Write",
+        "command": "echo '⚠️  Check if the new option should be passed to cli to"
       }
     ],
     "PostToolUse": [
+      {
+        "matcher": "Task",
+        "command": "echo '⚠️  Remember: after the feature implementation look into README.md if changed things need to be updated!'"
+      },
       {
         "matcher": "Task",
         "command": "echo '⚠️  Remember: COMMIT when the feature is complete!'"

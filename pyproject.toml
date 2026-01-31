@@ -154,6 +154,7 @@ python-version = "3.11"
 # All tests should run by default to ensure full coverage.
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
+timeout = 2
 
 [tool.coverage.run]
 omit = [
