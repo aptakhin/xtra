@@ -9,6 +9,7 @@ Guidelines:
 - Use 2-letter ISO 639-1 language codes (e.g., "en", "fr", "de") for all extractors.
 """
 
+import os
 from pathlib import Path
 
 import pytest
@@ -31,8 +32,24 @@ OCR_EXTRACTORS = [
         id="paddle",
         marks=pytest.mark.skip(reason="Tested in test_paddle_ocr.py; CI has oneDNN issues"),
     ),
-    pytest.param(ExtractorType.AZURE_DI, "azure_document_intelligence", id="azure"),
-    pytest.param(ExtractorType.GOOGLE_DOCAI, "google_document_ai", id="google"),
+    pytest.param(
+        ExtractorType.AZURE_DI,
+        "azure_document_intelligence",
+        id="azure",
+        marks=pytest.mark.skipif(
+            not os.environ.get("UNIFEX_AZURE_DI_ENDPOINT"),
+            reason="Azure credentials not configured",
+        ),
+    ),
+    pytest.param(
+        ExtractorType.GOOGLE_DOCAI,
+        "google_document_ai",
+        id="google",
+        marks=pytest.mark.skipif(
+            not os.environ.get("UNIFEX_GOOGLE_DOCAI_PROCESSOR_NAME"),
+            reason="Google credentials not configured",
+        ),
+    ),
 ]
 
 # Local OCR extractors only (for image tests - cloud APIs don't support raw images)
