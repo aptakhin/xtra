@@ -98,8 +98,15 @@ jobs:
       - name: Install tesseract (Windows)
         if: runner.os == 'Windows'
         run: choco install tesseract
-      - run: pip install opencv-python-headless
-      - run: uv sync --group dev --all-extras
+      # paddlepaddle doesn't have wheels for Python 3.14 yet, so install all extras except paddle
+      - name: Install dependencies (Python 3.14 - no paddle)
+        if: matrix.python-version == '3.14'
+        run: uv sync --group dev --extra pdf --extra tables --extra easyocr --extra tesseract --extra azure --extra google --extra llm-all
+      - name: Install dependencies (Python 3.11-3.13 - all extras)
+        if: matrix.python-version != '3.14'
+        run: |
+          pip install opencv-python-headless
+          uv sync --group dev --all-extras
       - name: Run tests (local models and cassettes only)
         run: uv run pytest
         env:
