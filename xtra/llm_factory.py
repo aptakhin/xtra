@@ -2,22 +2,56 @@
 
 from __future__ import annotations
 
+import asyncio
 import os
+from collections.abc import Awaitable, Callable
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
 from pathlib import Path
-from typing import Any, TypeVar, overload
+from typing import Any, TypeVar, cast, overload
 
 from pydantic import BaseModel
 
 from xtra.base import ExecutorType
 from xtra.llm.models import (
-    LLMBatchExtractionResult,
-    LLMBatchResult,
     LLMExtractionResult,
     LLMProvider,
 )
 
 T = TypeVar("T", bound=BaseModel)
+
+# Type aliases for extractor callables (used for dependency injection in tests)
+SingleExtractor = Callable[
+    [
+        Path,
+        str,
+        type[T] | None,
+        str | None,
+        list[int] | None,
+        int,
+        int,
+        float,
+        dict[str, str] | None,
+        str | None,
+        dict[str, str] | None,
+    ],
+    LLMExtractionResult[T | dict[str, Any]],
+]
+AsyncSingleExtractor = Callable[
+    [
+        Path,
+        str,
+        type[T] | None,
+        str | None,
+        list[int] | None,
+        int,
+        int,
+        float,
+        dict[str, str] | None,
+        str | None,
+        dict[str, str] | None,
+    ],
+    Awaitable[LLMExtractionResult[T | dict[str, Any]]],
+]
 
 
 # Model to provider mapping for inference
@@ -58,72 +92,20 @@ def _get_credential(key: str, credentials: dict[str, str] | None) -> str | None:
     return os.environ.get(key)
 
 
-@overload
-def extract_structured(
-    path: Path | str,
+def _extract_single(  # noqa: PLR0913
+    path: Path,
     model: str,
-    *,
-    schema: type[T],
-    prompt: str | None = None,
-    pages: list[int] | None = None,
-    dpi: int = 200,
-    max_retries: int = 3,
-    temperature: float = 0.0,
-    credentials: dict[str, str] | None = None,
-    base_url: str | None = None,
-    headers: dict[str, str] | None = None,
-) -> LLMExtractionResult[T]: ...
-
-
-@overload
-def extract_structured(
-    path: Path | str,
-    model: str,
-    *,
-    schema: None = None,
-    prompt: str | None = None,
-    pages: list[int] | None = None,
-    dpi: int = 200,
-    max_retries: int = 3,
-    temperature: float = 0.0,
-    credentials: dict[str, str] | None = None,
-    base_url: str | None = None,
-    headers: dict[str, str] | None = None,
-) -> LLMExtractionResult[dict[str, Any]]: ...
-
-
-def extract_structured(  # noqa: PLR0913
-    path: Path | str,
-    model: str,
-    *,
-    schema: type[T] | None = None,
-    prompt: str | None = None,
-    pages: list[int] | None = None,
-    dpi: int = 200,
-    max_retries: int = 3,
-    temperature: float = 0.0,
-    credentials: dict[str, str] | None = None,
-    base_url: str | None = None,
-    headers: dict[str, str] | None = None,
+    schema: type[T] | None,
+    prompt: str | None,
+    pages: list[int] | None,
+    dpi: int,
+    max_retries: int,
+    temperature: float,
+    credentials: dict[str, str] | None,
+    base_url: str | None,
+    headers: dict[str, str] | None,
 ) -> LLMExtractionResult[T | dict[str, Any]]:
-    """Extract structured data from a document using an LLM.
-
-    Args:
-        path: Path to document/image file.
-        model: Model identifier (e.g., "openai/gpt-4o", "anthropic/claude-3-5-sonnet").
-        schema: Pydantic model for structured output. None for free-form dict.
-        prompt: Custom extraction prompt. Auto-generated from schema if None.
-        pages: Page numbers to extract from (0-indexed). None for all pages.
-        dpi: DPI for PDF-to-image conversion.
-        max_retries: Max retry attempts with validation feedback.
-        temperature: Sampling temperature (0.0 = deterministic).
-        credentials: Override credentials dict (otherwise uses env vars).
-        base_url: Custom API base URL for OpenAI-compatible APIs (vLLM, Ollama, etc.).
-        headers: Custom HTTP headers for OpenAI-compatible APIs.
-
-    Returns:
-        LLMExtractionResult containing extracted data, model info, and provider.
-    """
+    """Extract from specified pages in a single request. Internal helper."""
     provider, model_name = _parse_model_string(model)
 
     if provider == LLMProvider.OPENAI:
@@ -179,7 +161,6 @@ def extract_structured(  # noqa: PLR0913
     elif provider == LLMProvider.AZURE_OPENAI:
         from xtra.llm.extractors.azure_openai import extract_azure_openai
 
-        # Try AZURE_OPENAI_* first, fall back to XTRA_AZURE_DI_* for consistency
         api_key = _get_credential("AZURE_OPENAI_API_KEY", credentials) or _get_credential(
             "XTRA_AZURE_DI_KEY", credentials
         )
@@ -210,55 +191,20 @@ def extract_structured(  # noqa: PLR0913
         raise ValueError(f"Unknown provider: {provider}")
 
 
-@overload
-async def extract_structured_async(
-    path: Path | str,
+async def _extract_single_async(  # noqa: PLR0913
+    path: Path,
     model: str,
-    *,
-    schema: type[T],
-    prompt: str | None = None,
-    pages: list[int] | None = None,
-    dpi: int = 200,
-    max_retries: int = 3,
-    temperature: float = 0.0,
-    credentials: dict[str, str] | None = None,
-    base_url: str | None = None,
-    headers: dict[str, str] | None = None,
-) -> LLMExtractionResult[T]: ...
-
-
-@overload
-async def extract_structured_async(
-    path: Path | str,
-    model: str,
-    *,
-    schema: None = None,
-    prompt: str | None = None,
-    pages: list[int] | None = None,
-    dpi: int = 200,
-    max_retries: int = 3,
-    temperature: float = 0.0,
-    credentials: dict[str, str] | None = None,
-    base_url: str | None = None,
-    headers: dict[str, str] | None = None,
-) -> LLMExtractionResult[dict[str, Any]]: ...
-
-
-async def extract_structured_async(  # noqa: PLR0913
-    path: Path | str,
-    model: str,
-    *,
-    schema: type[T] | None = None,
-    prompt: str | None = None,
-    pages: list[int] | None = None,
-    dpi: int = 200,
-    max_retries: int = 3,
-    temperature: float = 0.0,
-    credentials: dict[str, str] | None = None,
-    base_url: str | None = None,
-    headers: dict[str, str] | None = None,
+    schema: type[T] | None,
+    prompt: str | None,
+    pages: list[int] | None,
+    dpi: int,
+    max_retries: int,
+    temperature: float,
+    credentials: dict[str, str] | None,
+    base_url: str | None,
+    headers: dict[str, str] | None,
 ) -> LLMExtractionResult[T | dict[str, Any]]:
-    """Async version of extract_structured."""
+    """Extract from specified pages in a single async request. Internal helper."""
     provider, model_name = _parse_model_string(model)
 
     if provider == LLMProvider.OPENAI:
@@ -314,7 +260,6 @@ async def extract_structured_async(  # noqa: PLR0913
     elif provider == LLMProvider.AZURE_OPENAI:
         from xtra.llm.extractors.azure_openai import extract_azure_openai_async
 
-        # Try AZURE_OPENAI_* first, fall back to XTRA_AZURE_DI_* for consistency
         api_key = _get_credential("AZURE_OPENAI_API_KEY", credentials) or _get_credential(
             "XTRA_AZURE_DI_KEY", credentials
         )
@@ -345,81 +290,14 @@ async def extract_structured_async(  # noqa: PLR0913
         raise ValueError(f"Unknown provider: {provider}")
 
 
-def _batch_pages(pages: list[int], pages_per_batch: int) -> list[list[int]]:
-    """Split pages into batches.
-
-    Args:
-        pages: List of page numbers to split.
-        pages_per_batch: Number of pages per batch.
-
-    Returns:
-        List of page batches.
-    """
-    if not pages:
-        return []
-    return [pages[i : i + pages_per_batch] for i in range(0, len(pages), pages_per_batch)]
-
-
-def _extract_batch(  # noqa: PLR0913
-    path: Path,
-    model: str,
-    batch_pages: list[int],
-    provider: LLMProvider,
-    model_name: str,
-    schema: type[T] | None,
-    prompt: str | None,
-    dpi: int,
-    max_retries: int,
-    temperature: float,
-    credentials: dict[str, str] | None,
-    base_url: str | None,
-    headers: dict[str, str] | None,
-) -> LLMBatchResult[T | dict[str, Any]]:
-    """Extract a single batch of pages.
-
-    Internal helper that wraps extract_structured and returns a batch result.
-    """
-    try:
-        result = extract_structured(
-            path=path,
-            model=model,
-            schema=schema,
-            prompt=prompt,
-            pages=batch_pages,
-            dpi=dpi,
-            max_retries=max_retries,
-            temperature=temperature,
-            credentials=credentials,
-            base_url=base_url,
-            headers=headers,
-        )
-        return LLMBatchResult(
-            data=result.data,
-            pages=batch_pages,
-            model=model_name,
-            provider=provider,
-            usage=result.usage,
-            success=True,
-        )
-    except Exception as e:
-        return LLMBatchResult(
-            data=None,
-            pages=batch_pages,
-            model=model_name,
-            provider=provider,
-            success=False,
-            error=str(e),
-        )
-
-
-def extract_structured_parallel(  # noqa: PLR0913
+@overload
+def extract_structured(
     path: Path | str,
     model: str,
     *,
-    schema: type[T] | None = None,
+    schema: type[T],
     prompt: str | None = None,
     pages: list[int] | None = None,
-    pages_per_batch: int = 1,
     max_workers: int = 1,
     executor: ExecutorType = ExecutorType.THREAD,
     dpi: int = 200,
@@ -428,83 +306,128 @@ def extract_structured_parallel(  # noqa: PLR0913
     credentials: dict[str, str] | None = None,
     base_url: str | None = None,
     headers: dict[str, str] | None = None,
-) -> LLMBatchExtractionResult[T | dict[str, Any]]:
-    """Extract structured data with parallel processing across page batches.
+    _extractor: Any = None,
+) -> LLMExtractionResult[T]: ...
+
+
+@overload
+def extract_structured(
+    path: Path | str,
+    model: str,
+    *,
+    schema: None = None,
+    prompt: str | None = None,
+    pages: list[int] | None = None,
+    max_workers: int = 1,
+    executor: ExecutorType = ExecutorType.THREAD,
+    dpi: int = 200,
+    max_retries: int = 3,
+    temperature: float = 0.0,
+    credentials: dict[str, str] | None = None,
+    base_url: str | None = None,
+    headers: dict[str, str] | None = None,
+    _extractor: Any = None,
+) -> LLMExtractionResult[dict[str, Any]]: ...
+
+
+def extract_structured(  # noqa: PLR0913
+    path: Path | str,
+    model: str,
+    *,
+    schema: type[T] | None = None,
+    prompt: str | None = None,
+    pages: list[int] | None = None,
+    max_workers: int = 1,
+    executor: ExecutorType = ExecutorType.THREAD,
+    dpi: int = 200,
+    max_retries: int = 3,
+    temperature: float = 0.0,
+    credentials: dict[str, str] | None = None,
+    base_url: str | None = None,
+    headers: dict[str, str] | None = None,
+    _extractor: SingleExtractor[T] | None = None,
+) -> LLMExtractionResult[T | dict[str, Any]]:
+    """Extract structured data from a document using an LLM.
 
     Args:
         path: Path to document/image file.
-        model: Model identifier (e.g., "openai/gpt-4o").
+        model: Model identifier (e.g., "openai/gpt-4o", "anthropic/claude-3-5-sonnet").
         schema: Pydantic model for structured output. None for free-form dict.
-        prompt: Custom extraction prompt.
-        pages: Page numbers to extract (0-indexed). None for all pages.
-        pages_per_batch: Number of pages per LLM request.
-        max_workers: Number of parallel workers. 1 means sequential.
-        executor: Type of executor (THREAD or PROCESS).
+        prompt: Custom extraction prompt. Auto-generated from schema if None.
+        pages: Page numbers to extract from (0-indexed). None for all pages.
+        max_workers: Number of parallel workers. 1 means sequential (all pages in one request).
+                     >1 means parallel (1 page per request, results merged into list).
+        executor: Type of executor (THREAD or PROCESS) for parallel extraction.
         dpi: DPI for PDF-to-image conversion.
         max_retries: Max retry attempts with validation feedback.
-        temperature: Sampling temperature.
-        credentials: Override credentials dict.
-        base_url: Custom API base URL for OpenAI-compatible APIs.
-        headers: Custom HTTP headers.
+        temperature: Sampling temperature (0.0 = deterministic).
+        credentials: Override credentials dict (otherwise uses env vars).
+        base_url: Custom API base URL for OpenAI-compatible APIs (vLLM, Ollama, etc.).
+        headers: Custom HTTP headers for OpenAI-compatible APIs.
+        _extractor: Internal parameter for dependency injection (testing only).
 
     Returns:
-        LLMBatchExtractionResult containing results from each batch.
+        LLMExtractionResult containing extracted data, model info, and provider.
+        When max_workers > 1, data is a list of per-page results.
     """
     path = Path(path) if isinstance(path, str) else path
     provider, model_name = _parse_model_string(model)
+    extractor = _extractor or _extract_single
 
-    # Get page count if pages not specified
+    # Single-threaded: all pages in one request
+    if max_workers <= 1:
+        return extractor(
+            path,
+            model,
+            schema,
+            prompt,
+            pages,
+            dpi,
+            max_retries,
+            temperature,
+            credentials,
+            base_url,
+            headers,
+        )
+
+    # Parallel: 1 page per request
+    from xtra.base import ImageLoader
+
+    # Get all pages if not specified
     if pages is None:
-        from xtra.base import ImageLoader
-
         loader = ImageLoader(path, dpi=dpi)
         pages = list(range(loader.page_count))
         loader.close()
 
-    # Create batches
-    batches = _batch_pages(pages, pages_per_batch)
-
-    # Sequential execution for single batch or single worker
-    if max_workers <= 1 or len(batches) <= 1:
-        results: list[LLMBatchResult[T | dict[str, Any]]] = []
-        for batch in batches:
-            result = _extract_batch(
-                path=path,
-                model=model,
-                batch_pages=batch,
-                provider=provider,
-                model_name=model_name,
-                schema=schema,
-                prompt=prompt,
-                dpi=dpi,
-                max_retries=max_retries,
-                temperature=temperature,
-                credentials=credentials,
-                base_url=base_url,
-                headers=headers,
-            )
-            results.append(result)
-        return LLMBatchExtractionResult(
-            batch_results=results,
-            model=model_name,
-            provider=provider,
+    # Single page - no need for parallel
+    if len(pages) <= 1:
+        return extractor(
+            path,
+            model,
+            schema,
+            prompt,
+            pages,
+            dpi,
+            max_retries,
+            temperature,
+            credentials,
+            base_url,
+            headers,
         )
 
     # Parallel execution
     executor_class = ProcessPoolExecutor if executor == ExecutorType.PROCESS else ThreadPoolExecutor
 
-    parallel_results: list[LLMBatchResult[T | dict[str, Any]] | None] = [None] * len(batches)
+    results: list[LLMExtractionResult[T | dict[str, Any]] | Exception] = [None] * len(pages)  # type: ignore[list-item]
     with executor_class(max_workers=max_workers) as pool:
         future_to_idx = {
             pool.submit(
-                _extract_batch,
+                extractor,
                 path,
                 model,
-                batch,
-                provider,
-                model_name,
                 schema,
                 prompt,
+                [page],  # Single page per request
                 dpi,
                 max_retries,
                 temperature,
@@ -512,24 +435,200 @@ def extract_structured_parallel(  # noqa: PLR0913
                 base_url,
                 headers,
             ): i
-            for i, batch in enumerate(batches)
+            for i, page in enumerate(pages)
         }
         for future in as_completed(future_to_idx):
             idx = future_to_idx[future]
             try:
-                parallel_results[idx] = future.result()
+                results[idx] = future.result()
             except Exception as e:
-                parallel_results[idx] = LLMBatchResult(
-                    data=None,
-                    pages=batches[idx],
-                    model=model_name,
-                    provider=provider,
-                    success=False,
-                    error=str(e),
-                )
+                results[idx] = e
 
-    return LLMBatchExtractionResult(
-        batch_results=parallel_results,  # type: ignore[arg-type]
-        model=model_name,
-        provider=provider,
+    # Merge results: collect all data into a list
+    merged_data: list[T | dict[str, Any]] = []
+    total_usage: dict[str, int] = {}
+    for i, res in enumerate(results):
+        if isinstance(res, Exception):
+            raise ValueError(f"Extraction failed for page {pages[i]}: {res}") from res
+        extraction_result: LLMExtractionResult[T | dict[str, Any]] = res
+        merged_data.append(extraction_result.data)
+        if extraction_result.usage:
+            for key, value in extraction_result.usage.items():
+                total_usage[key] = total_usage.get(key, 0) + value
+
+    return cast(
+        "LLMExtractionResult[T | dict[str, Any]]",
+        LLMExtractionResult(
+            data=merged_data,
+            model=model_name,
+            provider=provider,
+            usage=total_usage if total_usage else None,
+        ),
+    )
+
+
+@overload
+async def extract_structured_async(
+    path: Path | str,
+    model: str,
+    *,
+    schema: type[T],
+    prompt: str | None = None,
+    pages: list[int] | None = None,
+    max_workers: int = 1,
+    dpi: int = 200,
+    max_retries: int = 3,
+    temperature: float = 0.0,
+    credentials: dict[str, str] | None = None,
+    base_url: str | None = None,
+    headers: dict[str, str] | None = None,
+    _extractor: Any = None,
+) -> LLMExtractionResult[T]: ...
+
+
+@overload
+async def extract_structured_async(
+    path: Path | str,
+    model: str,
+    *,
+    schema: None = None,
+    prompt: str | None = None,
+    pages: list[int] | None = None,
+    max_workers: int = 1,
+    dpi: int = 200,
+    max_retries: int = 3,
+    temperature: float = 0.0,
+    credentials: dict[str, str] | None = None,
+    base_url: str | None = None,
+    headers: dict[str, str] | None = None,
+    _extractor: Any = None,
+) -> LLMExtractionResult[dict[str, Any]]: ...
+
+
+async def extract_structured_async(  # noqa: PLR0913
+    path: Path | str,
+    model: str,
+    *,
+    schema: type[T] | None = None,
+    prompt: str | None = None,
+    pages: list[int] | None = None,
+    max_workers: int = 1,
+    dpi: int = 200,
+    max_retries: int = 3,
+    temperature: float = 0.0,
+    credentials: dict[str, str] | None = None,
+    base_url: str | None = None,
+    headers: dict[str, str] | None = None,
+    _extractor: AsyncSingleExtractor[T] | None = None,
+) -> LLMExtractionResult[T | dict[str, Any]]:
+    """Async version of extract_structured.
+
+    Args:
+        path: Path to document/image file.
+        model: Model identifier (e.g., "openai/gpt-4o", "anthropic/claude-3-5-sonnet").
+        schema: Pydantic model for structured output. None for free-form dict.
+        prompt: Custom extraction prompt. Auto-generated from schema if None.
+        pages: Page numbers to extract from (0-indexed). None for all pages.
+        max_workers: Number of concurrent requests. 1 means sequential (all pages in one request).
+                     >1 means parallel (1 page per request, results merged into list).
+        dpi: DPI for PDF-to-image conversion.
+        max_retries: Max retry attempts with validation feedback.
+        temperature: Sampling temperature (0.0 = deterministic).
+        credentials: Override credentials dict (otherwise uses env vars).
+        base_url: Custom API base URL for OpenAI-compatible APIs (vLLM, Ollama, etc.).
+        headers: Custom HTTP headers for OpenAI-compatible APIs.
+        _extractor: Internal parameter for dependency injection (testing only).
+
+    Returns:
+        LLMExtractionResult containing extracted data, model info, and provider.
+        When max_workers > 1, data is a list of per-page results.
+    """
+    path = Path(path) if isinstance(path, str) else path
+    provider, model_name = _parse_model_string(model)
+    extractor = _extractor or _extract_single_async
+
+    # Single request: all pages in one request
+    if max_workers <= 1:
+        return await extractor(
+            path,
+            model,
+            schema,
+            prompt,
+            pages,
+            dpi,
+            max_retries,
+            temperature,
+            credentials,
+            base_url,
+            headers,
+        )
+
+    # Parallel: 1 page per request
+    from xtra.base import ImageLoader
+
+    # Get all pages if not specified
+    if pages is None:
+        loader = ImageLoader(path, dpi=dpi)
+        pages = list(range(loader.page_count))
+        loader.close()
+
+    # Single page - no need for parallel
+    if len(pages) <= 1:
+        return await extractor(
+            path,
+            model,
+            schema,
+            prompt,
+            pages,
+            dpi,
+            max_retries,
+            temperature,
+            credentials,
+            base_url,
+            headers,
+        )
+
+    # Parallel async execution with semaphore to limit concurrency
+    semaphore = asyncio.Semaphore(max_workers)
+
+    async def extract_with_limit(page: int) -> LLMExtractionResult[T | dict[str, Any]]:
+        async with semaphore:
+            return await extractor(
+                path,
+                model,
+                schema,
+                prompt,
+                [page],
+                dpi,
+                max_retries,
+                temperature,
+                credentials,
+                base_url,
+                headers,
+            )
+
+    # Run all extractions concurrently (limited by semaphore)
+    tasks = [extract_with_limit(page) for page in pages]
+    results = await asyncio.gather(*tasks, return_exceptions=True)
+
+    # Merge results: collect all data into a list
+    merged_data: list[T | dict[str, Any]] = []
+    total_usage: dict[str, int] = {}
+    for i, res in enumerate(results):
+        if isinstance(res, Exception):
+            raise ValueError(f"Extraction failed for page {pages[i]}: {res}") from res
+        extraction_result: LLMExtractionResult[T | dict[str, Any]] = res  # type: ignore[assignment]
+        merged_data.append(extraction_result.data)
+        if extraction_result.usage:
+            for key, value in extraction_result.usage.items():
+                total_usage[key] = total_usage.get(key, 0) + value
+
+    return cast(
+        "LLMExtractionResult[T | dict[str, Any]]",
+        LLMExtractionResult(
+            data=merged_data,
+            model=model_name,
+            provider=provider,
+            usage=total_usage if total_usage else None,
+        ),
     )
